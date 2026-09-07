@@ -935,7 +935,7 @@
       } catch (e) {}
     }
 
-    // HIGH-DEFINITION TTS ENGINE (Google Studio Voice + Web Speech Fallback)
+    // HIGH-DEFINITION TTS ENGINE (DIRECT GOOGLE AUDIO STREAM)
     let currentTtsAudio = null;
     function speakText(text, lang = "en") {
       if (!text) return;
@@ -948,12 +948,17 @@
         currentTtsAudio.currentTime = 0;
       }
 
-      // Method 1: Google TTS Stream (100% stable, clear studio sound)
-      const audioUrl = `/api/tts?tl=${lang}&q=${encodeURIComponent(clean)}`;
-      currentTtsAudio = new Audio(audioUrl);
-      currentTtsAudio.play().catch(e => {
-        // Method 2: Web Speech API fallback with Chrome bug fixes
-        fallbackSpeechSynthesis(clean, lang);
+      // Direct Google TTS stream (no server needed, works 100% on Vercel and mobile)
+      const directUrl = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${lang}&q=${encodeURIComponent(clean)}`;
+      currentTtsAudio = new Audio(directUrl);
+      currentTtsAudio.play().catch(() => {
+        // Fallback: try local server endpoint
+        const serverUrl = `/api/tts?tl=${lang}&q=${encodeURIComponent(clean)}`;
+        currentTtsAudio = new Audio(serverUrl);
+        currentTtsAudio.play().catch(() => {
+          // Fallback: browser speech synthesis
+          fallbackSpeechSynthesis(clean, lang);
+        });
       });
     }
 
@@ -964,55 +969,118 @@
       const utter = new SpeechSynthesisUtterance(text);
       utter.lang = lang === "vi" ? "vi-VN" : "en-US";
       utter.rate = 0.95;
-      window.activeUtterance = utter; // Prevent GC on Chrome
+      window.activeUtterance = utter;
       window.speechSynthesis.speak(utter);
     }
 
-    // LOAD SETS LIST ON START (WITH STATIC CDN FALLBACK)
+        // CUSTOM SETS IN LOCALSTORAGE (WORKS 100% ON VERCEL & OFFLINE)
+    function getStoredCustomSets() {
+      try {
+        const raw = localStorage.getItem("qp_custom_sets");
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) { return []; }
+    }
+    function saveCustomSet(setObj) {
+      try {
+        const sets = getStoredCustomSets().filter(s => String(s.id) !== String(setObj.id));
+        sets.unshift(setObj);
+        localStorage.setItem("qp_custom_sets", JSON.stringify(sets));
+      } catch (e) {}
+    }
+
+    // LOAD SETS LIST ON START (OFFLINE & VERCEL RESILIENT)
     async function loadSetsList(selectedId = null) {
       const select = document.getElementById("set-select");
+      select.innerHTML = "";
+
+      // 1. Built-in Test 1 set
+      const allSets = [
+        { id: "927731678", title: "READING PART 5 6 TEST 1", numTerms: 60 }
+      ];
+
+      // 2. Custom sets from localStorage
+      const customSets = getStoredCustomSets().map(s => ({
+        id: s.id,
+        title: s.title,
+        numTerms: s.cards ? s.cards.length : (s.numTerms || 0)
+      }));
+      customSets.forEach(cs => {
+        if (!allSets.some(item => String(item.id) === String(cs.id))) {
+          allSets.push(cs);
+        }
+      });
+
+      // 3. If local backend exists, query it too
       try {
         const res = await fetch("/api/sets");
-        if (!res.ok) throw new Error("API not available");
-        const data = await res.json();
-        select.innerHTML = "";
-        if (data.sets && data.sets.length > 0) {
-          data.sets.forEach(s => {
-            const opt = document.createElement("option");
-            opt.value = s.id;
-            opt.textContent = `${s.title} (${s.numTerms} thẻ)`;
-            select.appendChild(opt);
-          });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && Array.isArray(data.sets)) {
+            data.sets.forEach(s => {
+              if (!allSets.some(item => String(item.id) === String(s.id))) {
+                allSets.push(s);
+              }
+            });
+          }
         }
-        if (selectedId) select.value = selectedId;
-        else if (data.sets && data.sets.length > 0) select.value = data.sets[0].id;
-        if (select.value) loadSetData(select.value);
-      } catch (e) {
-        console.warn("Fallback to static CDN data:", e);
-        select.innerHTML = `<option value="927731678">READING PART 5 6 TEST 1 (60 thẻ)</option>`;
-        loadSetData("927731678");
+      } catch (e) {}
+
+      allSets.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s.id;
+        opt.textContent = `${s.title} (${s.numTerms} thẻ)`;
+        select.appendChild(opt);
+      });
+
+      if (selectedId) select.value = selectedId;
+      else if (allSets.length > 0) select.value = allSets[0].id;
+
+      if (select.value) {
+        loadSetData(select.value);
       }
     }
 
-    // LOAD SPECIFIC SET (WITH STATIC CDN FALLBACK)
+    // LOAD SPECIFIC SET (INSTANT STATIC CDN & LOCALSTORAGE)
     async function loadSetData(setId) {
       try {
-        let res = await fetch(`/api/sets/${setId}`);
-        if (!res.ok) {
-          res = await fetch(`/data/sets/${setId}.json`);
-        }
-        const setObj = await res.json();
-        currentSet = setObj;
-        document.getElementById("list-modal-title").innerText = `📋 ${setObj.title} (${setObj.numTerms} thẻ)`;
+        let setObj = null;
 
-        // Init cards state
+        // 1. Check custom sets in localStorage
+        const custom = getStoredCustomSets().find(s => String(s.id) === String(setId));
+        if (custom) {
+          setObj = custom;
+        } else {
+          // 2. Load static json from Vercel Edge CDN
+          try {
+            const res = await fetch(`/data/sets/${setId}.json`);
+            if (res.ok) setObj = await res.json();
+          } catch (e) {}
+
+          // 3. Try /api/sets/${setId} as fallback
+          if (!setObj) {
+            try {
+              const res = await fetch(`/api/sets/${setId}`);
+              if (res.ok) setObj = await res.json();
+            } catch (e) {}
+          }
+        }
+
+        if (!setObj) {
+          console.error("Không thể tải bộ thẻ:", setId);
+          return;
+        }
+
+        currentSet = setObj;
+        const totalCount = setObj.cards ? setObj.cards.length : (setObj.numTerms || 0);
+        document.getElementById("list-modal-title").innerText = `📋 ${setObj.title} (${totalCount} thẻ)`;
+
         const savedProgress = loadProgressFromStorage(setId);
-        cardsState = setObj.cards.map((c, idx) => {
+        cardsState = (setObj.cards || []).map((c, idx) => {
           const sv = savedProgress[c.id || idx] || {};
           return {
             id: c.id || idx,
-            term: c.term,
-            definition: c.definition,
+            term: c.term || "",
+            definition: c.definition || "",
             image: c.image || "",
             mastery: sv.mastery || 0,
             starred: !!sv.starred,
@@ -1023,7 +1091,7 @@
         updateProgressUI();
         startModeView();
       } catch (e) {
-        alert("Không thể tải bộ thẻ: " + e.message);
+        console.error("Lỗi trong loadSetData:", e);
       }
     }
 
@@ -1048,22 +1116,28 @@
       } catch (e) {}
     }
 
-    // SCRAPE TRIGGER (WITH PROGRESS STATUS)
+    // SCRAPE TRIGGER (SMART CLOUD & LOCAL DETECTION)
     async function triggerScrape() {
       const urlInput = document.getElementById("scrape-url-input");
       const url = urlInput.value.trim();
       if (!url) {
-        alert("Vui lòng dán đường link bộ thẻ Quizlet (VD: https://quizlet.com/vn/927731678/...)");
+        alert("Vui lòng dán đường link bộ thẻ Quizlet!");
+        return;
+      }
+
+      // Check if running on Vercel
+      const isVercel = window.location.hostname.includes("vercel.app");
+      if (isVercel) {
+        toggleManualModal();
+        alert("💡 Lưu ý khi dùng trên Vercel Online:\n\nDo Quizlet chặn các máy chủ đám mây (Cloudflare Bot Protection), nên chức năng cào tự động chỉ chạy được khi mày chạy app trên máy tính (bằng file Chay_Quizlet_Pro.command).\n\n👉 Để thêm bộ thẻ này vào web Vercel học ngay chỉ trong 3 giây:\n1. Mở bộ thẻ trên Quizlet\n2. Bấm nút [...] -> chọn \"Xuất\" (Export) -> bấm \"Sao chép văn bản\"\n3. Dán vào bảng vừa mở rồi bấm \"Lưu & Học ngay\" là xong nhé!");
         return;
       }
 
       const btn = document.getElementById("btn-scrape");
       const oldHtml = btn.innerHTML;
-      btn.innerHTML = `<span class="loading-spinner"></span> Đang vượt Cloudflare...`;
+      btn.innerHTML = `<span class="loading-spinner"></span> Đang cào...`;
       btn.disabled = true;
-
-      // Show floating status toast
-      showToast("⏳ Đang kết nối Quizlet và tự động vượt Cloudflare để cào từ vựng & ảnh (khoảng 10-15s)...", 15000);
+      showToast("⏳ Đang kết nối Chrome và tự động vượt Cloudflare để cào từ & ảnh...", 15000);
 
       try {
         const res = await fetch("/api/scrape", {
@@ -1071,16 +1145,19 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ url: url })
         });
-        const data = await res.json();
+        const text = await res.text();
+        let data = {};
+        try { data = JSON.parse(text); } catch(e) { throw new Error("Phản hồi không hợp lệ: " + text.substring(0, 100)); }
+
         if (data.status === "ok") {
           urlInput.value = "";
           await loadSetsList(data.set.id);
           showToast(`🎉 Đã cào thành công bộ thẻ: "${data.set.title}" (${data.set.numTerms} từ & ảnh)!`, 4000);
         } else {
-          alert("Lỗi khi cào dữ liệu: " + data.message);
+          alert("Lỗi: " + data.message);
         }
       } catch (e) {
-        alert("Lỗi kết nối tới server: " + e.message);
+        alert("Lỗi cào thẻ: " + e.message);
       } finally {
         btn.innerHTML = oldHtml;
         btn.disabled = false;
@@ -1100,40 +1177,56 @@
       setTimeout(() => { if (toast) toast.style.display = "none"; }, duration);
     }
 
-    // MANUAL IMPORT
+    // MANUAL IMPORT (QUIZLET EXPORT & TSV PARSER - SAVES TO LOCALSTORAGE)
     async function submitManualImport() {
-      const title = document.getElementById("manual-title").value.trim();
+      const title = document.getElementById("manual-title").value.trim() || "Bộ thẻ mới";
       const text = document.getElementById("manual-text").value.trim();
-      if (!text) { alert("Vui lòng nhập nội dung thẻ!"); return; }
+      if (!text) { alert("Vui lòng dán nội dung từ vựng!"); return; }
 
       const lines = text.split("\n");
       const cards = [];
       lines.forEach((line, idx) => {
         const l = line.trim();
         if (!l) return;
-        let parts = l.split(/\t| - | – | = /);
+        // Quizlet Export format: tab, or " - ", or " – ", or "="
+        let parts = l.split(/\t|\s{2,}| - | – | = /);
         if (parts.length >= 2) {
-          cards.push({ id: idx + 1, term: parts[0].trim(), definition: parts.slice(1).join(" - ").trim(), image: "" });
+          cards.push({ id: Date.now() + idx, term: parts[0].trim(), definition: parts.slice(1).join(" - ").trim(), image: "" });
+        } else if (l.includes(",")) {
+          let cparts = l.split(",");
+          cards.push({ id: Date.now() + idx, term: cparts[0].trim(), definition: cparts.slice(1).join(", ").trim(), image: "" });
         } else {
-          cards.push({ id: idx + 1, term: l, definition: "", image: "" });
+          cards.push({ id: Date.now() + idx, term: l, definition: "", image: "" });
         }
       });
 
-      if (cards.length === 0) { alert("Không thể nhận diện định dạng từ vựng!"); return; }
+      if (cards.length === 0) { alert("Không thể nhận diện nội dung từ vựng!"); return; }
 
+      const newSet = {
+        id: "set_" + Date.now(),
+        title: title,
+        description: "Nhập thủ công",
+        numTerms: cards.length,
+        cards: cards
+      };
+
+      // Save to browser localStorage (works 100% on Vercel)
+      saveCustomSet(newSet);
+
+      // Also try saving to server if local backend is running
       try {
-        const res = await fetch("/api/manual-import", {
+        fetch("/api/manual-import", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title, cards })
+          body: JSON.stringify(newSet)
         });
-        const data = await res.json();
-        if (data.status === "ok") {
-          toggleManualModal();
-          await loadSetsList(data.set.id);
-          alert("Đã tạo bộ thẻ thành công!");
-        }
-      } catch (e) { alert("Lỗi: " + e.message); }
+      } catch (e) {}
+
+      document.getElementById("manual-title").value = "";
+      document.getElementById("manual-text").value = "";
+      toggleManualModal();
+      await loadSetsList(newSet.id);
+      alert(`Đã lưu thành công bộ thẻ: "${title}" với ${cards.length} thuật ngữ!`);
     }
 
     // MODE SWITCHING
