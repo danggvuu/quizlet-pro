@@ -37,6 +37,20 @@ def extract_set_id(url_or_text):
     m = re.search(r"(\d{6,})", str(url_or_text))
     return m.group(1) if m else None
 
+def update_manifest(set_id, title, count):
+    try:
+        manifest_path = BASE_DIR / "data" / "sets.json"
+        sets_list = []
+        if manifest_path.exists():
+            with open(manifest_path, "r", encoding="utf-8") as f:
+                sets_list = json.load(f)
+        sets_list = [s for s in sets_list if str(s.get("id")) != str(set_id)]
+        sets_list.append({"id": str(set_id), "title": title, "numTerms": count})
+        with open(manifest_path, "w", encoding="utf-8") as f:
+            json.dump(sets_list, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print("update_manifest error:", e)
+
 def scrape_quizlet(set_id, raw_url=None):
     url = raw_url if (raw_url and "quizlet.com" in raw_url) else f"https://quizlet.com/{set_id}/"
 
@@ -156,6 +170,8 @@ def scrape_quizlet(set_id, raw_url=None):
     except Exception as e:
         print("Save to disk error:", e)
 
+    update_manifest(set_id, title, len(cards))
+
     return set_obj
 
 class handler(http.server.SimpleHTTPRequestHandler):
@@ -236,6 +252,7 @@ class handler(http.server.SimpleHTTPRequestHandler):
                         json.dump(set_obj, f, ensure_ascii=False, indent=2)
                 except Exception:
                     pass
+                update_manifest(set_id, title, len(cards))
                 self.send_json({"status": "ok", "set": set_obj})
             except Exception as e:
                 self.send_json({"status": "error", "message": str(e)}, 500)
