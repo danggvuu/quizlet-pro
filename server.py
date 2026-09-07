@@ -3,6 +3,7 @@ import socketserver
 import json
 import os
 import re
+import shutil
 import urllib.parse
 import urllib.request
 import subprocess
@@ -10,8 +11,25 @@ import time
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
-DATA_DIR = BASE_DIR / "data" / "sets"
-DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+# Trên Vercel môi trường lambda là read-only, sử dụng /tmp nếu đang chạy trên Vercel
+IS_VERCEL = bool(os.environ.get("VERCEL"))
+if IS_VERCEL:
+    DATA_DIR = Path("/tmp/sets")
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    # Sao chép các bộ thẻ gốc từ repository sang /tmp
+    src_data = BASE_DIR / "data" / "sets"
+    if src_data.exists():
+        for f in src_data.glob("*.json"):
+            dst = DATA_DIR / f.name
+            if not dst.exists():
+                try:
+                    shutil.copy(f, dst)
+                except Exception:
+                    pass
+else:
+    DATA_DIR = BASE_DIR / "data" / "sets"
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 PORT = 8888
 
@@ -20,24 +38,29 @@ def extract_set_id(url_or_text):
     return m.group(1) if m else None
 
 def scrape_quizlet(set_id, raw_url=None):
-    try:
-        from yt_dlp.cookies import extract_cookies_from_browser
-        from curl_cffi import requests
-    except ImportError:
-        raise Exception("Vui lòng cài đặt curl-cffi và yt-dlp: uv run --with yt-dlp --with curl-cffi python3 server.py")
-
     url = raw_url if (raw_url and "quizlet.com" in raw_url) else f"https://quizlet.com/{set_id}/"
 
-    # 1. Kích hoạt Chrome mở trang để tự động giải Captcha Cloudflare Turnstile
-    try:
-        subprocess.run(["osascript", "-e", f'tell application "Google Chrome" to open location "{url}"'], check=False)
-        time.sleep(2.8)
-    except Exception as e:
-        print("Lưu ý mở Chrome:", e)
+    # 1. Thử mở Chrome trên máy local Mac nếu có
+    if not IS_VERCEL:
+        try:
+            subprocess.run(["osascript", "-e", f'tell application "Google Chrome" to open location "{url}"'], check=False)
+            time.sleep(2.5)
+        except Exception as e:
+            print("Note opening Chrome:", e)
 
-    # 2. Đọc cookie tươi mới nhất từ Chrome
-    jar = extract_cookies_from_browser("chrome")
-    cookies = {c.name: c.value for c in jar if "quizlet" in c.domain}
+    # 2. Đọc cookie (chỉ hoạt động trên local máy có Chrome)
+    cookies = {}
+    try:
+        from yt_dlp.cookies import extract_cookies_from_browser
+        jar = extract_cookies_from_browser("chrome")
+        cookies = {c.name: c.value for c in jar if "quizlet" in c.domain}
+    except Exception as e:
+        print("Note extracting cookies:", e)
+
+    try:
+        from curl_cffi import requests
+    except ImportError:
+        raise Exception("Thiếu thư viện curl-cffi. Vui lòng chạy uv run --with curl-cffi.")
 
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -45,7 +68,7 @@ def scrape_quizlet(set_id, raw_url=None):
         "Referer": "https://quizlet.com/",
     }
 
-    # 3. Lấy tiêu đề và mô tả
+    # 3. Lấy metadata
     title = f"Bộ thẻ {set_id}"
     description = ""
     try:
@@ -64,9 +87,9 @@ def scrape_quizlet(set_id, raw_url=None):
                     title = s_data.get("title", title)
                     description = s_data.get("description", description)
     except Exception as e:
-        print("Warning fetching page metadata:", e)
+        print("Warning page metadata:", e)
 
-    # 4. Tải danh sách thẻ qua API (phân trang 100 thẻ/lần)
+    # 4. Tải items qua API
     all_items = []
     page = 1
     while True:
@@ -74,7 +97,9 @@ def scrape_quizlet(set_id, raw_url=None):
         r_api = requests.get(api_url, cookies=cookies, headers=headers, impersonate="chrome120", timeout=12)
         if r_api.status_code != 200:
             if page == 1:
-                raise Exception(f"Cloudflare yêu cầu xác minh (Mã: {r_api.status_code}). Hãy nhìn sang tab Chrome vừa bật lên, click vào ô 'Verify you are human' (nếu có), rồi bấm nút Tải & Học lại nhé!")
+                if IS_VERCEL:
+                    raise Exception(f"Lỗi Cloudflare (Mã: {r_api.status_code}). Trên bản Vercel online, Cloudflare chặn máy chủ đám mây. Vui lòng bấm nút ➕ Nhập thủ công (Copy-Paste) hoặc chạy app trên máy tính bằng file Chay_Quizlet_Pro.command để cào tự động nhé!")
+                raise Exception(f"Cloudflare yêu cầu xác minh (Mã: {r_api.status_code}). Hãy nhìn sang tab Chrome vừa mở, tick vào ô xác minh rồi bấm lại nhé!")
             break
 
         data = r_api.json()
@@ -93,7 +118,7 @@ def scrape_quizlet(set_id, raw_url=None):
     if not all_items:
         raise Exception("Không tìm thấy thẻ nào trong bộ đề này.")
 
-    # 5. Phân tích bóc tách từ, nghĩa và ảnh
+    # 5. Phân tích bóc tách từ, nghĩa, ảnh
     cards = []
     for it in all_items:
         term = ""
@@ -124,16 +149,21 @@ def scrape_quizlet(set_id, raw_url=None):
         "cards": cards
     }
 
-    # Lưu vào ổ cứng
     save_path = DATA_DIR / f"{set_id}.json"
-    with open(save_path, "w", encoding="utf-8") as f:
-        json.dump(set_obj, f, ensure_ascii=False, indent=2)
+    try:
+        with open(save_path, "w", encoding="utf-8") as f:
+            json.dump(set_obj, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print("Save to disk error:", e)
 
     return set_obj
 
-class QuizletAppHandler(http.server.SimpleHTTPRequestHandler):
+class handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=str(BASE_DIR), **kwargs)
+        try:
+            super().__init__(*args, directory=str(BASE_DIR), **kwargs)
+        except TypeError:
+            super().__init__(*args, **kwargs)
 
     def do_OPTIONS(self):
         self.send_response(200)
@@ -201,8 +231,11 @@ class QuizletAppHandler(http.server.SimpleHTTPRequestHandler):
                     "cards": cards
                 }
                 save_path = DATA_DIR / f"{set_id}.json"
-                with open(save_path, "w", encoding="utf-8") as f:
-                    json.dump(set_obj, f, ensure_ascii=False, indent=2)
+                try:
+                    with open(save_path, "w", encoding="utf-8") as f:
+                        json.dump(set_obj, f, ensure_ascii=False, indent=2)
+                except Exception:
+                    pass
                 self.send_json({"status": "ok", "set": set_obj})
             except Exception as e:
                 self.send_json({"status": "error", "message": str(e)}, 500)
@@ -244,21 +277,33 @@ class QuizletAppHandler(http.server.SimpleHTTPRequestHandler):
 
     def handle_list_sets(self):
         sets_list = []
-        for p in DATA_DIR.glob("*.json"):
-            try:
-                with open(p, "r", encoding="utf-8") as f:
-                    d = json.load(f)
-                    sets_list.append({
-                        "id": d.get("id"),
-                        "title": d.get("title", p.stem),
-                        "numTerms": d.get("numTerms", len(d.get("cards", [])))
-                    })
-            except Exception:
-                pass
+        # Lấy từ cả BASE_DIR và DATA_DIR
+        search_dirs = [DATA_DIR]
+        if BASE_DIR / "data" / "sets" != DATA_DIR and (BASE_DIR / "data" / "sets").exists():
+            search_dirs.append(BASE_DIR / "data" / "sets")
+
+        seen_ids = set()
+        for s_dir in search_dirs:
+            for p in s_dir.glob("*.json"):
+                try:
+                    with open(p, "r", encoding="utf-8") as f:
+                        d = json.load(f)
+                        sid = str(d.get("id"))
+                        if sid not in seen_ids:
+                            seen_ids.add(sid)
+                            sets_list.append({
+                                "id": d.get("id"),
+                                "title": d.get("title", p.stem),
+                                "numTerms": d.get("numTerms", len(d.get("cards", [])))
+                            })
+                except Exception:
+                    pass
         self.send_json({"sets": sets_list})
 
     def handle_get_set(self, set_id):
         save_path = DATA_DIR / f"{set_id}.json"
+        if not save_path.exists():
+            save_path = BASE_DIR / "data" / "sets" / f"{set_id}.json"
         if not save_path.exists():
             self.send_json({"status": "error", "message": "Không tìm thấy bộ thẻ"}, 404)
             return
@@ -273,8 +318,12 @@ class QuizletAppHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
 
+# Vercel entrypoint exports
+QuizletAppHandler = handler
+app = handler
+
 if __name__ == "__main__":
     socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("", PORT), QuizletAppHandler) as httpd:
+    with socketserver.TCPServer(("", PORT), handler) as httpd:
         print(f"Server Quizlet Pro đang chạy tại: http://localhost:{PORT}")
         httpd.serve_forever()

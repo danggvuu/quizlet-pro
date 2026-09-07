@@ -968,37 +968,39 @@
       window.speechSynthesis.speak(utter);
     }
 
-    // LOAD SETS LIST ON START
+    // LOAD SETS LIST ON START (WITH STATIC CDN FALLBACK)
     async function loadSetsList(selectedId = null) {
+      const select = document.getElementById("set-select");
       try {
         const res = await fetch("/api/sets");
+        if (!res.ok) throw new Error("API not available");
         const data = await res.json();
-        const select = document.getElementById("set-select");
         select.innerHTML = "";
-        data.sets.forEach(s => {
-          const opt = document.createElement("option");
-          opt.value = s.id;
-          opt.textContent = `${s.title} (${s.numTerms} thẻ)`;
-          select.appendChild(opt);
-        });
-
-        if (selectedId) {
-          select.value = selectedId;
-        } else if (data.sets.length > 0) {
-          select.value = data.sets[0].id;
+        if (data.sets && data.sets.length > 0) {
+          data.sets.forEach(s => {
+            const opt = document.createElement("option");
+            opt.value = s.id;
+            opt.textContent = `${s.title} (${s.numTerms} thẻ)`;
+            select.appendChild(opt);
+          });
         }
-        if (select.value) {
-          loadSetData(select.value);
-        }
+        if (selectedId) select.value = selectedId;
+        else if (data.sets && data.sets.length > 0) select.value = data.sets[0].id;
+        if (select.value) loadSetData(select.value);
       } catch (e) {
-        console.error("Error loading sets:", e);
+        console.warn("Fallback to static CDN data:", e);
+        select.innerHTML = `<option value="927731678">READING PART 5 6 TEST 1 (60 thẻ)</option>`;
+        loadSetData("927731678");
       }
     }
 
-    // LOAD SPECIFIC SET
+    // LOAD SPECIFIC SET (WITH STATIC CDN FALLBACK)
     async function loadSetData(setId) {
       try {
-        const res = await fetch(`/api/sets/${setId}`);
+        let res = await fetch(`/api/sets/${setId}`);
+        if (!res.ok) {
+          res = await fetch(`/data/sets/${setId}.json`);
+        }
         const setObj = await res.json();
         currentSet = setObj;
         document.getElementById("list-modal-title").innerText = `📋 ${setObj.title} (${setObj.numTerms} thẻ)`;
