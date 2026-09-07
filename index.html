@@ -1,0 +1,1814 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quizlet Pro - Học Miễn Phí (Learn & Write Mode)</title>
+  <style>
+    :root {
+      --primary: #4255ff;
+      --primary-hover: #2e40e6;
+      --primary-light: #eef1ff;
+      --bg: #f6f7fb;
+      --card-bg: #ffffff;
+      --text: #1a1d28;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success: #18ae79;
+      --success-light: #e8f9f2;
+      --error: #ff647c;
+      --error-light: #ffedf0;
+      --warning: #f59e0b;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      --radius: 16px;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    [data-theme="dark"] {
+      --primary: #4255ff;
+      --primary-hover: #5d6eff;
+      --primary-light: #1f2552;
+      --bg: #0a092d;
+      --card-bg: #1a1d28;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border: #2e3856;
+      --success: #23b281;
+      --success-light: #10382b;
+      --error: #ff647c;
+      --error-light: #3d1b24;
+      --warning: #fbbf24;
+      --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font); }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.25s, color 0.25s;
+    }
+
+    /* TOP HEADER */
+    header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 18px;
+      color: var(--primary);
+      text-decoration: none;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .brand-icon {
+      background: var(--primary);
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 16px;
+    }
+
+    /* SCRAPER BAR */
+    .scrape-bar-wrap {
+      flex: 1;
+      max-width: 600px;
+      display: flex;
+      gap: 8px;
+    }
+    .scrape-input {
+      flex: 1;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .scrape-input:focus { border-color: var(--primary); }
+    .btn-scrape {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .btn-scrape:hover { background: var(--primary-hover); }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .btn-icon {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 15px;
+      transition: all 0.2s;
+    }
+    .btn-icon:hover { background: var(--border); }
+
+    /* SUB-BAR / SET SELECTOR & MODES */
+    .sub-bar {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .set-selector-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .set-select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+      max-width: 320px;
+    }
+    .mode-pills {
+      display: flex;
+      gap: 6px;
+      background: var(--bg);
+      padding: 3px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    .mode-pill {
+      background: transparent;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .mode-pill.active {
+      background: var(--card-bg);
+      color: var(--primary);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    /* PROGRESS BAR */
+    .progress-bar-container {
+      width: 100%;
+      height: 5px;
+      background: var(--border);
+      display: flex;
+      overflow: hidden;
+    }
+    .prog-mastered { background: var(--success); height: 100%; transition: width 0.3s; }
+    .prog-learning { background: var(--warning); height: 100%; transition: width 0.3s; }
+    .prog-unseen { background: transparent; height: 100%; transition: width 0.3s; }
+
+    /* STATS STRIP */
+    .stats-strip {
+      max-width: 780px;
+      margin: 14px auto 0;
+      width: 92%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .stat-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .dot-mastered { background: var(--success); }
+    .dot-learning { background: var(--warning); }
+    .dot-unseen { background: var(--border); }
+
+    /* MAIN CONTAINER */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      max-width: 820px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* CARD CONTAINER */
+    .study-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      width: 100%;
+      min-height: 480px;
+      display: flex;
+      flex-direction: column;
+      padding: 32px 30px;
+      position: relative;
+      animation: fadeIn 0.22s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .badge-wrap { display: flex; gap: 8px; align-items: center; }
+    .card-type-tag {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--primary);
+      background: var(--primary-light);
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    .card-mode-tag {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: var(--bg);
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+    .card-actions { display: flex; gap: 8px; }
+    .star-btn {
+      background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted);
+      transition: color 0.2s, transform 0.2s;
+    }
+    .star-btn.starred { color: #f59e0b; transform: scale(1.1); }
+    .tts-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-muted); }
+    .tts-btn:hover { color: var(--primary); }
+
+    /* PROMPT & IMAGE AREA */
+    .prompt-area {
+      flex: 1;
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+    .prompt-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .prompt-hint {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .prompt-text {
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.4;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
+    .prompt-image-container {
+      width: 140px;
+      height: 140px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+      background: var(--bg);
+      cursor: zoom-in;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .prompt-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.2s;
+    }
+    .prompt-image:hover { transform: scale(1.05); }
+
+    @media (max-width: 640px) {
+      .prompt-area { flex-direction: column; align-items: flex-start; gap: 14px; }
+      .prompt-image-container { width: 100%; height: 160px; }
+      .study-card { padding: 20px; }
+      .prompt-text { font-size: 19px; }
+    }
+
+    /* MULTIPLE CHOICE GRID */
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      width: 100%;
+    }
+    @media (max-width: 640px) { .options-grid { grid-template-columns: 1fr; } }
+
+    .option-btn {
+      background: var(--card-bg);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      text-align: left;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      transition: all 0.15s ease-in-out;
+      line-height: 1.4;
+    }
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+    .option-btn .opt-key {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: var(--border);
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .option-btn.correct {
+      border-color: var(--success) !important;
+      background-color: var(--success-light) !important;
+      color: var(--success) !important;
+    }
+    .option-btn.correct .opt-key { background-color: var(--success); color: white; }
+    .option-btn.incorrect {
+      border-color: var(--error) !important;
+      background-color: var(--error-light) !important;
+      color: var(--error) !important;
+    }
+    .option-btn.incorrect .opt-key { background-color: var(--error); color: white; }
+
+    /* WRITE / TỰ LUẬN INPUT AREA */
+    .write-area {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+    .write-input-box {
+      width: 100%;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .write-input-box:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px var(--primary-light);
+    }
+    .write-action-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .btn-skip {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+    .btn-skip:hover { background: var(--bg); color: var(--text); }
+    .btn-submit-write {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 28px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-submit-write:hover { background: var(--primary-hover); }
+
+    /* WRONG ANSWER FEEDBACK (BOTH MODES) */
+    .feedback-box {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      width: 100%;
+      padding: 32px;
+      animation: fadeIn 0.22s ease-out;
+    }
+    .fb-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--error);
+      font-weight: 800;
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+    .fb-section {
+      margin-bottom: 16px;
+      padding: 16px 18px;
+      border-radius: 12px;
+      background: var(--bg);
+    }
+    .fb-label {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 6px;
+    }
+    .fb-correct { background: var(--success-light); border-left: 4px solid var(--success); }
+    .fb-correct .fb-label { color: var(--success); }
+    .fb-your { background: var(--error-light); border-left: 4px solid var(--error); }
+    .fb-your .fb-label { color: var(--error); }
+    .fb-val { font-size: 16px; font-weight: 600; white-space: pre-wrap; }
+
+    /* RETYPE AREA FOR WRITE MODE */
+    .retype-container {
+      background: var(--bg);
+      border: 1px dashed var(--primary);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 18px;
+    }
+    .retype-label { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+    .retype-input {
+      width: 100%;
+      background: var(--card-bg);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      outline: none;
+    }
+    .retype-input:focus { border-color: var(--primary); }
+
+    .btn-continue {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 15px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 16px;
+      transition: background 0.2s;
+    }
+    .btn-continue:hover { background: var(--primary-hover); }
+
+    .override-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      float: right;
+    }
+    .override-btn:hover { background: var(--border); color: var(--text); }
+
+    /* FLASHCARD MODE */
+    .fc-wrapper {
+      perspective: 1000px;
+      width: 100%;
+      height: 380px;
+      cursor: pointer;
+    }
+    .fc-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.4s;
+      transform-style: preserve-3d;
+    }
+    .fc-inner.flipped { transform: rotateY(180deg); }
+    .fc-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+      border-radius: var(--radius);
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    .fc-back { transform: rotateY(180deg); background: var(--primary-light); }
+    .fc-text { font-size: 28px; font-weight: 700; line-height: 1.4; white-space: pre-wrap; }
+    .fc-nav {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .btn-nav {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-nav:hover { background: var(--border); }
+
+    /* SUMMARY / COMPLETE VIEW */
+    .summary-box {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      width: 100%;
+      padding: 40px 32px;
+      text-align: center;
+      animation: fadeIn 0.3s ease-out;
+    }
+    .trophy-icon { font-size: 64px; margin-bottom: 12px; display: inline-block; }
+    .summary-title { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+    .summary-subtitle { font-size: 15px; color: var(--text-muted); margin-bottom: 28px; }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .sum-stat-card {
+      background: var(--bg);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    .sum-num { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
+    .sum-label { font-size: 12px; font-weight: 700; color: var(--text-muted); }
+
+    /* MODAL OVERLAYS */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+      backdrop-filter: blur(4px);
+    }
+    .modal-content {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      max-width: 580px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 28px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      font-size: 18px;
+      font-weight: 800;
+    }
+    .term-item {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 14px;
+    }
+    .term-item:last-child { border-bottom: none; }
+    .t-thumb {
+      width: 48px;
+      height: 48px;
+      border-radius: 6px;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+      cursor: zoom-in;
+    }
+    .t-word { font-weight: 700; color: var(--primary); width: 38%; flex-shrink: 0; }
+    .t-def { color: var(--text); flex: 1; white-space: pre-wrap; font-size: 13px; }
+
+    /* LIGHTBOX FOR IMAGE ZOOM */
+    #lightbox-modal { display: none; }
+    .lightbox-img {
+      max-width: 90vw;
+      max-height: 85vh;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+
+    #confetti-canvas {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none; z-index: 999;
+    }
+    .loading-spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <canvas id="confetti-canvas"></canvas>
+
+  <header>
+    <a class="brand" onclick="window.location.reload()">
+      <div class="brand-icon">Q</div>
+      <span>Quizlet Pro</span>
+    </a>
+
+    <div class="scrape-bar-wrap">
+      <input type="text" id="scrape-url-input" class="scrape-input" placeholder="Dán link Quizlet bất kỳ vào đây (VD: https://quizlet.com/vn/927731678/...)" />
+      <button class="btn-scrape" id="btn-scrape" onclick="triggerScrape()">
+        <span>Tải & Học</span>
+      </button>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn-icon" id="btn-manual-import" title="Nhập thủ công thẻ mới" onclick="toggleManualModal()">➕</button>
+      <button class="btn-icon" id="btn-list" title="Danh sách thẻ" onclick="toggleListModal()">📋</button>
+      <button class="btn-icon" id="btn-settings" title="Tùy chọn học" onclick="toggleSettingsModal()">⚙️</button>
+      <button class="btn-icon" id="btn-theme" title="Sáng / Tối">🌓</button>
+    </div>
+  </header>
+
+  <div class="sub-bar">
+    <div class="set-selector-group">
+      <span style="font-size: 13px; font-weight: 700; color: var(--text-muted);">Bộ thẻ:</span>
+      <select id="set-select" class="set-select" onchange="onSetChange(this.value)">
+        <!-- Options populated dynamically -->
+      </select>
+    </div>
+
+    <div class="mode-pills">
+      <button class="mode-pill active" id="mode-learn" onclick="switchMode('learn')">🎯 Học (SRS)</button>
+      <button class="mode-pill" id="mode-write" onclick="switchMode('write')">✍️ Tự luận</button>
+      <button class="mode-pill" id="mode-choice" onclick="switchMode('choice')">🔤 Trắc nghiệm</button>
+      <button class="mode-pill" id="mode-flashcards" onclick="switchMode('flashcards')">🃏 Thẻ nhớ</button>
+    </div>
+  </div>
+
+  <div class="progress-bar-container">
+    <div id="prog-mastered" class="prog-mastered" style="width: 0%;"></div>
+    <div id="prog-learning" class="prog-learning" style="width: 0%;"></div>
+    <div id="prog-unseen" class="prog-unseen" style="width: 100%;"></div>
+  </div>
+
+  <div class="stats-strip">
+    <div class="stat-badge">
+      <div class="dot dot-unseen"></div>
+      <span>Chưa học: <b id="stat-unseen">0</b></span>
+    </div>
+    <div class="stat-badge">
+      <div class="dot dot-learning"></div>
+      <span>Đang học: <b id="stat-learning">0</b></span>
+    </div>
+    <div class="stat-badge">
+      <div class="dot dot-mastered"></div>
+      <span>Thành thạo: <b id="stat-mastered">0</b></span>
+    </div>
+  </div>
+
+  <main id="app">
+    <!-- Dynamic Study View rendered by JS -->
+  </main>
+
+  <!-- MODAL: TÙY CHỌN HỌC -->
+  <div id="settings-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>⚙️ Tùy chọn học (Learn Options)</div>
+        <button class="btn-icon" onclick="toggleSettingsModal()">✕</button>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div>
+          <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">Trả lời bằng:</label>
+          <select id="opt-answer-with" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text);">
+            <option value="definition">Định nghĩa (Hỏi Tiếng Anh -> Chọn / Gõ Tiếng Việt)</option>
+            <option value="term">Thuật ngữ (Hỏi Tiếng Việt -> Chọn / Gõ Tiếng Anh)</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">Dạng câu hỏi trong Chế độ Học (Learn):</label>
+          <select id="opt-learn-question-type" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text);">
+            <option value="both">Kết hợp cả Trắc nghiệm & Tự luận</option>
+            <option value="choice_only">Chỉ Trắc nghiệm (4 đáp án)</option>
+            <option value="write_only">Chỉ Tự luận (Gõ bàn phím)</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">Số thẻ mỗi vòng (Round size):</label>
+          <select id="opt-round-size" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text);">
+            <option value="5">5 thẻ / vòng</option>
+            <option value="7" selected>7 thẻ / vòng (Khuyên dùng)</option>
+            <option value="10">10 thẻ / vòng</option>
+            <option value="15">15 thẻ / vòng</option>
+            <option value="999">Học toàn bộ không chia vòng</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; cursor: pointer;">
+            <input type="checkbox" id="opt-sound" checked> Tự động phát âm tiếng Anh (Audio TTS)
+          </label>
+        </div>
+
+        <div>
+          <label style="display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; cursor: pointer;">
+            <input type="checkbox" id="opt-show-images" checked> Hiển thị ảnh minh họa trên thẻ
+          </label>
+        </div>
+
+        <div>
+          <label style="display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; cursor: pointer;">
+            <input type="checkbox" id="opt-starred-only"> Chỉ học các từ được gắn sao (★)
+          </label>
+        </div>
+
+        <button class="btn-continue" onclick="applySettings()">Lưu & Tiếp tục học</button>
+        <button style="background: transparent; color: var(--error); border: 1px solid var(--error); padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 700;" onclick="resetCurrentSetProgress()">
+          🔄 Đặt lại tiến độ bộ thẻ này (Reset Progress)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DANH SÁCH TỪ VỰNG -->
+  <div id="list-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-width: 680px;">
+      <div class="modal-header">
+        <div id="list-modal-title">📋 Danh sách thẻ</div>
+        <button class="btn-icon" onclick="toggleListModal()">✕</button>
+      </div>
+      <input type="text" id="search-input" placeholder="🔍 Tìm kiếm thuật ngữ hoặc định nghĩa..." style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); margin-bottom: 14px;">
+      <div id="all-terms-list" style="max-height: 55vh; overflow-y: auto;"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: NHẬP THỦ CÔNG (MANUAL PASTE) -->
+  <div id="manual-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>➕ Nhập thẻ thủ công (Paste Text)</div>
+        <button class="btn-icon" onclick="toggleManualModal()">✕</button>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <input type="text" id="manual-title" placeholder="Tên bộ thẻ (VD: Từ vựng TOEIC Part 7)" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text);">
+        <div>
+          <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">Dán từ vựng vào đây (mỗi dòng 1 từ, ngăn cách bằng dấu gạch nối hoặc Tab):</label>
+          <textarea id="manual-text" rows="8" placeholder="car - ô tô&#10;book - cuốn sách&#10;apple - quả táo" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: monospace;"></textarea>
+        </div>
+        <button class="btn-continue" onclick="submitManualImport()">Lưu & Học ngay</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIGHTBOX MODAL FOR IMAGES -->
+  <div id="lightbox-modal" class="modal-overlay" onclick="closeLightbox()">
+    <img id="lightbox-img" class="lightbox-img" src="" alt="Ảnh phóng to" />
+  </div>
+
+  <script>
+    // GLOBAL STATE
+    let currentSet = null;
+    let cardsState = [];
+    let currentMode = "learn"; // 'learn', 'write', 'choice', 'flashcards'
+
+    let settings = {
+      answerWith: "definition",
+      learnQuestionType: "both", // 'both', 'choice_only', 'write_only'
+      roundSize: 7,
+      autoSound: true,
+      showImages: true,
+      starredOnly: false
+    };
+
+    // ROUND RUNTIME
+    let currentRoundQueue = [];
+    let currentCardIndex = 0;
+    let isWaitingNext = false;
+    let fcIndex = 0;
+    let fcFlipped = false;
+
+    // AUDIO API FOR BEEPS
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playBeep(success) {
+      try {
+        if (audioCtx.state === "suspended") audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        if (success) {
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(783.99, audioCtx.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.2);
+        } else {
+          osc.type = "sawtooth";
+          osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+          osc.frequency.setValueAtTime(160, audioCtx.currentTime + 0.12);
+          gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.25);
+        }
+      } catch (e) {}
+    }
+
+    // HIGH-DEFINITION TTS ENGINE (Google Studio Voice + Web Speech Fallback)
+    let currentTtsAudio = null;
+    function speakText(text, lang = "en") {
+      if (!text) return;
+      let clean = text.split("\n")[0].replace(/[\/\(\)=><\+]/g, " ").trim();
+      if (clean.includes("=")) clean = clean.split("=")[0].trim();
+      clean = clean.substring(0, 100);
+
+      if (currentTtsAudio) {
+        currentTtsAudio.pause();
+        currentTtsAudio.currentTime = 0;
+      }
+
+      // Method 1: Google TTS Stream (100% stable, clear studio sound)
+      const audioUrl = `/api/tts?tl=${lang}&q=${encodeURIComponent(clean)}`;
+      currentTtsAudio = new Audio(audioUrl);
+      currentTtsAudio.play().catch(e => {
+        // Method 2: Web Speech API fallback with Chrome bug fixes
+        fallbackSpeechSynthesis(clean, lang);
+      });
+    }
+
+    function fallbackSpeechSynthesis(text, lang = "en") {
+      if (!window.speechSynthesis) return;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.resume();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = lang === "vi" ? "vi-VN" : "en-US";
+      utter.rate = 0.95;
+      window.activeUtterance = utter; // Prevent GC on Chrome
+      window.speechSynthesis.speak(utter);
+    }
+
+    // LOAD SETS LIST ON START
+    async function loadSetsList(selectedId = null) {
+      try {
+        const res = await fetch("/api/sets");
+        const data = await res.json();
+        const select = document.getElementById("set-select");
+        select.innerHTML = "";
+        data.sets.forEach(s => {
+          const opt = document.createElement("option");
+          opt.value = s.id;
+          opt.textContent = `${s.title} (${s.numTerms} thẻ)`;
+          select.appendChild(opt);
+        });
+
+        if (selectedId) {
+          select.value = selectedId;
+        } else if (data.sets.length > 0) {
+          select.value = data.sets[0].id;
+        }
+        if (select.value) {
+          loadSetData(select.value);
+        }
+      } catch (e) {
+        console.error("Error loading sets:", e);
+      }
+    }
+
+    // LOAD SPECIFIC SET
+    async function loadSetData(setId) {
+      try {
+        const res = await fetch(`/api/sets/${setId}`);
+        const setObj = await res.json();
+        currentSet = setObj;
+        document.getElementById("list-modal-title").innerText = `📋 ${setObj.title} (${setObj.numTerms} thẻ)`;
+
+        // Init cards state
+        const savedProgress = loadProgressFromStorage(setId);
+        cardsState = setObj.cards.map((c, idx) => {
+          const sv = savedProgress[c.id || idx] || {};
+          return {
+            id: c.id || idx,
+            term: c.term,
+            definition: c.definition,
+            image: c.image || "",
+            mastery: sv.mastery || 0,
+            starred: !!sv.starred,
+            incorrectCount: 0
+          };
+        });
+
+        updateProgressUI();
+        startModeView();
+      } catch (e) {
+        alert("Không thể tải bộ thẻ: " + e.message);
+      }
+    }
+
+    function onSetChange(setId) {
+      loadSetData(setId);
+    }
+
+    // STORAGE HELPERS
+    function getStorageKey(setId) { return `qp_progress_${setId}`; }
+    function loadProgressFromStorage(setId) {
+      try {
+        const raw = localStorage.getItem(getStorageKey(setId));
+        return raw ? JSON.parse(raw) : {};
+      } catch (e) { return {}; }
+    }
+    function saveProgressToStorage() {
+      if (!currentSet) return;
+      try {
+        const map = {};
+        cardsState.forEach(c => { map[c.id] = { mastery: c.mastery, starred: c.starred }; });
+        localStorage.setItem(getStorageKey(currentSet.id), JSON.stringify(map));
+      } catch (e) {}
+    }
+
+    // SCRAPE TRIGGER (WITH PROGRESS STATUS)
+    async function triggerScrape() {
+      const urlInput = document.getElementById("scrape-url-input");
+      const url = urlInput.value.trim();
+      if (!url) {
+        alert("Vui lòng dán đường link bộ thẻ Quizlet (VD: https://quizlet.com/vn/927731678/...)");
+        return;
+      }
+
+      const btn = document.getElementById("btn-scrape");
+      const oldHtml = btn.innerHTML;
+      btn.innerHTML = `<span class="loading-spinner"></span> Đang vượt Cloudflare...`;
+      btn.disabled = true;
+
+      // Show floating status toast
+      showToast("⏳ Đang kết nối Quizlet và tự động vượt Cloudflare để cào từ vựng & ảnh (khoảng 10-15s)...", 15000);
+
+      try {
+        const res = await fetch("/api/scrape", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: url })
+        });
+        const data = await res.json();
+        if (data.status === "ok") {
+          urlInput.value = "";
+          await loadSetsList(data.set.id);
+          showToast(`🎉 Đã cào thành công bộ thẻ: "${data.set.title}" (${data.set.numTerms} từ & ảnh)!`, 4000);
+        } else {
+          alert("Lỗi khi cào dữ liệu: " + data.message);
+        }
+      } catch (e) {
+        alert("Lỗi kết nối tới server: " + e.message);
+      } finally {
+        btn.innerHTML = oldHtml;
+        btn.disabled = false;
+      }
+    }
+
+    function showToast(msg, duration = 4000) {
+      let toast = document.getElementById("toast-msg");
+      if (!toast) {
+        toast = document.createElement("div");
+        toast.id = "toast-msg";
+        toast.style.cssText = "position: fixed; bottom: 24px; right: 24px; background: var(--card-bg); color: var(--text); border: 2px solid var(--primary); padding: 14px 20px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.25); z-index: 1000; font-weight: 700; font-size: 14px; max-width: 420px; animation: fadeIn 0.3s ease;";
+        document.body.appendChild(toast);
+      }
+      toast.innerText = msg;
+      toast.style.display = "block";
+      setTimeout(() => { if (toast) toast.style.display = "none"; }, duration);
+    }
+
+    // MANUAL IMPORT
+    async function submitManualImport() {
+      const title = document.getElementById("manual-title").value.trim();
+      const text = document.getElementById("manual-text").value.trim();
+      if (!text) { alert("Vui lòng nhập nội dung thẻ!"); return; }
+
+      const lines = text.split("\n");
+      const cards = [];
+      lines.forEach((line, idx) => {
+        const l = line.trim();
+        if (!l) return;
+        let parts = l.split(/\t| - | – | = /);
+        if (parts.length >= 2) {
+          cards.push({ id: idx + 1, term: parts[0].trim(), definition: parts.slice(1).join(" - ").trim(), image: "" });
+        } else {
+          cards.push({ id: idx + 1, term: l, definition: "", image: "" });
+        }
+      });
+
+      if (cards.length === 0) { alert("Không thể nhận diện định dạng từ vựng!"); return; }
+
+      try {
+        const res = await fetch("/api/manual-import", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, cards })
+        });
+        const data = await res.json();
+        if (data.status === "ok") {
+          toggleManualModal();
+          await loadSetsList(data.set.id);
+          alert("Đã tạo bộ thẻ thành công!");
+        }
+      } catch (e) { alert("Lỗi: " + e.message); }
+    }
+
+    // MODE SWITCHING
+    function switchMode(mode) {
+      currentMode = mode;
+      document.querySelectorAll(".mode-pill").forEach(p => p.classList.remove("active"));
+      const pill = document.getElementById(`mode-${mode}`);
+      if (pill) pill.classList.add("active");
+      startModeView();
+    }
+
+    function startModeView() {
+      if (currentMode === "learn" || currentMode === "write" || currentMode === "choice") {
+        prepareNextRound();
+      } else if (currentMode === "flashcards") {
+        fcIndex = 0;
+        fcFlipped = false;
+        renderFlashcardView();
+      }
+    }
+
+    // UPDATE TOP PROGRESS
+    function updateProgressUI() {
+      const activeList = settings.starredOnly ? cardsState.filter(c => c.starred) : cardsState;
+      const total = activeList.length || 1;
+      const mastered = activeList.filter(c => c.mastery === 2).length;
+      const learning = activeList.filter(c => c.mastery === 1).length;
+      const unseen = activeList.filter(c => c.mastery === 0).length;
+
+      document.getElementById("stat-mastered").innerText = mastered;
+      document.getElementById("stat-learning").innerText = learning;
+      document.getElementById("stat-unseen").innerText = unseen;
+
+      const mPercent = (mastered / total) * 100;
+      const lPercent = (learning / total) * 100;
+
+      document.getElementById("prog-mastered").style.width = mPercent + "%";
+      document.getElementById("prog-learning").style.width = lPercent + "%";
+      document.getElementById("prog-unseen").style.width = (100 - mPercent - lPercent) + "%";
+    }
+
+    // PREPARE NEXT ROUND (FOR LEARN, WRITE, CHOICE)
+    function prepareNextRound() {
+      const activePool = settings.starredOnly ? cardsState.filter(c => c.starred) : cardsState;
+      let candidates = activePool.filter(c => c.mastery < 2);
+
+      if (candidates.length === 0 && activePool.length > 0) {
+        renderAllMasteredView();
+        return;
+      }
+      if (activePool.length === 0) {
+        document.getElementById("app").innerHTML = `
+          <div class="summary-box">
+            <div style="font-size: 48px; margin-bottom: 12px;">★</div>
+            <div class="summary-title">Chưa có từ nào được gắn sao</div>
+            <div class="summary-subtitle">Hãy bấm biểu tượng ngôi sao trên các từ bạn muốn học riêng, hoặc tắt tùy chọn "Chỉ học từ gắn sao" trong cài đặt.</div>
+          </div>
+        `;
+        return;
+      }
+
+      candidates.sort((a, b) => b.mastery - a.mastery);
+      const rSize = settings.roundSize === 999 ? candidates.length : settings.roundSize;
+      const selected = candidates.slice(0, rSize);
+
+      currentRoundQueue = [...selected].sort(() => Math.random() - 0.5);
+      currentCardIndex = 0;
+      renderCurrentCard();
+    }
+
+    // RENDER QUESTION CARD
+    function renderCurrentCard() {
+      isWaitingNext = false;
+      if (currentCardIndex >= currentRoundQueue.length) {
+        renderRoundSummaryView();
+        return;
+      }
+
+      const card = currentRoundQueue[currentCardIndex];
+      const app = document.getElementById("app");
+
+      const isPromptTerm = settings.answerWith === "definition";
+      const promptText = isPromptTerm ? card.term : card.definition;
+      const correctChoice = isPromptTerm ? card.definition : card.term;
+
+      // Determine question type: 'choice' or 'write'
+      let qType = "choice";
+      if (currentMode === "write") {
+        qType = "write";
+      } else if (currentMode === "choice") {
+        qType = "choice";
+      } else { // 'learn' mode
+        if (settings.learnQuestionType === "write_only") qType = "write";
+        else if (settings.learnQuestionType === "choice_only") qType = "choice";
+        else {
+          // If stage 0 -> choice, if stage 1 -> write for deeper recall!
+          qType = card.mastery === 1 ? "write" : "choice";
+        }
+      }
+
+      // Prepare image HTML
+      const imageHtml = (settings.showImages && card.image) ? `
+        <div class="prompt-image-container" onclick="openLightbox('${card.image}')" title="Click để phóng to ảnh">
+          <img class="prompt-image" src="${card.image}" alt="Minh họa" />
+        </div>
+      ` : "";
+
+      let bottomHtml = "";
+      if (qType === "choice") {
+        const pool = cardsState.filter(c => c.id !== card.id);
+        const shuffledPool = [...pool].sort(() => Math.random() - 0.5);
+        const distractors = shuffledPool.slice(0, 3).map(c => isPromptTerm ? c.definition : c.term);
+        const options = [correctChoice, ...distractors].sort(() => Math.random() - 0.5);
+
+        bottomHtml = `
+          <div class="options-grid">
+            ${options.map((opt, idx) => `
+              <button class="option-btn" onclick="handleChoice(${idx}, '${encodeURIComponent(opt)}', '${encodeURIComponent(correctChoice)}')">
+                <span class="opt-key">${idx + 1}</span>
+                <span class="opt-text">${escapeHtml(opt)}</span>
+              </button>
+            `).join("")}
+          </div>
+          <div style="margin-top: 14px; font-size: 12px; color: var(--text-muted);">Phím tắt: Bấm [1], [2], [3], [4] để chọn nhanh</div>
+        `;
+      } else {
+        // Written Mode
+        bottomHtml = `
+          <div class="write-area">
+            <input type="text" id="write-user-input" class="write-input-box" placeholder="Gõ câu trả lời bằng tiếng ${isPromptTerm ? 'Việt' : 'Anh'}..." autocomplete="off" autofocus />
+            <div class="write-action-bar">
+              <button class="btn-skip" onclick="handleWriteSkip('${encodeURIComponent(correctChoice)}')">Tôi không biết (Bỏ qua)</button>
+              <button class="btn-submit-write" onclick="handleWriteSubmit('${encodeURIComponent(correctChoice)}')">Trả lời (Enter) ↵</button>
+            </div>
+          </div>
+        `;
+      }
+
+      app.innerHTML = `
+        <div class="study-card">
+          <div class="card-top">
+            <div class="badge-wrap">
+              <span class="card-type-tag">${card.mastery === 1 ? "Cấp 1: Đang học" : "Cấp 0: Từ mới"}</span>
+              <span class="card-mode-tag">${qType === "write" ? "✍️ Tự luận" : "🔤 Trắc nghiệm"}</span>
+            </div>
+            <div class="card-actions">
+              ${isPromptTerm ? `<button class="tts-btn" onclick="speakText('${card.term.replace(/'/g, "\\\\'")}')" title="Phát âm">🔊</button>` : ""}
+              <button class="star-btn ${card.starred ? "starred" : ""}" onclick="toggleStar(${card.id})" title="Gắn sao">★</button>
+            </div>
+          </div>
+
+          <div class="prompt-area">
+            <div class="prompt-content">
+              <div class="prompt-hint">${isPromptTerm ? "Định nghĩa tương ứng là gì?" : "Thuật ngữ tiếng Anh tương ứng là gì?"}</div>
+              <div class="prompt-text">${escapeHtml(promptText)}</div>
+            </div>
+            ${imageHtml}
+          </div>
+
+          ${bottomHtml}
+        </div>
+      `;
+
+      if (qType === "write") {
+        setTimeout(() => {
+          const inp = document.getElementById("write-user-input");
+          if (inp) {
+            inp.focus();
+            inp.addEventListener("keydown", (e) => {
+              if (e.key === "Enter") handleWriteSubmit(encodeURIComponent(correctChoice));
+            });
+          }
+        }, 50);
+      }
+
+      if (settings.autoSound && isPromptTerm) {
+        speakText(card.term);
+      }
+    }
+
+    // MULTIPLE CHOICE HANDLER
+    function handleChoice(btnIndex, chosenEnc, correctEnc) {
+      if (isWaitingNext) return;
+      isWaitingNext = true;
+
+      const chosen = decodeURIComponent(chosenEnc);
+      const correct = decodeURIComponent(correctEnc);
+      const card = currentRoundQueue[currentCardIndex];
+
+      const buttons = document.querySelectorAll(".option-btn");
+      buttons.forEach(b => b.disabled = true);
+
+      if (chosen === correct) {
+        playBeep(true);
+        buttons[btnIndex].classList.add("correct");
+        upgradeCardMastery(card);
+        setTimeout(() => {
+          currentCardIndex++;
+          renderCurrentCard();
+        }, 750);
+      } else {
+        playBeep(false);
+        buttons[btnIndex].classList.add("incorrect");
+        buttons.forEach(b => {
+          if (b.innerText.includes(correct.substring(0, 15))) b.classList.add("correct");
+        });
+        demoteCardMastery(card);
+        setTimeout(() => {
+          renderFeedback(card, chosen, correct, false);
+        }, 600);
+      }
+    }
+
+    // WRITE MODE SUBMIT HANDLER
+    function handleWriteSubmit(correctEnc) {
+      if (isWaitingNext) return;
+      const inp = document.getElementById("write-user-input");
+      if (!inp) return;
+      const val = inp.value.trim();
+      const correct = decodeURIComponent(correctEnc);
+      const card = currentRoundQueue[currentCardIndex];
+
+      if (!val) {
+        inp.focus();
+        return;
+      }
+
+      isWaitingNext = true;
+
+      // Smart string matching (normalized)
+      const isMatch = checkFuzzyMatch(val, correct);
+
+      if (isMatch) {
+        playBeep(true);
+        inp.style.borderColor = "var(--success)";
+        inp.style.backgroundColor = "var(--success-light)";
+        upgradeCardMastery(card);
+        setTimeout(() => {
+          currentCardIndex++;
+          renderCurrentCard();
+        }, 750);
+      } else {
+        playBeep(false);
+        inp.style.borderColor = "var(--error)";
+        inp.style.backgroundColor = "var(--error-light)";
+        demoteCardMastery(card);
+        setTimeout(() => {
+          renderFeedback(card, val, correct, true);
+        }, 600);
+      }
+    }
+
+    function handleWriteSkip(correctEnc) {
+      if (isWaitingNext) return;
+      isWaitingNext = true;
+      const correct = decodeURIComponent(correctEnc);
+      const card = currentRoundQueue[currentCardIndex];
+      playBeep(false);
+      demoteCardMastery(card);
+      renderFeedback(card, "(Bỏ qua)", correct, true);
+    }
+
+    function checkFuzzyMatch(input, target) {
+      const clean = (s) => s.toLowerCase()
+        .replace(/[\.,-\/#!$%\^&\*;:{}=\-_`~()]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+      const s1 = clean(input);
+      const s2 = clean(target);
+      if (s1 === s2) return true;
+      // Also check if user typed the main term when multiple synonyms exist
+      if (s2.includes("=") || s2.includes("/")) {
+        const parts = s2.split(/=|;/).map(p => clean(p));
+        if (parts.some(p => p === s1 || s1.includes(p))) return true;
+      }
+      return false;
+    }
+
+    function upgradeCardMastery(card) {
+      if (card.mastery === 0) card.mastery = 1;
+      else if (card.mastery === 1) card.mastery = 2;
+      saveProgressToStorage();
+      updateProgressUI();
+    }
+
+    function demoteCardMastery(card) {
+      card.mastery = 0;
+      card.incorrectCount++;
+      currentRoundQueue.push(card); // Repeat in this round
+      saveProgressToStorage();
+      updateProgressUI();
+    }
+
+    // FEEDBACK FOR INCORRECT ANSWERS
+    function renderFeedback(card, userVal, correctVal, requireRetype) {
+      const isPromptTerm = settings.answerWith === "definition";
+      const promptText = isPromptTerm ? card.term : card.definition;
+      const app = document.getElementById("app");
+
+      let retypeHtml = "";
+      if (requireRetype) {
+        retypeHtml = `
+          <div class="retype-container">
+            <div class="retype-label">✍️ Gõ lại câu trả lời đúng để tiếp tục:</div>
+            <input type="text" id="retype-input" class="retype-input" placeholder="Gõ lại chính xác câu trả lời ở trên..." autocomplete="off" />
+          </div>
+        `;
+      }
+
+      app.innerHTML = `
+        <div class="feedback-box">
+          <div class="fb-header">
+            <span>❌ Đừng lo lắng, bạn vẫn đang học mà!</span>
+            <button class="override-btn" onclick="overrideAsCorrect()">Tôi đã trả lời đúng ✓</button>
+          </div>
+
+          <div class="fb-section">
+            <div class="fb-label" style="color: var(--text-muted);">CÂU HỎI</div>
+            <div class="fb-val">${escapeHtml(promptText)}</div>
+          </div>
+
+          <div class="fb-section fb-correct">
+            <div class="fb-label">✓ ĐÁP ÁN ĐÚNG</div>
+            <div class="fb-val">${escapeHtml(correctVal)}</div>
+          </div>
+
+          <div class="fb-section fb-your">
+            <div class="fb-label">✗ BẠN ĐÃ TRẢ LỜI</div>
+            <div class="fb-val">${escapeHtml(userVal)}</div>
+          </div>
+
+          ${retypeHtml}
+
+          <button class="btn-continue" id="btn-next-wrong" onclick="nextCardAfterFeedback()">
+            ${requireRetype ? "Tiếp tục (hoặc gõ đúng)" : "Tiếp tục (Nhấn Space / Enter) →"}
+          </button>
+        </div>
+      `;
+
+      isWaitingNext = true;
+
+      if (requireRetype) {
+        setTimeout(() => {
+          const rInp = document.getElementById("retype-input");
+          if (rInp) {
+            rInp.focus();
+            rInp.addEventListener("input", () => {
+              if (checkFuzzyMatch(rInp.value, correctVal)) {
+                rInp.style.borderColor = "var(--success)";
+                setTimeout(nextCardAfterFeedback, 400);
+              }
+            });
+            rInp.addEventListener("keydown", (e) => {
+              if (e.key === "Enter") nextCardAfterFeedback();
+            });
+          }
+        }, 50);
+      }
+    }
+
+    function nextCardAfterFeedback() {
+      currentCardIndex++;
+      renderCurrentCard();
+    }
+
+    function overrideAsCorrect() {
+      const card = currentRoundQueue[currentCardIndex];
+      // remove from queue
+      const popIdx = currentRoundQueue.lastIndexOf(card);
+      if (popIdx > currentCardIndex) currentRoundQueue.splice(popIdx, 1);
+      upgradeCardMastery(card);
+      nextCardAfterFeedback();
+    }
+
+    // ROUND SUMMARY
+    function renderRoundSummaryView() {
+      const activePool = settings.starredOnly ? cardsState.filter(c => c.starred) : cardsState;
+      const remaining = activePool.filter(c => c.mastery < 2).length;
+      const mastered = activePool.filter(c => c.mastery === 2).length;
+
+      const app = document.getElementById("app");
+      app.innerHTML = `
+        <div class="summary-box">
+          <div class="trophy-icon">🎯</div>
+          <div class="summary-title">Hoàn thành vòng học này!</div>
+          <div class="summary-subtitle">Tiến độ của bạn đang rất tốt! Hãy tiếp tục duy trì để làm chủ các từ còn lại.</div>
+
+          <div class="summary-grid">
+            <div class="sum-stat-card">
+              <div class="sum-num" style="color: var(--success);">${mastered}</div>
+              <div class="sum-label">ĐÃ THÀNH THẠO</div>
+            </div>
+            <div class="sum-stat-card">
+              <div class="sum-num" style="color: var(--warning);">${activePool.filter(c => c.mastery === 1).length}</div>
+              <div class="sum-label">ĐANG HỌC</div>
+            </div>
+            <div class="sum-stat-card">
+              <div class="sum-num" style="color: var(--text-muted);">${remaining}</div>
+              <div class="sum-label">CẦN ÔN TIẾP</div>
+            </div>
+          </div>
+
+          <button class="btn-continue" onclick="prepareNextRound()">
+            ${remaining > 0 ? `Tiếp tục vòng sau (${remaining} thuật ngữ chưa thuộc) →` : "Xem kết quả toàn bộ"}
+          </button>
+        </div>
+      `;
+    }
+
+    // ALL MASTERED VIEW (CONFETTI)
+    function renderAllMasteredView() {
+      triggerConfetti();
+      const activePool = settings.starredOnly ? cardsState.filter(c => c.starred) : cardsState;
+      const app = document.getElementById("app");
+
+      app.innerHTML = `
+        <div class="summary-box">
+          <div class="trophy-icon">🏆</div>
+          <div class="summary-title" style="color: var(--success);">Xuất sắc! Bạn đã thành thạo 100%!</div>
+          <div class="summary-subtitle">Bạn đã ghi nhớ toàn bộ ${activePool.length} thuật ngữ trong bộ thẻ này.</div>
+
+          <div class="summary-grid">
+            <div class="sum-stat-card">
+              <div class="sum-num" style="color: var(--success);">${activePool.length} / ${activePool.length}</div>
+              <div class="sum-label">THÀNH THẠO</div>
+            </div>
+            <div class="sum-stat-card">
+              <div class="sum-num" style="color: var(--primary);">${cardsState.length}</div>
+              <div class="sum-label">TỔNG THUẬT NGỮ</div>
+            </div>
+            <div class="sum-stat-card">
+              <div class="sum-num" style="color: #f59e0b;">★ ${cardsState.filter(c => c.starred).length}</div>
+              <div class="sum-label">TỪ GẮN SAO</div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px;">
+            <button class="btn-continue" onclick="resetCurrentSetProgress()">🔄 Học lại từ đầu</button>
+            <button class="btn-continue" style="background: var(--card-bg); color: var(--text); border: 2px solid var(--border);" onclick="toggleListModal()">📋 Xem lại danh sách thẻ</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // FLASHCARDS VIEW
+    function renderFlashcardView() {
+      const activePool = settings.starredOnly ? cardsState.filter(c => c.starred) : cardsState;
+      if (activePool.length === 0) {
+        document.getElementById("app").innerHTML = `<div class="summary-box">Không có thẻ nào phù hợp!</div>`;
+        return;
+      }
+      const card = activePool[fcIndex];
+      const app = document.getElementById("app");
+
+      app.innerHTML = `
+        <div style="width: 100%; max-width: 680px; display: flex; flex-direction: column; align-items: center;">
+          <div class="fc-wrapper" onclick="toggleFlip()">
+            <div class="fc-inner ${fcFlipped ? 'flipped' : ''}" id="fc-inner">
+              <div class="fc-face">
+                <div style="font-size: 13px; font-weight: 700; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase;">MẶT TRƯỚC (THUẬT NGỮ)</div>
+                <div class="fc-text">${escapeHtml(card.term)}</div>
+                ${card.image ? `<img src="${card.image}" style="max-height: 120px; border-radius: 8px; margin-top: 16px;" />` : ''}
+              </div>
+              <div class="fc-face fc-back">
+                <div style="font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 12px; text-transform: uppercase;">MẶT SAU (ĐỊNH NGHĨA)</div>
+                <div class="fc-text" style="font-size: 22px;">${escapeHtml(card.definition)}</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="font-size: 14px; font-weight: 700; color: var(--text-muted); margin-top: 16px;">
+            Thẻ ${fcIndex + 1} / ${activePool.length}
+          </div>
+
+          <div class="fc-nav">
+            <button class="btn-nav" onclick="navFc(-1)" title="Thẻ trước (Phím ←)">←</button>
+            <button class="btn-nav" onclick="speakText('${card.term.replace(/'/g, "\\\\'")}')" title="Phát âm (Phím S)">🔊</button>
+            <button class="btn-nav" onclick="toggleStar(${card.id})" title="Gắn sao">★</button>
+            <button class="btn-nav" onclick="navFc(1)" title="Thẻ tiếp theo (Phím →)">→</button>
+          </div>
+          <div style="margin-top: 10px; font-size: 12px; color: var(--text-muted);">Bấm Space để lật thẻ, phím mũi tên ← → để chuyển thẻ</div>
+        </div>
+      `;
+    }
+
+    function toggleFlip() {
+      fcFlipped = !fcFlipped;
+      const el = document.getElementById("fc-inner");
+      if (el) el.classList.toggle("flipped", fcFlipped);
+    }
+    function navFc(dir) {
+      const activePool = settings.starredOnly ? cardsState.filter(c => c.starred) : cardsState;
+      fcIndex = (fcIndex + dir + activePool.length) % activePool.length;
+      fcFlipped = false;
+      renderFlashcardView();
+    }
+
+    // STAR TOGGLE
+    function toggleStar(cardId) {
+      const card = cardsState.find(c => c.id === cardId);
+      if (card) {
+        card.starred = !card.starred;
+        saveProgressToStorage();
+        const btn = document.querySelector(".star-btn");
+        if (btn) btn.classList.toggle("starred", card.starred);
+      }
+    }
+
+    // MODAL TOGGLES
+    function toggleSettingsModal() {
+      const m = document.getElementById("settings-modal");
+      m.style.display = m.style.display === "none" ? "flex" : "none";
+    }
+    function toggleManualModal() {
+      const m = document.getElementById("manual-modal");
+      m.style.display = m.style.display === "none" ? "flex" : "none";
+    }
+    function toggleListModal() {
+      const m = document.getElementById("list-modal");
+      m.style.display = m.style.display === "none" ? "flex" : "none";
+      if (m.style.display === "flex") renderAllTermsList();
+    }
+
+    function renderAllTermsList(filter = "") {
+      const container = document.getElementById("all-terms-list");
+      const filtered = cardsState.filter(c =>
+        c.term.toLowerCase().includes(filter.toLowerCase()) ||
+        c.definition.toLowerCase().includes(filter.toLowerCase())
+      );
+      container.innerHTML = filtered.map((c) => `
+        <div class="term-item">
+          ${c.image ? `<img class="t-thumb" src="${c.image}" onclick="openLightbox('${c.image}')" />` : ''}
+          <div class="t-word">
+            <div>${escapeHtml(c.term)}</div>
+            <div style="font-size: 11px; margin-top: 3px; color: ${c.mastery === 2 ? "var(--success)" : c.mastery === 1 ? "var(--warning)" : "var(--text-muted)"}">
+              ● ${c.mastery === 2 ? "Đã thuộc" : c.mastery === 1 ? "Đang học" : "Chưa học"}
+            </div>
+          </div>
+          <div class="t-def">${escapeHtml(c.definition)}</div>
+          <button style="background:none;border:none;cursor:pointer;font-size:16px;" onclick="speakText('${c.term.replace(/'/g, "\\\\'")}')">🔊</button>
+        </div>
+      `).join("");
+    }
+
+    document.getElementById("search-input").addEventListener("input", (e) => {
+      renderAllTermsList(e.target.value);
+    });
+
+    function applySettings() {
+      settings.answerWith = document.getElementById("opt-answer-with").value;
+      settings.learnQuestionType = document.getElementById("opt-learn-question-type").value;
+      settings.roundSize = parseInt(document.getElementById("opt-round-size").value, 10);
+      settings.autoSound = document.getElementById("opt-sound").checked;
+      settings.showImages = document.getElementById("opt-show-images").checked;
+      settings.starredOnly = document.getElementById("opt-starred-only").checked;
+      toggleSettingsModal();
+      startModeView();
+    }
+
+    function resetCurrentSetProgress() {
+      if (!currentSet) return;
+      if (confirm(`Bạn có chắc chắn muốn xóa tiến độ của bộ thẻ "${currentSet.title}"?`)) {
+        cardsState.forEach(c => { c.mastery = 0; c.incorrectCount = 0; });
+        saveProgressToStorage();
+        updateProgressUI();
+        if (document.getElementById("settings-modal").style.display === "flex") {
+          toggleSettingsModal();
+        }
+        startModeView();
+      }
+    }
+
+    // LIGHTBOX FOR IMAGES
+    function openLightbox(url) {
+      document.getElementById("lightbox-img").src = url;
+      document.getElementById("lightbox-modal").style.display = "flex";
+    }
+    function closeLightbox() {
+      document.getElementById("lightbox-modal").style.display = "none";
+    }
+
+    // THEME TOGGLE
+    const btnTheme = document.getElementById("btn-theme");
+    btnTheme.addEventListener("click", () => {
+      const current = document.documentElement.getAttribute("data-theme");
+      const next = current === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("qp_theme", next);
+    });
+    const savedTheme = localStorage.getItem("qp_theme") || "light";
+    document.documentElement.setAttribute("data-theme", savedTheme);
+
+    // KEYBOARD SHORTCUTS
+    window.addEventListener("keydown", (e) => {
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") return;
+
+      if (e.key === "s" || e.key === "S") {
+        if (currentRoundQueue[currentCardIndex]) {
+          speakText(currentRoundQueue[currentCardIndex].term);
+        }
+        return;
+      }
+
+      if (currentMode === "flashcards") {
+        if (e.key === " " || e.key === "Enter") {
+          e.preventDefault();
+          toggleFlip();
+        } else if (e.key === "ArrowLeft") {
+          navFc(-1);
+        } else if (e.key === "ArrowRight") {
+          navFc(1);
+        }
+        return;
+      }
+
+      if (e.key >= "1" && e.key <= "4") {
+        const idx = parseInt(e.key, 10) - 1;
+        const btns = document.querySelectorAll(".option-btn");
+        if (btns[idx] && !btns[idx].disabled) btns[idx].click();
+      } else if (e.key === "Enter" || e.key === " ") {
+        const btnNext = document.getElementById("btn-next-wrong");
+        if (btnNext) btnNext.click();
+      } else if (e.key === "Escape") {
+        document.getElementById("settings-modal").style.display = "none";
+        document.getElementById("list-modal").style.display = "none";
+        document.getElementById("manual-modal").style.display = "none";
+        closeLightbox();
+      }
+    });
+
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // CONFETTI EFFECT
+    function triggerConfetti() {
+      const canvas = document.getElementById("confetti-canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const particles = [];
+      const colors = ["#4255ff", "#18ae79", "#f59e0b", "#ff647c", "#9333ea"];
+
+      for (let i = 0; i < 120; i++) {
+        particles.push({
+          x: canvas.width / 2, y: canvas.height / 2,
+          vx: (Math.random() - 0.5) * 16, vy: (Math.random() - 0.5) * 16 - 5,
+          size: Math.random() * 8 + 4, color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360, vRot: (Math.random() - 0.5) * 10
+        });
+      }
+
+      let frame = 0;
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          p.x += p.vx; p.y += p.vy; p.vy += 0.25;
+          p.rotation += p.vRot;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+          ctx.restore();
+        });
+        frame++;
+        if (frame < 140) requestAnimationFrame(animate);
+        else ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      animate();
+    }
+
+    // INIT
+    loadSetsList();
+  </script>
+</body>
+</html>
