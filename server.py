@@ -212,9 +212,13 @@ class handler(http.server.SimpleHTTPRequestHandler):
 
     def do_POST(self):
         parsed = urllib.parse.urlparse(self.path)
-        if parsed.path == "/api/scrape":
+        try:
             content_length = int(self.headers.get("Content-Length", 0))
-            body = self.rfile.read(content_length).decode("utf-8")
+            body = self.rfile.read(content_length).decode("utf-8") if content_length > 0 else "{}"
+        except Exception:
+            body = "{}"
+
+        if parsed.path == "/api/scrape":
             try:
                 payload = json.loads(body)
                 url = payload.get("url", "").strip()
@@ -229,8 +233,6 @@ class handler(http.server.SimpleHTTPRequestHandler):
                 self.send_json({"status": "error", "message": str(e)}, 500)
             return
         elif parsed.path == "/api/manual-import":
-            content_length = int(self.headers.get("Content-Length", 0))
-            body = self.rfile.read(content_length).decode("utf-8")
             try:
                 payload = json.loads(body)
                 title = payload.get("title", "Bộ thẻ tự tạo").strip() or "Bộ thẻ tự tạo"
