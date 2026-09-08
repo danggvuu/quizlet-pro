@@ -1,0 +1,1208 @@
+{
+  "id": "1010710706",
+  "title": "READING PART 7 - TEST 4",
+  "description": "",
+  "numTerms": 200,
+  "cards": [
+    {
+      "id": 1825053379448857,
+      "term": "multilingual /ˌmʌl.tiˈlɪŋ.ɡwəl/",
+      "definition": "adjective, đa ngôn ngữ",
+      "image": ""
+    },
+    {
+      "id": 1825053379448858,
+      "term": "expedite /ˈɛk.spə.daɪt/",
+      "definition": "verb, xúc tiến",
+      "image": ""
+    },
+    {
+      "id": 1825053379448859,
+      "term": "consultation /ˌkɒn.sʌlˈteɪ.ʃən/",
+      "definition": "noun, tư vấn",
+      "image": ""
+    },
+    {
+      "id": 1825053379448860,
+      "term": "accommodate customers /əˈkɒm.ə.deɪt ˈkʌs.tə.mərz/",
+      "definition": "verb, đáp ứng khách hàng",
+      "image": ""
+    },
+    {
+      "id": 1825053379448861,
+      "term": "functional /ˈfʌŋk.ʃən.əl/",
+      "definition": "adjective, chức năng",
+      "image": ""
+    },
+    {
+      "id": 1825053379448862,
+      "term": "investigate /ɪnˈvɛs.tɪ.ɡeɪt/",
+      "definition": "verb, điều tra",
+      "image": ""
+    },
+    {
+      "id": 1825053379448863,
+      "term": "security breaches /sɪˈkjʊr.ə.ti ˈbriː.tʃɪz/",
+      "definition": "noun, vi phạm an ninh",
+      "image": ""
+    },
+    {
+      "id": 1825053379448864,
+      "term": "adaptability /əˌdæp.təˈbɪl.ə.ti/",
+      "definition": "noun, khả năng thích ứng",
+      "image": ""
+    },
+    {
+      "id": 1825053379448865,
+      "term": "simplicity /sɪmˈplɪs.ə.ti/",
+      "definition": "noun, sự đơn giản",
+      "image": ""
+    },
+    {
+      "id": 1825053379448866,
+      "term": "remind you that /rɪˈmaɪnd juː ðæt/",
+      "definition": "verb, nhắc bạn rằng",
+      "image": ""
+    },
+    {
+      "id": 1825053379448867,
+      "term": "go smoothly /ɡoʊ ˈsmuːð.li/",
+      "definition": "verb, diễn ra suôn sẻ",
+      "image": ""
+    },
+    {
+      "id": 1825053379448868,
+      "term": "appropriate /əˈproʊ.pri.ət/",
+      "definition": "adjective, phù hợp",
+      "image": ""
+    },
+    {
+      "id": 1825053379448869,
+      "term": "respond to messages /rɪˈspɒnd tuː ˈmɛs.ɪ.dʒɪz/",
+      "definition": "verb, trả lời tin nhắn",
+      "image": ""
+    },
+    {
+      "id": 1825053379448870,
+      "term": "consulting company /kənˈsʌl.tɪŋ ˈkʌm.pə.ni/",
+      "definition": "noun, công ty tư vấn",
+      "image": ""
+    },
+    {
+      "id": 1825053379448871,
+      "term": "associated task /əˈsoʊ.si.eɪ.tɪd tæsk/",
+      "definition": "noun, nhiệm vụ liên quan",
+      "image": ""
+    },
+    {
+      "id": 1825053379448872,
+      "term": "be supposed to /bi səˈpoʊzd tuː/",
+      "definition": "verb, được cho là phải",
+      "image": ""
+    },
+    {
+      "id": 1825053379448873,
+      "term": "greet /ɡriːt/",
+      "definition": "verb, chào hỏi",
+      "image": ""
+    },
+    {
+      "id": 1825053379448874,
+      "term": "intern /ˈɪn.tɝːn/",
+      "definition": "noun, thực tập sinh",
+      "image": ""
+    },
+    {
+      "id": 1825053379448875,
+      "term": "weather-related delay /ˈwɛð.ər rɪˈleɪ.tɪd dɪˈleɪ/",
+      "definition": "noun, sự chậm trễ do thời tiết",
+      "image": ""
+    },
+    {
+      "id": 1825053379448876,
+      "term": "make it to the office /meɪk ɪt tuː ði ˈɒf.ɪs/",
+      "definition": "verb, đến được văn phòng",
+      "image": ""
+    },
+    {
+      "id": 1825053379448877,
+      "term": "training session /ˈtreɪ.nɪŋ ˈsɛʃ.ən/",
+      "definition": "noun, buổi đào tạo",
+      "image": ""
+    },
+    {
+      "id": 1825053379448878,
+      "term": "lead the session /liːd ðə ˈsɛʃ.ən/",
+      "definition": "verb, dẫn dắt buổi học",
+      "image": ""
+    },
+    {
+      "id": 1825053379448879,
+      "term": "demographic research /ˌdɛməˈɡræf.ɪk rɪˈsɜːrtʃ/",
+      "definition": "noun, nghiên cứu nhân khẩu học",
+      "image": ""
+    },
+    {
+      "id": 1825053379448880,
+      "term": "definitely /ˈdɛf.ɪ.nɪt.li/",
+      "definition": "adverb, chắc chắn",
+      "image": ""
+    },
+    {
+      "id": 1825053379448881,
+      "term": "That definitely works /ðæt ˈdɛf.ɪ.nɪt.li wɜːrks/",
+      "definition": "phrase, Cái đó chắc chắn hiệu quả",
+      "image": ""
+    },
+    {
+      "id": 1825053379448882,
+      "term": "business boom /ˈbɪz.nɪs buːm/",
+      "definition": "noun, sự bùng nổ kinh doanh",
+      "image": ""
+    },
+    {
+      "id": 1825053379448883,
+      "term": "strengthen local market /ˈstrɛŋ.θən ˈloʊ.kəl ˈmɑːr.kɪt/",
+      "definition": "verb, củng cố thị trường địa phương",
+      "image": ""
+    },
+    {
+      "id": 1825053379448884,
+      "term": "employ people /ɪmˈplɔɪ ˈpiː.pəl/",
+      "definition": "verb, tuyển dụng nhân sự",
+      "image": ""
+    },
+    {
+      "id": 1825053379448885,
+      "term": "labor force /ˈleɪ.bɚ fɔːrs/",
+      "definition": "noun, lực lượng lao động",
+      "image": ""
+    },
+    {
+      "id": 1825053379448886,
+      "term": "economic driver /ˌiː.kəˈnɑː.mɪk ˈdraɪ.vər/",
+      "definition": "noun, động lực kinh tế",
+      "image": ""
+    },
+    {
+      "id": 1825053379448887,
+      "term": "start-up businesses /ˈstɑːrt.ʌp ˈbɪz.nɪsɪz/",
+      "definition": "noun, doanh nghiệp khởi nghiệp",
+      "image": ""
+    },
+    {
+      "id": 1825053379448888,
+      "term": "significant /sɪɡˈnɪf.ɪ.kənt/",
+      "definition": "adjective, đáng kể",
+      "image": ""
+    },
+    {
+      "id": 1825053379448889,
+      "term": "considerable /kənˈsɪd.ər.ə.bəl/",
+      "definition": "adjective, đáng kể",
+      "image": ""
+    },
+    {
+      "id": 1825053379448890,
+      "term": "expansion /ɪkˈspæn.ʃən/",
+      "definition": "noun, sự mở rộng",
+      "image": ""
+    },
+    {
+      "id": 1825053379448891,
+      "term": "generate /ˈdʒɛn.ə.reɪt/",
+      "definition": "verb, tạo ra",
+      "image": ""
+    },
+    {
+      "id": 1825053379448892,
+      "term": "establish businesses /ɪˈstæb.lɪʃ ˈbɪz.nɪsɪz/",
+      "definition": "verb, thành lập doanh nghiệp",
+      "image": ""
+    },
+    {
+      "id": 1825053379448893,
+      "term": "benefit /ˈbɛn.ɪ.fɪt/",
+      "definition": "verb, mang lại lợi ích",
+      "image": ""
+    },
+    {
+      "id": 1825053379448894,
+      "term": "find capital /faɪnd ˈkæp.ɪ.tl̩/",
+      "definition": "verb, tìm vốn",
+      "image": ""
+    },
+    {
+      "id": 1825053379448895,
+      "term": "capital (noun",
+      "definition": "no) /ˈkæp.ɪ.tl̩/, noun, thủ đô",
+      "image": ""
+    },
+    {
+      "id": 1825053379448896,
+      "term": "capital (noun",
+      "definition": "like money) /ˈkæp.ɪ.tl̩/, noun, vốn (tiền)",
+      "image": ""
+    },
+    {
+      "id": 1825053379448897,
+      "term": "marketing strategies /ˈmɑːr.kɪ.tɪŋ ˈstræt.ə.dʒiz/",
+      "definition": "noun, chiến lược tiếp thị",
+      "image": ""
+    },
+    {
+      "id": 1825053379448898,
+      "term": "discovery /dɪˈskʌv.ər.i/",
+      "definition": "noun, sự khám phá",
+      "image": ""
+    },
+    {
+      "id": 1825053379448899,
+      "term": "growth /ɡroʊθ/",
+      "definition": "noun, sự phát triển",
+      "image": ""
+    },
+    {
+      "id": 1825053379448900,
+      "term": "university professor /ˌjuː.nɪˈvɜːr.sə.ti prəˈfɛs.ər/",
+      "definition": "noun, giáo sư đại học",
+      "image": ""
+    },
+    {
+      "id": 1825053379448901,
+      "term": "impact /ˈɪm.pækt/",
+      "definition": "noun, tác động",
+      "image": ""
+    },
+    {
+      "id": 1825053379448902,
+      "term": "inexperienced employee /ˌɪn.ɪkˈspɪə.ri.ənst ɛmˈplɔɪ.iː/",
+      "definition": "noun, nhân viên thiếu kinh nghiệm",
+      "image": ""
+    },
+    {
+      "id": 1825053379448903,
+      "term": "province /ˈprɒv.ɪns/",
+      "definition": "noun, tỉnh thành",
+      "image": ""
+    },
+    {
+      "id": 1825053379448904,
+      "term": "extend to /ɪkˈstɛnd tuː/",
+      "definition": "verb, mở rộng đến",
+      "image": ""
+    },
+    {
+      "id": 1825053379448905,
+      "term": "the interest in /ði ˈɪn.trɪst ɪn/",
+      "definition": "noun, sự quan tâm đến",
+      "image": ""
+    },
+    {
+      "id": 1825053379448906,
+      "term": "inquiry /ɪnˈkwaɪə.ri/",
+      "definition": "noun, yêu cầu thông tin",
+      "image": ""
+    },
+    {
+      "id": 1825053379448907,
+      "term": "issue /ˈɪʃ.uː/",
+      "definition": "verb, phát hành, đưa ra",
+      "image": ""
+    },
+    {
+      "id": 1825053379448908,
+      "term": "temporary /ˈtɛmp.rər.i/",
+      "definition": "adjective, tạm thời",
+      "image": ""
+    },
+    {
+      "id": 1825053379448909,
+      "term": "activate the account /ˈæk.tɪ.veɪt ði əˈkaʊnt/",
+      "definition": "verb, kích hoạt tài khoản",
+      "image": ""
+    },
+    {
+      "id": 1825053379448910,
+      "term": "attain the goal /əˈteɪn ðə ɡoʊl/",
+      "definition": "verb, đạt được mục tiêu",
+      "image": ""
+    },
+    {
+      "id": 1825053379448911,
+      "term": "portfolio /pɔːrtˈfoʊ.li.oʊ/",
+      "definition": "noun, danh mục đầu tư / hồ sơ năng lực",
+      "image": ""
+    },
+    {
+      "id": 1825053379448912,
+      "term": "professional /prəˈfɛʃ.ən.əl/",
+      "definition": "adjective, chuyên nghiệp",
+      "image": ""
+    },
+    {
+      "id": 1825053379448913,
+      "term": "login /ˈlɒɡ.ɪn/",
+      "definition": "noun, đăng nhập",
+      "image": ""
+    },
+    {
+      "id": 1825053379448914,
+      "term": "sign in /saɪn ɪn/",
+      "definition": "verb, đăng nhập",
+      "image": ""
+    },
+    {
+      "id": 1825053379448915,
+      "term": "sign up /saɪn ʌp/",
+      "definition": "verb, đăng ký",
+      "image": ""
+    },
+    {
+      "id": 1825053379448916,
+      "term": "demand /dɪˈmænd/",
+      "definition": "noun, nhu cầu",
+      "image": ""
+    },
+    {
+      "id": 1825053379448917,
+      "term": "extended hours /ɪkˈstɛndɪd ˈaʊərz/",
+      "definition": "noun, giờ làm việc kéo dài",
+      "image": ""
+    },
+    {
+      "id": 1825053379448918,
+      "term": "seek /siːk/",
+      "definition": "verb, tìm kiếm",
+      "image": ""
+    },
+    {
+      "id": 1825053379448919,
+      "term": "possess /pəˈzɛs/",
+      "definition": "verb, sở hữu",
+      "image": ""
+    },
+    {
+      "id": 1825053379448920,
+      "term": "arranger /əˈreɪn.dʒər/",
+      "definition": "noun, người sắp xếp, điều phối",
+      "image": ""
+    },
+    {
+      "id": 1825053379448921,
+      "term": "relevant knowledge /ˈrɛl.ə.vənt ˈnɒl.ɪdʒ/",
+      "definition": "noun, kiến thức liên quan",
+      "image": ""
+    },
+    {
+      "id": 1825053379448922,
+      "term": "interested applicants /ˈɪn.trɪ.stɪd ˈæp.lɪ.kənts/",
+      "definition": "noun, ứng viên quan tâm",
+      "image": ""
+    },
+    {
+      "id": 1825053379448923,
+      "term": "resume /ˈrɛz.jʊ.meɪ/",
+      "definition": "noun, sơ yếu lý lịch",
+      "image": ""
+    },
+    {
+      "id": 1825053379448924,
+      "term": "trade show /treɪd ʃoʊ/",
+      "definition": "noun, hội chợ thương mại",
+      "image": ""
+    },
+    {
+      "id": 1825053379448925,
+      "term": "per your request /pɜːr jʊər rɪˈkwɛst/",
+      "definition": "phrase, theo yêu cầu của bạn",
+      "image": ""
+    },
+    {
+      "id": 1825053379448926,
+      "term": "booklet /ˈbʊk.lɪt/",
+      "definition": "noun, cuốn sách nhỏ",
+      "image": ""
+    },
+    {
+      "id": 1825053379448927,
+      "term": "greenhouse /ˈɡriːn.haʊs/",
+      "definition": "noun, nhà kính",
+      "image": ""
+    },
+    {
+      "id": 1825053379448928,
+      "term": "agricultural technology /ˌæɡ.rɪˈkʌl.tʃər.əl tɛkˈnɒl.ə.dʒi/",
+      "definition": "noun, công nghệ nông nghiệp",
+      "image": ""
+    },
+    {
+      "id": 1825053379448929,
+      "term": "be aware that /bi əˈwɛr ðæt/",
+      "definition": "phrase, nhận thức rằng",
+      "image": ""
+    },
+    {
+      "id": 1825053379448930,
+      "term": "monitoring system /ˈmɒn.ɪ.tər.ɪŋ ˈsɪs.təm/",
+      "definition": "noun, hệ thống giám sát",
+      "image": ""
+    },
+    {
+      "id": 1825053379448931,
+      "term": "temperature /ˈtɛmp.rə.tʃər/",
+      "definition": "noun, nhiệt độ",
+      "image": ""
+    },
+    {
+      "id": 1825053379448932,
+      "term": "humidity /hjuːˈmɪd.ə.ti/",
+      "definition": "noun, độ ẩm",
+      "image": ""
+    },
+    {
+      "id": 1825053380513793,
+      "term": "air quality /ɛr ˈkwɒl.ɪ.ti/",
+      "definition": "noun, chất lượng không khí",
+      "image": ""
+    },
+    {
+      "id": 1825053380513794,
+      "term": "remotely /rɪˈmoʊt.li/",
+      "definition": "adverb, từ xa",
+      "image": ""
+    },
+    {
+      "id": 1825053380513795,
+      "term": "be on site /bi ɒn saɪt/",
+      "definition": "phrase, có mặt tại hiện trường",
+      "image": ""
+    },
+    {
+      "id": 1825053380513796,
+      "term": "make observations /meɪk ˌɒbz.ərˈveɪ.ʃənz/",
+      "definition": "verb, thực hiện quan sát",
+      "image": ""
+    },
+    {
+      "id": 1825053380513797,
+      "term": "the readings /ðə ˈriː.dɪŋz/",
+      "definition": "noun, các số liệu đo lường",
+      "image": ""
+    },
+    {
+      "id": 1825053380513798,
+      "term": "irrigation /ˌɪr.ɪˈɡeɪ.ʃən/",
+      "definition": "noun, hệ thống tưới tiêu",
+      "image": ""
+    },
+    {
+      "id": 1825053380513799,
+      "term": "specializing /ˈspɛʃ.ə.laɪ.zɪŋ/",
+      "definition": "verb, chuyên về",
+      "image": ""
+    },
+    {
+      "id": 1825053380513800,
+      "term": "transmit information /trænzˈmɪt ˌɪn.fɚˈmeɪ.ʃən/",
+      "definition": "verb, truyền tải thông tin",
+      "image": ""
+    },
+    {
+      "id": 1825053380513801,
+      "term": "illustrate /ˈɪl.ə.streɪt/",
+      "definition": "verb, minh họa",
+      "image": ""
+    },
+    {
+      "id": 1825053380513802,
+      "term": "be pleased to work /bi pliːzd tuː wɜːrk/",
+      "definition": "phrase, vui mừng được làm việc",
+      "image": ""
+    },
+    {
+      "id": 1825053380513803,
+      "term": "the showcase /ðə ˈʃoʊ.keɪs/",
+      "definition": "noun, buổi trưng bày",
+      "image": ""
+    },
+    {
+      "id": 1825053380513804,
+      "term": "sculptures /ˈskʌlp.tʃərz/",
+      "definition": "noun, tác phẩm điêu khắc",
+      "image": ""
+    },
+    {
+      "id": 1825053380513805,
+      "term": "beverage /ˈbɛv.ər.ɪdʒ/",
+      "definition": "noun, đồ uống",
+      "image": ""
+    },
+    {
+      "id": 1825053380513806,
+      "term": "appetizer /ˈæp.ɪ.taɪ.zər/",
+      "definition": "noun, món khai vị",
+      "image": ""
+    },
+    {
+      "id": 1825053380513807,
+      "term": "be on hand /bi ɒn hænd/",
+      "definition": "phrase, có mặt sẵn sàng",
+      "image": ""
+    },
+    {
+      "id": 1825053380513808,
+      "term": "study abroad /ˈstʌd.i əˈbrɔːd/",
+      "definition": "verb, du học",
+      "image": ""
+    },
+    {
+      "id": 1825053380513809,
+      "term": "publicize /ˈpʌb.lɪ.saɪz/",
+      "definition": "verb, công khai, quảng bá",
+      "image": ""
+    },
+    {
+      "id": 1825053380513810,
+      "term": "inspection process /ɪnˈspɛk.ʃən ˈprɒ.sɛs/",
+      "definition": "noun, quy trình kiểm tra",
+      "image": ""
+    },
+    {
+      "id": 1825053380513811,
+      "term": "eliminate /ɪˈlɪm.ɪ.neɪt/",
+      "definition": "verb, loại bỏ",
+      "image": ""
+    },
+    {
+      "id": 1825053380513812,
+      "term": "transition /trænˈzɪʃ.ən/",
+      "definition": "verb, chuyển đổi",
+      "image": ""
+    },
+    {
+      "id": 1825053380513813,
+      "term": "gain some experience /ɡeɪn sʌm ɪkˈspɪə.ri.əns/",
+      "definition": "verb, tích lũy kinh nghiệm",
+      "image": ""
+    },
+    {
+      "id": 1825053380513814,
+      "term": "propose the idea /prəˈpoʊz ði aɪˈdɪə/",
+      "definition": "verb, đề xuất ý tưởng",
+      "image": ""
+    },
+    {
+      "id": 1825053380513815,
+      "term": "a work procedure /ə wɜːrk prəˈsiː.dʒər/",
+      "definition": "noun, quy trình làm việc",
+      "image": ""
+    },
+    {
+      "id": 1825053380513816,
+      "term": "resolve or solve the problem /rɪˈzɒlv ɔːr sɒlv ðə ˈprɒb.ləm/",
+      "definition": "verb, giải quyết vấn đề",
+      "image": ""
+    },
+    {
+      "id": 1825053379448857,
+      "term": "multilingual /ˌmʌl.tiˈlɪŋ.ɡwəl/",
+      "definition": "adjective, đa ngôn ngữ",
+      "image": ""
+    },
+    {
+      "id": 1825053379448858,
+      "term": "expedite /ˈɛk.spə.daɪt/",
+      "definition": "verb, xúc tiến",
+      "image": ""
+    },
+    {
+      "id": 1825053379448859,
+      "term": "consultation /ˌkɒn.sʌlˈteɪ.ʃən/",
+      "definition": "noun, tư vấn",
+      "image": ""
+    },
+    {
+      "id": 1825053379448860,
+      "term": "accommodate customers /əˈkɒm.ə.deɪt ˈkʌs.tə.mərz/",
+      "definition": "verb, đáp ứng khách hàng",
+      "image": ""
+    },
+    {
+      "id": 1825053379448861,
+      "term": "functional /ˈfʌŋk.ʃən.əl/",
+      "definition": "adjective, chức năng",
+      "image": ""
+    },
+    {
+      "id": 1825053379448862,
+      "term": "investigate /ɪnˈvɛs.tɪ.ɡeɪt/",
+      "definition": "verb, điều tra",
+      "image": ""
+    },
+    {
+      "id": 1825053379448863,
+      "term": "security breaches /sɪˈkjʊr.ə.ti ˈbriː.tʃɪz/",
+      "definition": "noun, vi phạm an ninh",
+      "image": ""
+    },
+    {
+      "id": 1825053379448864,
+      "term": "adaptability /əˌdæp.təˈbɪl.ə.ti/",
+      "definition": "noun, khả năng thích ứng",
+      "image": ""
+    },
+    {
+      "id": 1825053379448865,
+      "term": "simplicity /sɪmˈplɪs.ə.ti/",
+      "definition": "noun, sự đơn giản",
+      "image": ""
+    },
+    {
+      "id": 1825053379448866,
+      "term": "remind you that /rɪˈmaɪnd juː ðæt/",
+      "definition": "verb, nhắc bạn rằng",
+      "image": ""
+    },
+    {
+      "id": 1825053379448867,
+      "term": "go smoothly /ɡoʊ ˈsmuːð.li/",
+      "definition": "verb, diễn ra suôn sẻ",
+      "image": ""
+    },
+    {
+      "id": 1825053379448868,
+      "term": "appropriate /əˈproʊ.pri.ət/",
+      "definition": "adjective, phù hợp",
+      "image": ""
+    },
+    {
+      "id": 1825053379448869,
+      "term": "respond to messages /rɪˈspɒnd tuː ˈmɛs.ɪ.dʒɪz/",
+      "definition": "verb, trả lời tin nhắn",
+      "image": ""
+    },
+    {
+      "id": 1825053379448870,
+      "term": "consulting company /kənˈsʌl.tɪŋ ˈkʌm.pə.ni/",
+      "definition": "noun, công ty tư vấn",
+      "image": ""
+    },
+    {
+      "id": 1825053379448871,
+      "term": "associated task /əˈsoʊ.si.eɪ.tɪd tæsk/",
+      "definition": "noun, nhiệm vụ liên quan",
+      "image": ""
+    },
+    {
+      "id": 1825053379448872,
+      "term": "be supposed to /bi səˈpoʊzd tuː/",
+      "definition": "verb, được cho là phải",
+      "image": ""
+    },
+    {
+      "id": 1825053379448873,
+      "term": "greet /ɡriːt/",
+      "definition": "verb, chào hỏi",
+      "image": ""
+    },
+    {
+      "id": 1825053379448874,
+      "term": "intern /ˈɪn.tɝːn/",
+      "definition": "noun, thực tập sinh",
+      "image": ""
+    },
+    {
+      "id": 1825053379448875,
+      "term": "weather-related delay /ˈwɛð.ər rɪˈleɪ.tɪd dɪˈleɪ/",
+      "definition": "noun, sự chậm trễ do thời tiết",
+      "image": ""
+    },
+    {
+      "id": 1825053379448876,
+      "term": "make it to the office /meɪk ɪt tuː ði ˈɒf.ɪs/",
+      "definition": "verb, đến được văn phòng",
+      "image": ""
+    },
+    {
+      "id": 1825053379448877,
+      "term": "training session /ˈtreɪ.nɪŋ ˈsɛʃ.ən/",
+      "definition": "noun, buổi đào tạo",
+      "image": ""
+    },
+    {
+      "id": 1825053379448878,
+      "term": "lead the session /liːd ðə ˈsɛʃ.ən/",
+      "definition": "verb, dẫn dắt buổi học",
+      "image": ""
+    },
+    {
+      "id": 1825053379448879,
+      "term": "demographic research /ˌdɛməˈɡræf.ɪk rɪˈsɜːrtʃ/",
+      "definition": "noun, nghiên cứu nhân khẩu học",
+      "image": ""
+    },
+    {
+      "id": 1825053379448880,
+      "term": "definitely /ˈdɛf.ɪ.nɪt.li/",
+      "definition": "adverb, chắc chắn",
+      "image": ""
+    },
+    {
+      "id": 1825053379448881,
+      "term": "That definitely works /ðæt ˈdɛf.ɪ.nɪt.li wɜːrks/",
+      "definition": "phrase, Cái đó chắc chắn hiệu quả",
+      "image": ""
+    },
+    {
+      "id": 1825053379448882,
+      "term": "business boom /ˈbɪz.nɪs buːm/",
+      "definition": "noun, sự bùng nổ kinh doanh",
+      "image": ""
+    },
+    {
+      "id": 1825053379448883,
+      "term": "strengthen local market /ˈstrɛŋ.θən ˈloʊ.kəl ˈmɑːr.kɪt/",
+      "definition": "verb, củng cố thị trường địa phương",
+      "image": ""
+    },
+    {
+      "id": 1825053379448884,
+      "term": "employ people /ɪmˈplɔɪ ˈpiː.pəl/",
+      "definition": "verb, tuyển dụng nhân sự",
+      "image": ""
+    },
+    {
+      "id": 1825053379448885,
+      "term": "labor force /ˈleɪ.bɚ fɔːrs/",
+      "definition": "noun, lực lượng lao động",
+      "image": ""
+    },
+    {
+      "id": 1825053379448886,
+      "term": "economic driver /ˌiː.kəˈnɑː.mɪk ˈdraɪ.vər/",
+      "definition": "noun, động lực kinh tế",
+      "image": ""
+    },
+    {
+      "id": 1825053379448887,
+      "term": "start-up businesses /ˈstɑːrt.ʌp ˈbɪz.nɪsɪz/",
+      "definition": "noun, doanh nghiệp khởi nghiệp",
+      "image": ""
+    },
+    {
+      "id": 1825053379448888,
+      "term": "significant /sɪɡˈnɪf.ɪ.kənt/",
+      "definition": "adjective, đáng kể",
+      "image": ""
+    },
+    {
+      "id": 1825053379448889,
+      "term": "considerable /kənˈsɪd.ər.ə.bəl/",
+      "definition": "adjective, đáng kể",
+      "image": ""
+    },
+    {
+      "id": 1825053379448890,
+      "term": "expansion /ɪkˈspæn.ʃən/",
+      "definition": "noun, sự mở rộng",
+      "image": ""
+    },
+    {
+      "id": 1825053379448891,
+      "term": "generate /ˈdʒɛn.ə.reɪt/",
+      "definition": "verb, tạo ra",
+      "image": ""
+    },
+    {
+      "id": 1825053379448892,
+      "term": "establish businesses /ɪˈstæb.lɪʃ ˈbɪz.nɪsɪz/",
+      "definition": "verb, thành lập doanh nghiệp",
+      "image": ""
+    },
+    {
+      "id": 1825053379448893,
+      "term": "benefit /ˈbɛn.ɪ.fɪt/",
+      "definition": "verb, mang lại lợi ích",
+      "image": ""
+    },
+    {
+      "id": 1825053379448894,
+      "term": "find capital /faɪnd ˈkæp.ɪ.tl̩/",
+      "definition": "verb, tìm vốn",
+      "image": ""
+    },
+    {
+      "id": 1825053379448895,
+      "term": "capital (noun",
+      "definition": "no) /ˈkæp.ɪ.tl̩/, noun, thủ đô",
+      "image": ""
+    },
+    {
+      "id": 1825053379448896,
+      "term": "capital (noun",
+      "definition": "like money) /ˈkæp.ɪ.tl̩/, noun, vốn (tiền)",
+      "image": ""
+    },
+    {
+      "id": 1825053379448897,
+      "term": "marketing strategies /ˈmɑːr.kɪ.tɪŋ ˈstræt.ə.dʒiz/",
+      "definition": "noun, chiến lược tiếp thị",
+      "image": ""
+    },
+    {
+      "id": 1825053379448898,
+      "term": "discovery /dɪˈskʌv.ər.i/",
+      "definition": "noun, sự khám phá",
+      "image": ""
+    },
+    {
+      "id": 1825053379448899,
+      "term": "growth /ɡroʊθ/",
+      "definition": "noun, sự phát triển",
+      "image": ""
+    },
+    {
+      "id": 1825053379448900,
+      "term": "university professor /ˌjuː.nɪˈvɜːr.sə.ti prəˈfɛs.ər/",
+      "definition": "noun, giáo sư đại học",
+      "image": ""
+    },
+    {
+      "id": 1825053379448901,
+      "term": "impact /ˈɪm.pækt/",
+      "definition": "noun, tác động",
+      "image": ""
+    },
+    {
+      "id": 1825053379448902,
+      "term": "inexperienced employee /ˌɪn.ɪkˈspɪə.ri.ənst ɛmˈplɔɪ.iː/",
+      "definition": "noun, nhân viên thiếu kinh nghiệm",
+      "image": ""
+    },
+    {
+      "id": 1825053379448903,
+      "term": "province /ˈprɒv.ɪns/",
+      "definition": "noun, tỉnh thành",
+      "image": ""
+    },
+    {
+      "id": 1825053379448904,
+      "term": "extend to /ɪkˈstɛnd tuː/",
+      "definition": "verb, mở rộng đến",
+      "image": ""
+    },
+    {
+      "id": 1825053379448905,
+      "term": "the interest in /ði ˈɪn.trɪst ɪn/",
+      "definition": "noun, sự quan tâm đến",
+      "image": ""
+    },
+    {
+      "id": 1825053379448906,
+      "term": "inquiry /ɪnˈkwaɪə.ri/",
+      "definition": "noun, yêu cầu thông tin",
+      "image": ""
+    },
+    {
+      "id": 1825053379448907,
+      "term": "issue /ˈɪʃ.uː/",
+      "definition": "verb, phát hành, đưa ra",
+      "image": ""
+    },
+    {
+      "id": 1825053379448908,
+      "term": "temporary /ˈtɛmp.rər.i/",
+      "definition": "adjective, tạm thời",
+      "image": ""
+    },
+    {
+      "id": 1825053379448909,
+      "term": "activate the account /ˈæk.tɪ.veɪt ði əˈkaʊnt/",
+      "definition": "verb, kích hoạt tài khoản",
+      "image": ""
+    },
+    {
+      "id": 1825053379448910,
+      "term": "attain the goal /əˈteɪn ðə ɡoʊl/",
+      "definition": "verb, đạt được mục tiêu",
+      "image": ""
+    },
+    {
+      "id": 1825053379448911,
+      "term": "portfolio /pɔːrtˈfoʊ.li.oʊ/",
+      "definition": "noun, danh mục đầu tư / hồ sơ năng lực",
+      "image": ""
+    },
+    {
+      "id": 1825053379448912,
+      "term": "professional /prəˈfɛʃ.ən.əl/",
+      "definition": "adjective, chuyên nghiệp",
+      "image": ""
+    },
+    {
+      "id": 1825053379448913,
+      "term": "login /ˈlɒɡ.ɪn/",
+      "definition": "noun, đăng nhập",
+      "image": ""
+    },
+    {
+      "id": 1825053379448914,
+      "term": "sign in /saɪn ɪn/",
+      "definition": "verb, đăng nhập",
+      "image": ""
+    },
+    {
+      "id": 1825053379448915,
+      "term": "sign up /saɪn ʌp/",
+      "definition": "verb, đăng ký",
+      "image": ""
+    },
+    {
+      "id": 1825053379448916,
+      "term": "demand /dɪˈmænd/",
+      "definition": "noun, nhu cầu",
+      "image": ""
+    },
+    {
+      "id": 1825053379448917,
+      "term": "extended hours /ɪkˈstɛndɪd ˈaʊərz/",
+      "definition": "noun, giờ làm việc kéo dài",
+      "image": ""
+    },
+    {
+      "id": 1825053379448918,
+      "term": "seek /siːk/",
+      "definition": "verb, tìm kiếm",
+      "image": ""
+    },
+    {
+      "id": 1825053379448919,
+      "term": "possess /pəˈzɛs/",
+      "definition": "verb, sở hữu",
+      "image": ""
+    },
+    {
+      "id": 1825053379448920,
+      "term": "arranger /əˈreɪn.dʒər/",
+      "definition": "noun, người sắp xếp, điều phối",
+      "image": ""
+    },
+    {
+      "id": 1825053379448921,
+      "term": "relevant knowledge /ˈrɛl.ə.vənt ˈnɒl.ɪdʒ/",
+      "definition": "noun, kiến thức liên quan",
+      "image": ""
+    },
+    {
+      "id": 1825053379448922,
+      "term": "interested applicants /ˈɪn.trɪ.stɪd ˈæp.lɪ.kənts/",
+      "definition": "noun, ứng viên quan tâm",
+      "image": ""
+    },
+    {
+      "id": 1825053379448923,
+      "term": "resume /ˈrɛz.jʊ.meɪ/",
+      "definition": "noun, sơ yếu lý lịch",
+      "image": ""
+    },
+    {
+      "id": 1825053379448924,
+      "term": "trade show /treɪd ʃoʊ/",
+      "definition": "noun, hội chợ thương mại",
+      "image": ""
+    },
+    {
+      "id": 1825053379448925,
+      "term": "per your request /pɜːr jʊər rɪˈkwɛst/",
+      "definition": "phrase, theo yêu cầu của bạn",
+      "image": ""
+    },
+    {
+      "id": 1825053379448926,
+      "term": "booklet /ˈbʊk.lɪt/",
+      "definition": "noun, cuốn sách nhỏ",
+      "image": ""
+    },
+    {
+      "id": 1825053379448927,
+      "term": "greenhouse /ˈɡriːn.haʊs/",
+      "definition": "noun, nhà kính",
+      "image": ""
+    },
+    {
+      "id": 1825053379448928,
+      "term": "agricultural technology /ˌæɡ.rɪˈkʌl.tʃər.əl tɛkˈnɒl.ə.dʒi/",
+      "definition": "noun, công nghệ nông nghiệp",
+      "image": ""
+    },
+    {
+      "id": 1825053379448929,
+      "term": "be aware that /bi əˈwɛr ðæt/",
+      "definition": "phrase, nhận thức rằng",
+      "image": ""
+    },
+    {
+      "id": 1825053379448930,
+      "term": "monitoring system /ˈmɒn.ɪ.tər.ɪŋ ˈsɪs.təm/",
+      "definition": "noun, hệ thống giám sát",
+      "image": ""
+    },
+    {
+      "id": 1825053379448931,
+      "term": "temperature /ˈtɛmp.rə.tʃər/",
+      "definition": "noun, nhiệt độ",
+      "image": ""
+    },
+    {
+      "id": 1825053379448932,
+      "term": "humidity /hjuːˈmɪd.ə.ti/",
+      "definition": "noun, độ ẩm",
+      "image": ""
+    },
+    {
+      "id": 1825053380513793,
+      "term": "air quality /ɛr ˈkwɒl.ɪ.ti/",
+      "definition": "noun, chất lượng không khí",
+      "image": ""
+    },
+    {
+      "id": 1825053380513794,
+      "term": "remotely /rɪˈmoʊt.li/",
+      "definition": "adverb, từ xa",
+      "image": ""
+    },
+    {
+      "id": 1825053380513795,
+      "term": "be on site /bi ɒn saɪt/",
+      "definition": "phrase, có mặt tại hiện trường",
+      "image": ""
+    },
+    {
+      "id": 1825053380513796,
+      "term": "make observations /meɪk ˌɒbz.ərˈveɪ.ʃənz/",
+      "definition": "verb, thực hiện quan sát",
+      "image": ""
+    },
+    {
+      "id": 1825053380513797,
+      "term": "the readings /ðə ˈriː.dɪŋz/",
+      "definition": "noun, các số liệu đo lường",
+      "image": ""
+    },
+    {
+      "id": 1825053380513798,
+      "term": "irrigation /ˌɪr.ɪˈɡeɪ.ʃən/",
+      "definition": "noun, hệ thống tưới tiêu",
+      "image": ""
+    },
+    {
+      "id": 1825053380513799,
+      "term": "specializing /ˈspɛʃ.ə.laɪ.zɪŋ/",
+      "definition": "verb, chuyên về",
+      "image": ""
+    },
+    {
+      "id": 1825053380513800,
+      "term": "transmit information /trænzˈmɪt ˌɪn.fɚˈmeɪ.ʃən/",
+      "definition": "verb, truyền tải thông tin",
+      "image": ""
+    },
+    {
+      "id": 1825053380513801,
+      "term": "illustrate /ˈɪl.ə.streɪt/",
+      "definition": "verb, minh họa",
+      "image": ""
+    },
+    {
+      "id": 1825053380513802,
+      "term": "be pleased to work /bi pliːzd tuː wɜːrk/",
+      "definition": "phrase, vui mừng được làm việc",
+      "image": ""
+    },
+    {
+      "id": 1825053380513803,
+      "term": "the showcase /ðə ˈʃoʊ.keɪs/",
+      "definition": "noun, buổi trưng bày",
+      "image": ""
+    },
+    {
+      "id": 1825053380513804,
+      "term": "sculptures /ˈskʌlp.tʃərz/",
+      "definition": "noun, tác phẩm điêu khắc",
+      "image": ""
+    },
+    {
+      "id": 1825053380513805,
+      "term": "beverage /ˈbɛv.ər.ɪdʒ/",
+      "definition": "noun, đồ uống",
+      "image": ""
+    },
+    {
+      "id": 1825053380513806,
+      "term": "appetizer /ˈæp.ɪ.taɪ.zər/",
+      "definition": "noun, món khai vị",
+      "image": ""
+    },
+    {
+      "id": 1825053380513807,
+      "term": "be on hand /bi ɒn hænd/",
+      "definition": "phrase, có mặt sẵn sàng",
+      "image": ""
+    },
+    {
+      "id": 1825053380513808,
+      "term": "study abroad /ˈstʌd.i əˈbrɔːd/",
+      "definition": "verb, du học",
+      "image": ""
+    },
+    {
+      "id": 1825053380513809,
+      "term": "publicize /ˈpʌb.lɪ.saɪz/",
+      "definition": "verb, công khai, quảng bá",
+      "image": ""
+    },
+    {
+      "id": 1825053380513810,
+      "term": "inspection process /ɪnˈspɛk.ʃən ˈprɒ.sɛs/",
+      "definition": "noun, quy trình kiểm tra",
+      "image": ""
+    },
+    {
+      "id": 1825053380513811,
+      "term": "eliminate /ɪˈlɪm.ɪ.neɪt/",
+      "definition": "verb, loại bỏ",
+      "image": ""
+    },
+    {
+      "id": 1825053380513812,
+      "term": "transition /trænˈzɪʃ.ən/",
+      "definition": "verb, chuyển đổi",
+      "image": ""
+    },
+    {
+      "id": 1825053380513813,
+      "term": "gain some experience /ɡeɪn sʌm ɪkˈspɪə.ri.əns/",
+      "definition": "verb, tích lũy kinh nghiệm",
+      "image": ""
+    },
+    {
+      "id": 1825053380513814,
+      "term": "propose the idea /prəˈpoʊz ði aɪˈdɪə/",
+      "definition": "verb, đề xuất ý tưởng",
+      "image": ""
+    },
+    {
+      "id": 1825053380513815,
+      "term": "a work procedure /ə wɜːrk prəˈsiː.dʒər/",
+      "definition": "noun, quy trình làm việc",
+      "image": ""
+    },
+    {
+      "id": 1825053380513816,
+      "term": "resolve or solve the problem /rɪˈzɒlv ɔːr sɒlv ðə ˈprɒb.ləm/",
+      "definition": "verb, giải quyết vấn đề",
+      "image": ""
+    }
+  ]
+}

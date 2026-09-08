@@ -1,0 +1,1208 @@
+{
+  "id": "1012039369",
+  "title": "READING PART 7 - TEST 5",
+  "description": "",
+  "numTerms": 200,
+  "cards": [
+    {
+      "id": 1825273947463680,
+      "term": "Sales Associate /seɪlz əˈsoʊ.si.eɪt/",
+      "definition": "noun, nhân viên bán hàng",
+      "image": ""
+    },
+    {
+      "id": 1825273947463681,
+      "term": "Retail /ˈriː.teɪl/",
+      "definition": "noun, bán lẻ",
+      "image": ""
+    },
+    {
+      "id": 1825273947463682,
+      "term": "Commissions /kəˈmɪʃ.ənz/",
+      "definition": "noun, hoa hồng",
+      "image": ""
+    },
+    {
+      "id": 1825273947463683,
+      "term": "Secret /ˈsiː.krɪt/",
+      "definition": "noun, bí mật",
+      "image": ""
+    },
+    {
+      "id": 1825273947463684,
+      "term": "Secure New Accounts /sɪˈkjʊər nuː əˈkaʊnts/",
+      "definition": "verb phrase, tạo tài khoản mới",
+      "image": ""
+    },
+    {
+      "id": 1825273947463685,
+      "term": "Accounts /əˈkaʊnts/",
+      "definition": "noun, tài khoản",
+      "image": ""
+    },
+    {
+      "id": 1825273947463686,
+      "term": "Pack Something /pæk ˈsʌm.θɪŋ/",
+      "definition": "verb phrase, đóng gói thứ gì đó",
+      "image": ""
+    },
+    {
+      "id": 1825273947463687,
+      "term": "Digital Recording /ˈdɪdʒ.ɪ.təl rɪˈkɔːr.dɪŋ/",
+      "definition": "noun phrase, bản ghi kỹ thuật số",
+      "image": ""
+    },
+    {
+      "id": 1825273947463688,
+      "term": "RSVP /ˌɑːr.es.viːˈpiː/",
+      "definition": "verb phrase, vui lòng phản hồi",
+      "image": ""
+    },
+    {
+      "id": 1825273947463689,
+      "term": "Reserve Your Seats /rɪˈzɜːrv jʊər siːts/",
+      "definition": "verb phrase, đặt chỗ ngồi của bạn",
+      "image": ""
+    },
+    {
+      "id": 1825273947463690,
+      "term": "Registration Form /ˌrɛdʒ.ɪˈstreɪ.ʃən fɔːrm/",
+      "definition": "noun phrase, mẫu đăng ký",
+      "image": ""
+    },
+    {
+      "id": 1825273947463691,
+      "term": "Senior /ˈsiː.njɚ/",
+      "definition": "adjective, cấp cao",
+      "image": ""
+    },
+    {
+      "id": 1825273947463692,
+      "term": "Professional /prəˈfɛʃ.ən.əl/",
+      "definition": "noun, chuyên gia",
+      "image": ""
+    },
+    {
+      "id": 1825273947463693,
+      "term": "Your Thoughts /jʊər θɔːts/",
+      "definition": "noun phrase, suy nghĩ của bạn",
+      "image": ""
+    },
+    {
+      "id": 1825273947463694,
+      "term": "Command /kəˈmænd/",
+      "definition": "noun, mệnh lệnh, sự điều khiển",
+      "image": ""
+    },
+    {
+      "id": 1825273947463695,
+      "term": "Painting Work /ˈpeɪn.tɪŋ wɜːrk/",
+      "definition": "noun phrase, công việc sơn",
+      "image": ""
+    },
+    {
+      "id": 1825273947463696,
+      "term": "Efficiently /ɪˈfɪʃ.ənt.li/",
+      "definition": "adverb, một cách hiệu quả",
+      "image": ""
+    },
+    {
+      "id": 1825273947463697,
+      "term": "The Initial Quote /ði ɪˈnɪʃ.əl kwoʊt/",
+      "definition": "noun phrase, báo giá ban đầu",
+      "image": ""
+    },
+    {
+      "id": 1825273947463698,
+      "term": "Remodeling Project /ˈriːˌmɑː.dəl.ɪŋ ˈprɒdʒ.ɛkt/",
+      "definition": "noun phrase, dự án cải tạo",
+      "image": ""
+    },
+    {
+      "id": 1825273947463699,
+      "term": "Renovation /ˌrɛn.əˈveɪ.ʃən/",
+      "definition": "noun, sự cải tạo",
+      "image": ""
+    },
+    {
+      "id": 1825273947463700,
+      "term": "Contractor /ˈkɒn.træk.tɚ/",
+      "definition": "noun, nhà thầu",
+      "image": ""
+    },
+    {
+      "id": 1825273947463701,
+      "term": "Property /ˈprɒp.ɚ.ti/",
+      "definition": "noun, bất động sản",
+      "image": ""
+    },
+    {
+      "id": 1825273947463702,
+      "term": "Moving Company /ˈmuː.vɪŋ ˈkʌm.pə.ni/",
+      "definition": "noun phrase, công ty vận chuyển",
+      "image": ""
+    },
+    {
+      "id": 1825273947463703,
+      "term": "Private /ˈpraɪ.vɪt/",
+      "definition": "adjective, riêng tư",
+      "image": ""
+    },
+    {
+      "id": 1825273947463704,
+      "term": "Stored /stɔːrd/",
+      "definition": "verb, được lưu trữ",
+      "image": ""
+    },
+    {
+      "id": 1825273947463705,
+      "term": "Price Code /praɪs koʊd/",
+      "definition": "noun phrase, mã giá",
+      "image": ""
+    },
+    {
+      "id": 1825273947463706,
+      "term": "A Price Quote /ə praɪs kwoʊt/",
+      "definition": "noun phrase, báo giá",
+      "image": ""
+    },
+    {
+      "id": 1825273947463707,
+      "term": "A Pair of Pants /ə pɛr ʌv pænts/",
+      "definition": "noun phrase, một chiếc quần",
+      "image": ""
+    },
+    {
+      "id": 1825273947463708,
+      "term": "An Error Message /ən ˈɛr.ər ˈmɛs.ɪdʒ/",
+      "definition": "noun phrase, thông báo lỗi",
+      "image": ""
+    },
+    {
+      "id": 1825273947463709,
+      "term": "Appreciate /əˈpriː.ʃi.eɪt/",
+      "definition": "verb, trân trọng",
+      "image": ""
+    },
+    {
+      "id": 1825273947463710,
+      "term": "Be Thankful That /bi ˈθæŋk.fʊl ðæt/",
+      "definition": "adjective phrase, biết ơn rằng",
+      "image": ""
+    },
+    {
+      "id": 1825273947463711,
+      "term": "The Demand /ðə dɪˈmænd/",
+      "definition": "noun, nhu cầu",
+      "image": ""
+    },
+    {
+      "id": 1825273947463712,
+      "term": "Diploma /dɪˈploʊ.mə/",
+      "definition": "noun, chứng chỉ, bằng cấp",
+      "image": ""
+    },
+    {
+      "id": 1825273947463713,
+      "term": "Technical Training /ˈtɛk.nɪ.kəl ˈtreɪ.nɪŋ/",
+      "definition": "noun phrase, đào tạo kỹ thuật",
+      "image": ""
+    },
+    {
+      "id": 1825273947463714,
+      "term": "Question and Answer Session /ˈkwɛs.tʃən ənd ˈæn.sɚ ˈsɛʃ.ən/",
+      "definition": "noun phrase, phiên hỏi đáp",
+      "image": ""
+    },
+    {
+      "id": 1825273947463715,
+      "term": "The Profession /ðə prəˈfɛʃ.ən/",
+      "definition": "noun, nghề nghiệp",
+      "image": ""
+    },
+    {
+      "id": 1825273947463716,
+      "term": "Observe a Class /əbˈzɜːrv ə klæs/",
+      "definition": "verb phrase, quan sát lớp học",
+      "image": ""
+    },
+    {
+      "id": 1825273947463717,
+      "term": "Hands-on Sessions /ˈhændz ɒn ˈsɛʃ.ənz/",
+      "definition": "noun phrase, buổi thực hành",
+      "image": ""
+    },
+    {
+      "id": 1825273947463718,
+      "term": "Day-to-Day Tasks /ˈdeɪ tuː deɪ tæsks/",
+      "definition": "noun phrase, nhiệm vụ hàng ngày",
+      "image": ""
+    },
+    {
+      "id": 1825273947463719,
+      "term": "The Equivalent Credential /ði ɪˈkwɪv.ə.lənt krɪˈdɛn.ʃəl/",
+      "definition": "noun phrase, chứng chỉ tương đương",
+      "image": ""
+    },
+    {
+      "id": 1825273947463720,
+      "term": "Technician /tɛkˈnɪʃ.ən/",
+      "definition": "noun, kỹ thuật viên",
+      "image": ""
+    },
+    {
+      "id": 1825273947463721,
+      "term": "Be Underpaid /bi ˌʌn.dɚˈpeɪd/",
+      "definition": "verb phrase, bị trả lương thấp",
+      "image": ""
+    },
+    {
+      "id": 1825273947463722,
+      "term": "Earn Credit Toward a Diploma /ɜːrn ˈkrɛd.ɪt təˈwɔːrd ə dɪˈploʊ.mə/",
+      "definition": "verb phrase, tích lũy tín chỉ để lấy bằng cấp",
+      "image": ""
+    },
+    {
+      "id": 1825273947463723,
+      "term": "Have heard /hæv hɜːrd/",
+      "definition": "verb phrase, đã nghe",
+      "image": ""
+    },
+    {
+      "id": 1825273947463724,
+      "term": "Dedication /ˌdɛd.ɪˈkeɪ.ʃən/",
+      "definition": "noun, sự cống hiến",
+      "image": ""
+    },
+    {
+      "id": 1825273947463725,
+      "term": "Sense of humor /sɛns ʌv ˈhjuː.mɚ/",
+      "definition": "noun phrase, khiếu hài hước",
+      "image": ""
+    },
+    {
+      "id": 1825273947463726,
+      "term": "Assorted Beverages /əˈsɔːr.tɪd ˈbɛv.ɚ.ɪdʒɪz/",
+      "definition": "noun phrase, các loại đồ uống",
+      "image": ""
+    },
+    {
+      "id": 1825273947463727,
+      "term": "Served /sɜːrvd/",
+      "definition": "verb, được phục vụ",
+      "image": ""
+    },
+    {
+      "id": 1825273947463728,
+      "term": "A surprise /ə səˈpraɪz/",
+      "definition": "noun phrase, một sự bất ngờ",
+      "image": ""
+    },
+    {
+      "id": 1825273947463729,
+      "term": "Snapshot /ˈsnæp.ʃɒt/",
+      "definition": "noun, ảnh chụp nhanh",
+      "image": ""
+    },
+    {
+      "id": 1825273947463730,
+      "term": "Capture the time /ˈkæp.tʃɚ ðə taɪm/",
+      "definition": "verb phrase, ghi lại khoảnh khắc",
+      "image": ""
+    },
+    {
+      "id": 1825273947463731,
+      "term": "Forward /ˈfɔːr.wɚd/",
+      "definition": "verb, chuyển tiếp",
+      "image": ""
+    },
+    {
+      "id": 1825273947463732,
+      "term": "Slideshow /ˈslaɪd.ʃoʊ/",
+      "definition": "noun, trình chiếu",
+      "image": ""
+    },
+    {
+      "id": 1825273947463733,
+      "term": "Transfer to /ˈtræns.fɜːr tuː/",
+      "definition": "verb phrase, chuyển sang",
+      "image": ""
+    },
+    {
+      "id": 1825273947463734,
+      "term": "Pose for a photo /poʊz fɔːr ə ˈfoʊ.toʊ/",
+      "definition": "verb phrase, tạo dáng chụp ảnh",
+      "image": ""
+    },
+    {
+      "id": 1825273947463735,
+      "term": "Represent /ˌrɛp.rɪˈzɛnt/",
+      "definition": "verb, đại diện",
+      "image": ""
+    },
+    {
+      "id": 1825273947463736,
+      "term": "Be entitled to /bi ɪnˈtaɪ.təld tuː/",
+      "definition": "verb phrase, được quyền hưởng",
+      "image": ""
+    },
+    {
+      "id": 1825273947463737,
+      "term": "Be encouraged to /bi ɪnˈkɜː.rɪdʒd tuː/",
+      "definition": "verb phrase, được khuyến khích làm gì",
+      "image": ""
+    },
+    {
+      "id": 1825273947463738,
+      "term": "Personal business /ˈpɜːr.sə.nəl ˈbɪz.nɪs/",
+      "definition": "noun phrase, công việc cá nhân",
+      "image": ""
+    },
+    {
+      "id": 1825273947463739,
+      "term": "Shift /ʃɪft/",
+      "definition": "noun, ca làm việc",
+      "image": ""
+    },
+    {
+      "id": 1825273947463740,
+      "term": "A staff lounge /ə stæf laʊndʒ/",
+      "definition": "noun phrase, phòng nghỉ cho nhân viên",
+      "image": ""
+    },
+    {
+      "id": 1825273947463741,
+      "term": "Refrigerator /rɪˈfrɪdʒ.ə.reɪ.tər/",
+      "definition": "noun, tủ lạnh",
+      "image": ""
+    },
+    {
+      "id": 1825273947463742,
+      "term": "Leftover food /ˈlɛftˌoʊ.vɚ fuːd/",
+      "definition": "noun phrase, thức ăn thừa",
+      "image": ""
+    },
+    {
+      "id": 1825273947463743,
+      "term": "Lockers /ˈlɒk.ɚz/",
+      "definition": "noun, tủ đựng đồ cá nhân",
+      "image": ""
+    },
+    {
+      "id": 1825273947463744,
+      "term": "Restroom /ˈrɛst.ruːm/",
+      "definition": "noun, nhà vệ sinh",
+      "image": ""
+    },
+    {
+      "id": 1825273947463745,
+      "term": "Handbook /ˈhænd.bʊk/",
+      "definition": "noun, sổ tay hướng dẫn",
+      "image": ""
+    },
+    {
+      "id": 1825273947463746,
+      "term": "Press release /prɛs rɪˈliːs/",
+      "definition": "noun, thông cáo báo chí",
+      "image": ""
+    },
+    {
+      "id": 1825273947463747,
+      "term": "Product manual /ˈprɒd.ʌkt ˈmæn.ju.əl/",
+      "definition": "noun, hướng dẫn sử dụng sản phẩm",
+      "image": ""
+    },
+    {
+      "id": 1825273947463748,
+      "term": "Vending machine /ˈvɛn.dɪŋ məˈʃiːn/",
+      "definition": "noun, máy bán hàng tự động",
+      "image": ""
+    },
+    {
+      "id": 1825273947463749,
+      "term": "Acquire the company /əˈkwaɪ.ɚ ðə ˈkʌm.pə.ni/",
+      "definition": "verb phrase, mua lại công ty",
+      "image": ""
+    },
+    {
+      "id": 1825273947463750,
+      "term": "Distributor /dɪˈstrɪb.jə.tɚ/",
+      "definition": "noun, nhà phân phối",
+      "image": ""
+    },
+    {
+      "id": 1825273947463751,
+      "term": "The food packaging /ðə fuːd ˈpæk.ɪdʒɪŋ/",
+      "definition": "noun phrase, bao bì thực phẩm",
+      "image": ""
+    },
+    {
+      "id": 1825273947463752,
+      "term": "Establish a base /ɪˈstæb.lɪʃ ə beɪs/",
+      "definition": "verb phrase, thiết lập cơ sở",
+      "image": ""
+    },
+    {
+      "id": 1825273947463753,
+      "term": "An initiative /ən ɪˈnɪʃ.ə.tɪv/",
+      "definition": "noun, sáng kiến",
+      "image": ""
+    },
+    {
+      "id": 1825273947463754,
+      "term": "Break into the market /breɪk ˈɪn.tuː ðə ˈmɑːr.kɪt/",
+      "definition": "verb phrase, thâm nhập thị trường",
+      "image": ""
+    },
+    {
+      "id": 1825273947463755,
+      "term": "Disposable /dɪˈspoʊ.zə.bəl/",
+      "definition": "adjective, dùng một lần",
+      "image": ""
+    },
+    {
+      "id": 1825273947463756,
+      "term": "Supplies /səˈplaɪz/",
+      "definition": "noun, vật tư",
+      "image": ""
+    },
+    {
+      "id": 1825273947463757,
+      "term": "The surrounding areas /ðə səˈraʊn.dɪŋ ˈɛr.i.əz/",
+      "definition": "noun phrase, các khu vực xung quanh",
+      "image": ""
+    },
+    {
+      "id": 1825273947463758,
+      "term": "Reputable /ˈrɛp.jə.tə.bəl/",
+      "definition": "adjective, có danh tiếng",
+      "image": ""
+    },
+    {
+      "id": 1825273947463759,
+      "term": "Be thrilled to /bi θrɪld tuː/",
+      "definition": "verb phrase, rất vui mừng để làm gì",
+      "image": ""
+    },
+    {
+      "id": 1825273947463760,
+      "term": "A press conference /ə prɛs ˈkɒn.fər.əns/",
+      "definition": "noun phrase, họp báo",
+      "image": ""
+    },
+    {
+      "id": 1825273947463761,
+      "term": "The benefit /ðə ˈbɛn.ɪ.fɪt/",
+      "definition": "noun, lợi ích",
+      "image": ""
+    },
+    {
+      "id": 1825273947463762,
+      "term": "The acquisition /ði ˌæk.wɪˈzɪʃ.ən/",
+      "definition": "noun, sự mua lại",
+      "image": ""
+    },
+    {
+      "id": 1825273947463763,
+      "term": "Strategy /ˈstræt.ə.dʒi/",
+      "definition": "noun, chiến lược",
+      "image": ""
+    },
+    {
+      "id": 1825273947463764,
+      "term": "Expand the geographic reach /ɪkˈspænd ðə ˌdʒi.əˈɡræf.ɪk riːtʃ/",
+      "definition": "verb phrase, mở rộng phạm vi địa lý",
+      "image": ""
+    },
+    {
+      "id": 1825273947463765,
+      "term": "Similar to /ˈsɪm.ɪ.lɚ tuː/",
+      "definition": "adjective phrase, tương tự với",
+      "image": ""
+    },
+    {
+      "id": 1825273947463766,
+      "term": "Be intended to /bi ɪnˈtɛn.dɪd tuː/",
+      "definition": "verb phrase, dự định để làm gì",
+      "image": ""
+    },
+    {
+      "id": 1825273947463767,
+      "term": "Undergo /ˌʌn.dɚˈɡoʊ/",
+      "definition": "verb, trải qua",
+      "image": ""
+    },
+    {
+      "id": 1825273947463768,
+      "term": "Advanced /ədˈvænst/",
+      "definition": "adjective, tiên tiến",
+      "image": ""
+    },
+    {
+      "id": 1825273947463769,
+      "term": "Non-profit group /nɒnˈprɒf.ɪt ɡruːp/",
+      "definition": "noun phrase, tổ chức phi lợi nhuận",
+      "image": ""
+    },
+    {
+      "id": 1825273947463770,
+      "term": "Circulate the information /ˈsɜːr.kjʊ.leɪt ði ˌɪn.fɚˈmeɪ.ʃən/",
+      "definition": "verb phrase, truyền bá thông tin",
+      "image": ""
+    },
+    {
+      "id": 1825273947463771,
+      "term": "Be in touch with /bi ɪn tʌtʃ wɪð/",
+      "definition": "verb phrase, giữ liên lạc với",
+      "image": ""
+    },
+    {
+      "id": 1825273947463772,
+      "term": "Various /ˈvɛr.i.əs/",
+      "definition": "adjective, đa dạng",
+      "image": ""
+    },
+    {
+      "id": 1825273947463773,
+      "term": "News outlets /nuːz ˈaʊt.lɛts/",
+      "definition": "noun phrase, các kênh tin tức",
+      "image": ""
+    },
+    {
+      "id": 1825273947463774,
+      "term": "The naming convention /ðə ˈneɪ.mɪŋ kənˈvɛn.ʃən/",
+      "definition": "noun phrase, quy ước đặt tên",
+      "image": ""
+    },
+    {
+      "id": 1825273947463775,
+      "term": "A charitable donation /ə ˈtʃær.ɪ.tə.bəl doʊˈneɪ.ʃən/",
+      "definition": "noun phrase, quyên góp từ thiện",
+      "image": ""
+    },
+    {
+      "id": 1825273947463776,
+      "term": "Recruit an employee /rɪˈkruːt ən ˌɛm.plɔɪˈiː/",
+      "definition": "verb phrase, tuyển dụng nhân viên",
+      "image": ""
+    },
+    {
+      "id": 1825273947463777,
+      "term": "Potential /pəˈtɛn.ʃəl/",
+      "definition": "adjective, tiềm năng",
+      "image": ""
+    },
+    {
+      "id": 1825273947463778,
+      "term": "Be suited for /bi ˈsuː.tɪd fɔːr/",
+      "definition": "verb phrase, phù hợp với",
+      "image": ""
+    },
+    {
+      "id": 1825273947463779,
+      "term": "Benefit from /ˈbɛn.ɪ.fɪt frɒm/",
+      "definition": "verb phrase, hưởng lợi từ",
+      "image": ""
+    },
+    {
+      "id": 1825273947463680,
+      "term": "Sales Associate /seɪlz əˈsoʊ.si.eɪt/",
+      "definition": "noun, nhân viên bán hàng",
+      "image": ""
+    },
+    {
+      "id": 1825273947463681,
+      "term": "Retail /ˈriː.teɪl/",
+      "definition": "noun, bán lẻ",
+      "image": ""
+    },
+    {
+      "id": 1825273947463682,
+      "term": "Commissions /kəˈmɪʃ.ənz/",
+      "definition": "noun, hoa hồng",
+      "image": ""
+    },
+    {
+      "id": 1825273947463683,
+      "term": "Secret /ˈsiː.krɪt/",
+      "definition": "noun, bí mật",
+      "image": ""
+    },
+    {
+      "id": 1825273947463684,
+      "term": "Secure New Accounts /sɪˈkjʊər nuː əˈkaʊnts/",
+      "definition": "verb phrase, tạo tài khoản mới",
+      "image": ""
+    },
+    {
+      "id": 1825273947463685,
+      "term": "Accounts /əˈkaʊnts/",
+      "definition": "noun, tài khoản",
+      "image": ""
+    },
+    {
+      "id": 1825273947463686,
+      "term": "Pack Something /pæk ˈsʌm.θɪŋ/",
+      "definition": "verb phrase, đóng gói thứ gì đó",
+      "image": ""
+    },
+    {
+      "id": 1825273947463687,
+      "term": "Digital Recording /ˈdɪdʒ.ɪ.təl rɪˈkɔːr.dɪŋ/",
+      "definition": "noun phrase, bản ghi kỹ thuật số",
+      "image": ""
+    },
+    {
+      "id": 1825273947463688,
+      "term": "RSVP /ˌɑːr.es.viːˈpiː/",
+      "definition": "verb phrase, vui lòng phản hồi",
+      "image": ""
+    },
+    {
+      "id": 1825273947463689,
+      "term": "Reserve Your Seats /rɪˈzɜːrv jʊər siːts/",
+      "definition": "verb phrase, đặt chỗ ngồi của bạn",
+      "image": ""
+    },
+    {
+      "id": 1825273947463690,
+      "term": "Registration Form /ˌrɛdʒ.ɪˈstreɪ.ʃən fɔːrm/",
+      "definition": "noun phrase, mẫu đăng ký",
+      "image": ""
+    },
+    {
+      "id": 1825273947463691,
+      "term": "Senior /ˈsiː.njɚ/",
+      "definition": "adjective, cấp cao",
+      "image": ""
+    },
+    {
+      "id": 1825273947463692,
+      "term": "Professional /prəˈfɛʃ.ən.əl/",
+      "definition": "noun, chuyên gia",
+      "image": ""
+    },
+    {
+      "id": 1825273947463693,
+      "term": "Your Thoughts /jʊər θɔːts/",
+      "definition": "noun phrase, suy nghĩ của bạn",
+      "image": ""
+    },
+    {
+      "id": 1825273947463694,
+      "term": "Command /kəˈmænd/",
+      "definition": "noun, mệnh lệnh, sự điều khiển",
+      "image": ""
+    },
+    {
+      "id": 1825273947463695,
+      "term": "Painting Work /ˈpeɪn.tɪŋ wɜːrk/",
+      "definition": "noun phrase, công việc sơn",
+      "image": ""
+    },
+    {
+      "id": 1825273947463696,
+      "term": "Efficiently /ɪˈfɪʃ.ənt.li/",
+      "definition": "adverb, một cách hiệu quả",
+      "image": ""
+    },
+    {
+      "id": 1825273947463697,
+      "term": "The Initial Quote /ði ɪˈnɪʃ.əl kwoʊt/",
+      "definition": "noun phrase, báo giá ban đầu",
+      "image": ""
+    },
+    {
+      "id": 1825273947463698,
+      "term": "Remodeling Project /ˈriːˌmɑː.dəl.ɪŋ ˈprɒdʒ.ɛkt/",
+      "definition": "noun phrase, dự án cải tạo",
+      "image": ""
+    },
+    {
+      "id": 1825273947463699,
+      "term": "Renovation /ˌrɛn.əˈveɪ.ʃən/",
+      "definition": "noun, sự cải tạo",
+      "image": ""
+    },
+    {
+      "id": 1825273947463700,
+      "term": "Contractor /ˈkɒn.træk.tɚ/",
+      "definition": "noun, nhà thầu",
+      "image": ""
+    },
+    {
+      "id": 1825273947463701,
+      "term": "Property /ˈprɒp.ɚ.ti/",
+      "definition": "noun, bất động sản",
+      "image": ""
+    },
+    {
+      "id": 1825273947463702,
+      "term": "Moving Company /ˈmuː.vɪŋ ˈkʌm.pə.ni/",
+      "definition": "noun phrase, công ty vận chuyển",
+      "image": ""
+    },
+    {
+      "id": 1825273947463703,
+      "term": "Private /ˈpraɪ.vɪt/",
+      "definition": "adjective, riêng tư",
+      "image": ""
+    },
+    {
+      "id": 1825273947463704,
+      "term": "Stored /stɔːrd/",
+      "definition": "verb, được lưu trữ",
+      "image": ""
+    },
+    {
+      "id": 1825273947463705,
+      "term": "Price Code /praɪs koʊd/",
+      "definition": "noun phrase, mã giá",
+      "image": ""
+    },
+    {
+      "id": 1825273947463706,
+      "term": "A Price Quote /ə praɪs kwoʊt/",
+      "definition": "noun phrase, báo giá",
+      "image": ""
+    },
+    {
+      "id": 1825273947463707,
+      "term": "A Pair of Pants /ə pɛr ʌv pænts/",
+      "definition": "noun phrase, một chiếc quần",
+      "image": ""
+    },
+    {
+      "id": 1825273947463708,
+      "term": "An Error Message /ən ˈɛr.ər ˈmɛs.ɪdʒ/",
+      "definition": "noun phrase, thông báo lỗi",
+      "image": ""
+    },
+    {
+      "id": 1825273947463709,
+      "term": "Appreciate /əˈpriː.ʃi.eɪt/",
+      "definition": "verb, trân trọng",
+      "image": ""
+    },
+    {
+      "id": 1825273947463710,
+      "term": "Be Thankful That /bi ˈθæŋk.fʊl ðæt/",
+      "definition": "adjective phrase, biết ơn rằng",
+      "image": ""
+    },
+    {
+      "id": 1825273947463711,
+      "term": "The Demand /ðə dɪˈmænd/",
+      "definition": "noun, nhu cầu",
+      "image": ""
+    },
+    {
+      "id": 1825273947463712,
+      "term": "Diploma /dɪˈploʊ.mə/",
+      "definition": "noun, chứng chỉ, bằng cấp",
+      "image": ""
+    },
+    {
+      "id": 1825273947463713,
+      "term": "Technical Training /ˈtɛk.nɪ.kəl ˈtreɪ.nɪŋ/",
+      "definition": "noun phrase, đào tạo kỹ thuật",
+      "image": ""
+    },
+    {
+      "id": 1825273947463714,
+      "term": "Question and Answer Session /ˈkwɛs.tʃən ənd ˈæn.sɚ ˈsɛʃ.ən/",
+      "definition": "noun phrase, phiên hỏi đáp",
+      "image": ""
+    },
+    {
+      "id": 1825273947463715,
+      "term": "The Profession /ðə prəˈfɛʃ.ən/",
+      "definition": "noun, nghề nghiệp",
+      "image": ""
+    },
+    {
+      "id": 1825273947463716,
+      "term": "Observe a Class /əbˈzɜːrv ə klæs/",
+      "definition": "verb phrase, quan sát lớp học",
+      "image": ""
+    },
+    {
+      "id": 1825273947463717,
+      "term": "Hands-on Sessions /ˈhændz ɒn ˈsɛʃ.ənz/",
+      "definition": "noun phrase, buổi thực hành",
+      "image": ""
+    },
+    {
+      "id": 1825273947463718,
+      "term": "Day-to-Day Tasks /ˈdeɪ tuː deɪ tæsks/",
+      "definition": "noun phrase, nhiệm vụ hàng ngày",
+      "image": ""
+    },
+    {
+      "id": 1825273947463719,
+      "term": "The Equivalent Credential /ði ɪˈkwɪv.ə.lənt krɪˈdɛn.ʃəl/",
+      "definition": "noun phrase, chứng chỉ tương đương",
+      "image": ""
+    },
+    {
+      "id": 1825273947463720,
+      "term": "Technician /tɛkˈnɪʃ.ən/",
+      "definition": "noun, kỹ thuật viên",
+      "image": ""
+    },
+    {
+      "id": 1825273947463721,
+      "term": "Be Underpaid /bi ˌʌn.dɚˈpeɪd/",
+      "definition": "verb phrase, bị trả lương thấp",
+      "image": ""
+    },
+    {
+      "id": 1825273947463722,
+      "term": "Earn Credit Toward a Diploma /ɜːrn ˈkrɛd.ɪt təˈwɔːrd ə dɪˈploʊ.mə/",
+      "definition": "verb phrase, tích lũy tín chỉ để lấy bằng cấp",
+      "image": ""
+    },
+    {
+      "id": 1825273947463723,
+      "term": "Have heard /hæv hɜːrd/",
+      "definition": "verb phrase, đã nghe",
+      "image": ""
+    },
+    {
+      "id": 1825273947463724,
+      "term": "Dedication /ˌdɛd.ɪˈkeɪ.ʃən/",
+      "definition": "noun, sự cống hiến",
+      "image": ""
+    },
+    {
+      "id": 1825273947463725,
+      "term": "Sense of humor /sɛns ʌv ˈhjuː.mɚ/",
+      "definition": "noun phrase, khiếu hài hước",
+      "image": ""
+    },
+    {
+      "id": 1825273947463726,
+      "term": "Assorted Beverages /əˈsɔːr.tɪd ˈbɛv.ɚ.ɪdʒɪz/",
+      "definition": "noun phrase, các loại đồ uống",
+      "image": ""
+    },
+    {
+      "id": 1825273947463727,
+      "term": "Served /sɜːrvd/",
+      "definition": "verb, được phục vụ",
+      "image": ""
+    },
+    {
+      "id": 1825273947463728,
+      "term": "A surprise /ə səˈpraɪz/",
+      "definition": "noun phrase, một sự bất ngờ",
+      "image": ""
+    },
+    {
+      "id": 1825273947463729,
+      "term": "Snapshot /ˈsnæp.ʃɒt/",
+      "definition": "noun, ảnh chụp nhanh",
+      "image": ""
+    },
+    {
+      "id": 1825273947463730,
+      "term": "Capture the time /ˈkæp.tʃɚ ðə taɪm/",
+      "definition": "verb phrase, ghi lại khoảnh khắc",
+      "image": ""
+    },
+    {
+      "id": 1825273947463731,
+      "term": "Forward /ˈfɔːr.wɚd/",
+      "definition": "verb, chuyển tiếp",
+      "image": ""
+    },
+    {
+      "id": 1825273947463732,
+      "term": "Slideshow /ˈslaɪd.ʃoʊ/",
+      "definition": "noun, trình chiếu",
+      "image": ""
+    },
+    {
+      "id": 1825273947463733,
+      "term": "Transfer to /ˈtræns.fɜːr tuː/",
+      "definition": "verb phrase, chuyển sang",
+      "image": ""
+    },
+    {
+      "id": 1825273947463734,
+      "term": "Pose for a photo /poʊz fɔːr ə ˈfoʊ.toʊ/",
+      "definition": "verb phrase, tạo dáng chụp ảnh",
+      "image": ""
+    },
+    {
+      "id": 1825273947463735,
+      "term": "Represent /ˌrɛp.rɪˈzɛnt/",
+      "definition": "verb, đại diện",
+      "image": ""
+    },
+    {
+      "id": 1825273947463736,
+      "term": "Be entitled to /bi ɪnˈtaɪ.təld tuː/",
+      "definition": "verb phrase, được quyền hưởng",
+      "image": ""
+    },
+    {
+      "id": 1825273947463737,
+      "term": "Be encouraged to /bi ɪnˈkɜː.rɪdʒd tuː/",
+      "definition": "verb phrase, được khuyến khích làm gì",
+      "image": ""
+    },
+    {
+      "id": 1825273947463738,
+      "term": "Personal business /ˈpɜːr.sə.nəl ˈbɪz.nɪs/",
+      "definition": "noun phrase, công việc cá nhân",
+      "image": ""
+    },
+    {
+      "id": 1825273947463739,
+      "term": "Shift /ʃɪft/",
+      "definition": "noun, ca làm việc",
+      "image": ""
+    },
+    {
+      "id": 1825273947463740,
+      "term": "A staff lounge /ə stæf laʊndʒ/",
+      "definition": "noun phrase, phòng nghỉ cho nhân viên",
+      "image": ""
+    },
+    {
+      "id": 1825273947463741,
+      "term": "Refrigerator /rɪˈfrɪdʒ.ə.reɪ.tər/",
+      "definition": "noun, tủ lạnh",
+      "image": ""
+    },
+    {
+      "id": 1825273947463742,
+      "term": "Leftover food /ˈlɛftˌoʊ.vɚ fuːd/",
+      "definition": "noun phrase, thức ăn thừa",
+      "image": ""
+    },
+    {
+      "id": 1825273947463743,
+      "term": "Lockers /ˈlɒk.ɚz/",
+      "definition": "noun, tủ đựng đồ cá nhân",
+      "image": ""
+    },
+    {
+      "id": 1825273947463744,
+      "term": "Restroom /ˈrɛst.ruːm/",
+      "definition": "noun, nhà vệ sinh",
+      "image": ""
+    },
+    {
+      "id": 1825273947463745,
+      "term": "Handbook /ˈhænd.bʊk/",
+      "definition": "noun, sổ tay hướng dẫn",
+      "image": ""
+    },
+    {
+      "id": 1825273947463746,
+      "term": "Press release /prɛs rɪˈliːs/",
+      "definition": "noun, thông cáo báo chí",
+      "image": ""
+    },
+    {
+      "id": 1825273947463747,
+      "term": "Product manual /ˈprɒd.ʌkt ˈmæn.ju.əl/",
+      "definition": "noun, hướng dẫn sử dụng sản phẩm",
+      "image": ""
+    },
+    {
+      "id": 1825273947463748,
+      "term": "Vending machine /ˈvɛn.dɪŋ məˈʃiːn/",
+      "definition": "noun, máy bán hàng tự động",
+      "image": ""
+    },
+    {
+      "id": 1825273947463749,
+      "term": "Acquire the company /əˈkwaɪ.ɚ ðə ˈkʌm.pə.ni/",
+      "definition": "verb phrase, mua lại công ty",
+      "image": ""
+    },
+    {
+      "id": 1825273947463750,
+      "term": "Distributor /dɪˈstrɪb.jə.tɚ/",
+      "definition": "noun, nhà phân phối",
+      "image": ""
+    },
+    {
+      "id": 1825273947463751,
+      "term": "The food packaging /ðə fuːd ˈpæk.ɪdʒɪŋ/",
+      "definition": "noun phrase, bao bì thực phẩm",
+      "image": ""
+    },
+    {
+      "id": 1825273947463752,
+      "term": "Establish a base /ɪˈstæb.lɪʃ ə beɪs/",
+      "definition": "verb phrase, thiết lập cơ sở",
+      "image": ""
+    },
+    {
+      "id": 1825273947463753,
+      "term": "An initiative /ən ɪˈnɪʃ.ə.tɪv/",
+      "definition": "noun, sáng kiến",
+      "image": ""
+    },
+    {
+      "id": 1825273947463754,
+      "term": "Break into the market /breɪk ˈɪn.tuː ðə ˈmɑːr.kɪt/",
+      "definition": "verb phrase, thâm nhập thị trường",
+      "image": ""
+    },
+    {
+      "id": 1825273947463755,
+      "term": "Disposable /dɪˈspoʊ.zə.bəl/",
+      "definition": "adjective, dùng một lần",
+      "image": ""
+    },
+    {
+      "id": 1825273947463756,
+      "term": "Supplies /səˈplaɪz/",
+      "definition": "noun, vật tư",
+      "image": ""
+    },
+    {
+      "id": 1825273947463757,
+      "term": "The surrounding areas /ðə səˈraʊn.dɪŋ ˈɛr.i.əz/",
+      "definition": "noun phrase, các khu vực xung quanh",
+      "image": ""
+    },
+    {
+      "id": 1825273947463758,
+      "term": "Reputable /ˈrɛp.jə.tə.bəl/",
+      "definition": "adjective, có danh tiếng",
+      "image": ""
+    },
+    {
+      "id": 1825273947463759,
+      "term": "Be thrilled to /bi θrɪld tuː/",
+      "definition": "verb phrase, rất vui mừng để làm gì",
+      "image": ""
+    },
+    {
+      "id": 1825273947463760,
+      "term": "A press conference /ə prɛs ˈkɒn.fər.əns/",
+      "definition": "noun phrase, họp báo",
+      "image": ""
+    },
+    {
+      "id": 1825273947463761,
+      "term": "The benefit /ðə ˈbɛn.ɪ.fɪt/",
+      "definition": "noun, lợi ích",
+      "image": ""
+    },
+    {
+      "id": 1825273947463762,
+      "term": "The acquisition /ði ˌæk.wɪˈzɪʃ.ən/",
+      "definition": "noun, sự mua lại",
+      "image": ""
+    },
+    {
+      "id": 1825273947463763,
+      "term": "Strategy /ˈstræt.ə.dʒi/",
+      "definition": "noun, chiến lược",
+      "image": ""
+    },
+    {
+      "id": 1825273947463764,
+      "term": "Expand the geographic reach /ɪkˈspænd ðə ˌdʒi.əˈɡræf.ɪk riːtʃ/",
+      "definition": "verb phrase, mở rộng phạm vi địa lý",
+      "image": ""
+    },
+    {
+      "id": 1825273947463765,
+      "term": "Similar to /ˈsɪm.ɪ.lɚ tuː/",
+      "definition": "adjective phrase, tương tự với",
+      "image": ""
+    },
+    {
+      "id": 1825273947463766,
+      "term": "Be intended to /bi ɪnˈtɛn.dɪd tuː/",
+      "definition": "verb phrase, dự định để làm gì",
+      "image": ""
+    },
+    {
+      "id": 1825273947463767,
+      "term": "Undergo /ˌʌn.dɚˈɡoʊ/",
+      "definition": "verb, trải qua",
+      "image": ""
+    },
+    {
+      "id": 1825273947463768,
+      "term": "Advanced /ədˈvænst/",
+      "definition": "adjective, tiên tiến",
+      "image": ""
+    },
+    {
+      "id": 1825273947463769,
+      "term": "Non-profit group /nɒnˈprɒf.ɪt ɡruːp/",
+      "definition": "noun phrase, tổ chức phi lợi nhuận",
+      "image": ""
+    },
+    {
+      "id": 1825273947463770,
+      "term": "Circulate the information /ˈsɜːr.kjʊ.leɪt ði ˌɪn.fɚˈmeɪ.ʃən/",
+      "definition": "verb phrase, truyền bá thông tin",
+      "image": ""
+    },
+    {
+      "id": 1825273947463771,
+      "term": "Be in touch with /bi ɪn tʌtʃ wɪð/",
+      "definition": "verb phrase, giữ liên lạc với",
+      "image": ""
+    },
+    {
+      "id": 1825273947463772,
+      "term": "Various /ˈvɛr.i.əs/",
+      "definition": "adjective, đa dạng",
+      "image": ""
+    },
+    {
+      "id": 1825273947463773,
+      "term": "News outlets /nuːz ˈaʊt.lɛts/",
+      "definition": "noun phrase, các kênh tin tức",
+      "image": ""
+    },
+    {
+      "id": 1825273947463774,
+      "term": "The naming convention /ðə ˈneɪ.mɪŋ kənˈvɛn.ʃən/",
+      "definition": "noun phrase, quy ước đặt tên",
+      "image": ""
+    },
+    {
+      "id": 1825273947463775,
+      "term": "A charitable donation /ə ˈtʃær.ɪ.tə.bəl doʊˈneɪ.ʃən/",
+      "definition": "noun phrase, quyên góp từ thiện",
+      "image": ""
+    },
+    {
+      "id": 1825273947463776,
+      "term": "Recruit an employee /rɪˈkruːt ən ˌɛm.plɔɪˈiː/",
+      "definition": "verb phrase, tuyển dụng nhân viên",
+      "image": ""
+    },
+    {
+      "id": 1825273947463777,
+      "term": "Potential /pəˈtɛn.ʃəl/",
+      "definition": "adjective, tiềm năng",
+      "image": ""
+    },
+    {
+      "id": 1825273947463778,
+      "term": "Be suited for /bi ˈsuː.tɪd fɔːr/",
+      "definition": "verb phrase, phù hợp với",
+      "image": ""
+    },
+    {
+      "id": 1825273947463779,
+      "term": "Benefit from /ˈbɛn.ɪ.fɪt frɒm/",
+      "definition": "verb phrase, hưởng lợi từ",
+      "image": ""
+    }
+  ]
+}

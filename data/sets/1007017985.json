@@ -1,0 +1,1208 @@
+{
+  "id": "1007017985",
+  "title": "READING PART 7 - TEST 02",
+  "description": "",
+  "numTerms": 200,
+  "cards": [
+    {
+      "id": 1824329082863619,
+      "term": "Reward",
+      "definition": "(n), Phần thưởng, Incentive, Bonus",
+      "image": ""
+    },
+    {
+      "id": 1824329082863620,
+      "term": "Special Discount",
+      "definition": "(n), Giảm giá đặc biệt, Rebate, Price Reduction",
+      "image": ""
+    },
+    {
+      "id": 1824329082863621,
+      "term": "Round-trip Ticket",
+      "definition": "(n), Vé khứ hồi, Return Ticket, Two-way Ticket",
+      "image": ""
+    },
+    {
+      "id": 1824329082863622,
+      "term": "Fare",
+      "definition": "(n), Tiền vé, Transportation Fee, Ticket Price",
+      "image": ""
+    },
+    {
+      "id": 1824329082863623,
+      "term": "Companion",
+      "definition": "(n), Bạn đồng hành, Partner, Associate",
+      "image": ""
+    },
+    {
+      "id": 1824329082863624,
+      "term": "Promotion",
+      "definition": "(n), Sự thăng tiến / Khuyến mãi, Advancement, Marketing",
+      "image": ""
+    },
+    {
+      "id": 1824329082863625,
+      "term": "Exchange",
+      "definition": "(v), Trao đổi, Swap, Trade",
+      "image": ""
+    },
+    {
+      "id": 1824329082863626,
+      "term": "Previously",
+      "definition": "(adv), Trước đây, Formerly, Earlier",
+      "image": ""
+    },
+    {
+      "id": 1824329082863627,
+      "term": "Obtain",
+      "definition": "(v), Đạt được, Gain, Acquire",
+      "image": ""
+    },
+    {
+      "id": 1824329082863628,
+      "term": "Public Size",
+      "definition": "(n), Quy mô công cộng, Public Capacity, Overall Size",
+      "image": ""
+    },
+    {
+      "id": 1824329082863629,
+      "term": "First-time Customer",
+      "definition": "(n), Khách hàng lần đầu, New Customer, First-time Buyer",
+      "image": ""
+    },
+    {
+      "id": 1824329082863630,
+      "term": "Promote",
+      "definition": "(v), Quảng bá, Advertise, Market",
+      "image": ""
+    },
+    {
+      "id": 1824329082863631,
+      "term": "Over the Phone",
+      "definition": "(phr), Qua điện thoại, By Phone, Via Call",
+      "image": ""
+    },
+    {
+      "id": 1824329082863632,
+      "term": "Turnover",
+      "definition": "(n), Doanh thu, Revenue, Income",
+      "image": ""
+    },
+    {
+      "id": 1824329082863633,
+      "term": "Staff Turnover",
+      "definition": "(n), Tỷ lệ thay đổi nhân sự, Employee Turnover, Staff Retention",
+      "image": ""
+    },
+    {
+      "id": 1824329082863634,
+      "term": "Necessary",
+      "definition": "(adj), Cần thiết, Essential, Required",
+      "image": ""
+    },
+    {
+      "id": 1824329082863635,
+      "term": "Automotive",
+      "definition": "(adj), Liên quan đến ô tô, Automobile-related, Vehicle-based",
+      "image": ""
+    },
+    {
+      "id": 1824329082863636,
+      "term": "Strict",
+      "definition": "(adj), Nghiêm khắc, Rigid, Severe",
+      "image": ""
+    },
+    {
+      "id": 1824329082863637,
+      "term": "Observe",
+      "definition": "(v), Tuân theo, Follow, Comply with",
+      "image": ""
+    },
+    {
+      "id": 1824329082863638,
+      "term": "Rules should be strictly observed",
+      "definition": "(phr), Quy tắc phải được tuân thủ nghiêm ngặt, Rules must be followed strictly, Regulations must be enforced",
+      "image": ""
+    },
+    {
+      "id": 1824329082863639,
+      "term": "Tour",
+      "definition": "(n), Chuyến tham quan, Trip, Excursion",
+      "image": ""
+    },
+    {
+      "id": 1824329082863640,
+      "term": "Assembly",
+      "definition": "(n), Lắp ráp, Assembly Line, Construction",
+      "image": ""
+    },
+    {
+      "id": 1824329082863641,
+      "term": "Violation of the rule",
+      "definition": "(n), Vi phạm quy tắc, Breach, Infraction",
+      "image": ""
+    },
+    {
+      "id": 1824329082863642,
+      "term": "Premises",
+      "definition": "(n), Khuôn viên, Building, Facility",
+      "image": ""
+    },
+    {
+      "id": 1824329082863643,
+      "term": "Compliance",
+      "definition": "(n), Sự tuân thủ, Adherence, Observance",
+      "image": ""
+    },
+    {
+      "id": 1824329082863644,
+      "term": "Signals",
+      "definition": "(n), Tín hiệu, Signs, Indications",
+      "image": ""
+    },
+    {
+      "id": 1824329082863645,
+      "term": "Obey",
+      "definition": "(v), Tuân theo, Follow, Adhere to",
+      "image": ""
+    },
+    {
+      "id": 1824329082863646,
+      "term": "Evacuation instruction",
+      "definition": "(n), Hướng dẫn sơ tán, Emergency Instructions, Evacuation Plan",
+      "image": ""
+    },
+    {
+      "id": 1824329082863647,
+      "term": "Permission",
+      "definition": "(n), Sự cho phép, Authorization, Consent",
+      "image": ""
+    },
+    {
+      "id": 1824329082863648,
+      "term": "Place",
+      "definition": "(n), Địa điểm, Location, Site",
+      "image": ""
+    },
+    {
+      "id": 1824329082863649,
+      "term": "Storage room",
+      "definition": "(n), Phòng chứa đồ, Storage Area, Warehouse",
+      "image": ""
+    },
+    {
+      "id": 1824329082863650,
+      "term": "Threat",
+      "definition": "(n), Mối đe dọa, Danger, Risk",
+      "image": ""
+    },
+    {
+      "id": 1824329082863651,
+      "term": "It's up to you",
+      "definition": "(phr), Tuỳ bạn, It's your choice, It depends on you",
+      "image": ""
+    },
+    {
+      "id": 1824329082863652,
+      "term": "Set aside some time",
+      "definition": "(phr), Dành thời gian, Allocate time, Reserve time",
+      "image": ""
+    },
+    {
+      "id": 1824329082863653,
+      "term": "Sort",
+      "definition": "(v), Phân loại, Categorize, Arrange",
+      "image": ""
+    },
+    {
+      "id": 1824329082863654,
+      "term": "Retailer",
+      "definition": "(n), Nhà bán lẻ, Vendor, Merchant",
+      "image": ""
+    },
+    {
+      "id": 1824329082863655,
+      "term": "Launch an outlet store",
+      "definition": "(phr), Mở cửa hàng bán lẻ, Open a store, Start a retail shop",
+      "image": ""
+    },
+    {
+      "id": 1824329082863656,
+      "term": "Unique",
+      "definition": "(adj), Độc đáo, Distinctive, One-of-a-kind",
+      "image": ""
+    },
+    {
+      "id": 1824329082863657,
+      "term": "Hands-on",
+      "definition": "(adj), Thực hành, Practical, Experiential",
+      "image": ""
+    },
+    {
+      "id": 1824329082863658,
+      "term": "Position",
+      "definition": "(n), Vị trí, Job Position, Role",
+      "image": ""
+    },
+    {
+      "id": 1824329082863659,
+      "term": "Identify",
+      "definition": "(v), Nhận diện, Recognize, Detect",
+      "image": ""
+    },
+    {
+      "id": 1824329082863660,
+      "term": "Feature",
+      "definition": "(n), Đặc điểm, Attribute, Characteristic",
+      "image": ""
+    },
+    {
+      "id": 1824329082863661,
+      "term": "Sensor",
+      "definition": "(n), Cảm biến, Detector, Monitor",
+      "image": ""
+    },
+    {
+      "id": 1824329082863662,
+      "term": "Determine",
+      "definition": "(v), Xác định, Establish, Define",
+      "image": ""
+    },
+    {
+      "id": 1824329082863663,
+      "term": "Foot measurement",
+      "definition": "(n), Đo kích thước chân, Foot Size Measurement, Shoe Fitting",
+      "image": ""
+    },
+    {
+      "id": 1824329082863664,
+      "term": "Length",
+      "definition": "(n), Chiều dài, Distance, Extent",
+      "image": ""
+    },
+    {
+      "id": 1824329082863665,
+      "term": "Width",
+      "definition": "(n), Chiều rộng, Breadth, Span",
+      "image": ""
+    },
+    {
+      "id": 1824329082863666,
+      "term": "Ambitious",
+      "definition": "(adj), Tham vọng, Aspiring, Driven",
+      "image": ""
+    },
+    {
+      "id": 1824329082863667,
+      "term": "Knowledgeable",
+      "definition": "(adj), Am hiểu, Well-informed, Expert",
+      "image": ""
+    },
+    {
+      "id": 1824329082863668,
+      "term": "Tenant",
+      "definition": "(n), Người thuê nhà, Leaseholder, Renter",
+      "image": ""
+    },
+    {
+      "id": 1824329082863669,
+      "term": "Structural",
+      "definition": "(adj), Thuộc về cấu trúc, Architectural, Framework-related",
+      "image": ""
+    },
+    {
+      "id": 1824329082863670,
+      "term": "Plumbing",
+      "definition": "(n), Hệ thống ống nước, Pipework, Water System",
+      "image": ""
+    },
+    {
+      "id": 1824329082863671,
+      "term": "Sealing",
+      "definition": "(n), Niêm phong, Closure, Sealing Process",
+      "image": ""
+    },
+    {
+      "id": 1824329082863672,
+      "term": "Discolor",
+      "definition": "(v), Bị đổi màu, Stain, Tarnish",
+      "image": ""
+    },
+    {
+      "id": 1824329082863673,
+      "term": "A water leak",
+      "definition": "(n), Rò rỉ nước, Water Damage, Leak Issue",
+      "image": ""
+    },
+    {
+      "id": 1824329082863674,
+      "term": "Be present",
+      "definition": "(phr), Có mặt, Attend, Exist",
+      "image": ""
+    },
+    {
+      "id": 1824329082863675,
+      "term": "Investigate",
+      "definition": "(v), Điều tra, Examine, Inspect",
+      "image": ""
+    },
+    {
+      "id": 1824329082863676,
+      "term": "Adopt a system",
+      "definition": "(phr), Áp dụng hệ thống, Implement a system, Introduce a system",
+      "image": ""
+    },
+    {
+      "id": 1824329082863677,
+      "term": "Enable somebody to verb",
+      "definition": "(phr), Cho phép ai làm gì, Allow someone to do something, Facilitate",
+      "image": ""
+    },
+    {
+      "id": 1824329082863678,
+      "term": "Scan the fingerprint",
+      "definition": "(phr), Quét dấu vân tay, Fingerprint Scan, Biometric Identification",
+      "image": ""
+    },
+    {
+      "id": 1824329082863679,
+      "term": "Tremendous asset",
+      "definition": "(n), Tài sản lớn, Valuable Asset, Major Resource",
+      "image": ""
+    },
+    {
+      "id": 1824329082863680,
+      "term": "Identification badge",
+      "definition": "(n), Thẻ nhận diện, ID Badge, Identification Card",
+      "image": ""
+    },
+    {
+      "id": 1824329082863681,
+      "term": "Pose a security threat",
+      "definition": "(phr), Gây ra mối đe dọa an ninh, Create a security risk, Present a danger",
+      "image": ""
+    },
+    {
+      "id": 1824329082863682,
+      "term": "All in all",
+      "definition": "(phr), Tóm lại, Overall, In summary",
+      "image": ""
+    },
+    {
+      "id": 1824329082863683,
+      "term": "Costly",
+      "definition": "(adj), Đắt đỏ, Expensive, Pricey",
+      "image": ""
+    },
+    {
+      "id": 1824329082863684,
+      "term": "Risky",
+      "definition": "(adj), Rủi ro, Dangerous, Uncertain",
+      "image": ""
+    },
+    {
+      "id": 1824329082863685,
+      "term": "Oversee",
+      "definition": "(v), Giám sát, Supervise, Manage",
+      "image": ""
+    },
+    {
+      "id": 1824329082863686,
+      "term": "Multiple",
+      "definition": "(adj), Nhiều, Numerous, Various",
+      "image": ""
+    },
+    {
+      "id": 1824329082863687,
+      "term": "Misplaced",
+      "definition": "(adj), Bị mất, Lost, Mislaid",
+      "image": ""
+    },
+    {
+      "id": 1824329082863688,
+      "term": "Facilities",
+      "definition": "(n), Cơ sở vật chất, Amenities, Infrastructure",
+      "image": ""
+    },
+    {
+      "id": 1824329082863689,
+      "term": "Lower expenses",
+      "definition": "(phr), Giảm chi phí, Reduce costs, Cut expenses",
+      "image": ""
+    },
+    {
+      "id": 1824329082863690,
+      "term": "Based in",
+      "definition": "(phr), Đặt trụ sở tại, Located in, Headquartered in",
+      "image": ""
+    },
+    {
+      "id": 1824329082863691,
+      "term": "The building has been boarded up",
+      "definition": "(phr), Tòa nhà đã bị bịt kín, Sealed, Blocked",
+      "image": ""
+    },
+    {
+      "id": 1824329082863692,
+      "term": "Modest",
+      "definition": "(adj), Khiêm tốn / Đơn giản, Humble, Simple",
+      "image": ""
+    },
+    {
+      "id": 1824329082863693,
+      "term": "Intact",
+      "definition": "(adj), Nguyên vẹn, Undamaged, Unharmed",
+      "image": ""
+    },
+    {
+      "id": 1824329082863694,
+      "term": "Modification",
+      "definition": "(n), Sự sửa đổi, Adjustment, Alteration",
+      "image": ""
+    },
+    {
+      "id": 1824329082863695,
+      "term": "Minor",
+      "definition": "(adj), Nhỏ, Slight, Insignificant",
+      "image": ""
+    },
+    {
+      "id": 1824329082863696,
+      "term": "Fond memory",
+      "definition": "(n), ký ức tươi đẹp",
+      "image": ""
+    },
+    {
+      "id": 1824329082863697,
+      "term": "Usable",
+      "definition": "(adj), Có thể sử dụng, Functional, Operational",
+      "image": ""
+    },
+    {
+      "id": 1824329082863698,
+      "term": "Enforce the building regulation",
+      "definition": "(phr), Thi hành quy định xây dựng, Implement rules, Enforce laws",
+      "image": ""
+    },
+    {
+      "id": 1824329082863699,
+      "term": "Undergo renovations",
+      "definition": "(phr), Trải qua cải tạo, Be renovated, Go through remodeling",
+      "image": ""
+    },
+    {
+      "id": 1824329082863700,
+      "term": "Charm",
+      "definition": "(n), Sự quyến rũ, Attractiveness, Appeal",
+      "image": ""
+    },
+    {
+      "id": 1824329082863701,
+      "term": "Solely",
+      "definition": "(adv), Chỉ duy nhất, Exclusively, Only",
+      "image": ""
+    },
+    {
+      "id": 1824329082863702,
+      "term": "Sponsor",
+      "definition": "(n), Nhà tài trợ, Patron, Backer",
+      "image": ""
+    },
+    {
+      "id": 1824329082863703,
+      "term": "Intend",
+      "definition": "(v), Dự định, Plan, Mean",
+      "image": ""
+    },
+    {
+      "id": 1824329082863704,
+      "term": "Staff lounge",
+      "definition": "(n), Phòng nghỉ nhân viên, Employee lounge, Break room",
+      "image": ""
+    },
+    {
+      "id": 1824329082863705,
+      "term": "Process",
+      "definition": "(n), Quy trình, Procedure, Method",
+      "image": ""
+    },
+    {
+      "id": 1824329082863706,
+      "term": "Assist somebody in",
+      "definition": "(phr), Hỗ trợ ai đó trong việc gì, Help with, Aid in",
+      "image": ""
+    },
+    {
+      "id": 1824329082863707,
+      "term": "Issue a refund",
+      "definition": "(phr), Cấp tiền hoàn lại, Provide reimbursement, Refund money",
+      "image": ""
+    },
+    {
+      "id": 1824329082863708,
+      "term": "Points are credited",
+      "definition": "(phr), Điểm thưởng được ghi nhận, Rewards added, Credits applied",
+      "image": ""
+    },
+    {
+      "id": 1824329082863709,
+      "term": "Valid",
+      "definition": "(adj), Hợp lệ, Legitimate, Validated",
+      "image": ""
+    },
+    {
+      "id": 1824329082863710,
+      "term": "Go well",
+      "definition": "(phr), Diễn ra tốt đẹp, Proceed smoothly, Turn out well",
+      "image": ""
+    },
+    {
+      "id": 1824329082863711,
+      "term": "Assign",
+      "definition": "(v), Phân công, Allocate, Appoint",
+      "image": ""
+    },
+    {
+      "id": 1824329082863712,
+      "term": "Parking permit",
+      "definition": "(n), Giấy phép đỗ xe, Parking pass, Vehicle permit",
+      "image": ""
+    },
+    {
+      "id": 1824329082863713,
+      "term": "Business attire",
+      "definition": "(n), Trang phục công sở, Professional clothing, Formal dress",
+      "image": ""
+    },
+    {
+      "id": 1824329082863714,
+      "term": "Casual attire",
+      "definition": "(n), Trang phục thường ngày, Informal wear, Relaxed outfit",
+      "image": ""
+    },
+    {
+      "id": 1824329082863715,
+      "term": "Designated",
+      "definition": "(adj), Được chỉ định, Assigned, Allocated",
+      "image": ""
+    },
+    {
+      "id": 1824329082863716,
+      "term": "Comply with",
+      "definition": "(phr), Tuân thủ, Adhere to, Abide by",
+      "image": ""
+    },
+    {
+      "id": 1824329082863717,
+      "term": "Projected",
+      "definition": "(adj), Dự báo, Estimated, Expected",
+      "image": ""
+    },
+    {
+      "id": 1824329082863718,
+      "term": "Apparel",
+      "definition": "(n), Quần áo, Clothing, Garments",
+      "image": ""
+    },
+    {
+      "id": 1824329082863619,
+      "term": "Reward",
+      "definition": "(n), Phần thưởng, Incentive, Bonus",
+      "image": ""
+    },
+    {
+      "id": 1824329082863620,
+      "term": "Special Discount",
+      "definition": "(n), Giảm giá đặc biệt, Rebate, Price Reduction",
+      "image": ""
+    },
+    {
+      "id": 1824329082863621,
+      "term": "Round-trip Ticket",
+      "definition": "(n), Vé khứ hồi, Return Ticket, Two-way Ticket",
+      "image": ""
+    },
+    {
+      "id": 1824329082863622,
+      "term": "Fare",
+      "definition": "(n), Tiền vé, Transportation Fee, Ticket Price",
+      "image": ""
+    },
+    {
+      "id": 1824329082863623,
+      "term": "Companion",
+      "definition": "(n), Bạn đồng hành, Partner, Associate",
+      "image": ""
+    },
+    {
+      "id": 1824329082863624,
+      "term": "Promotion",
+      "definition": "(n), Sự thăng tiến / Khuyến mãi, Advancement, Marketing",
+      "image": ""
+    },
+    {
+      "id": 1824329082863625,
+      "term": "Exchange",
+      "definition": "(v), Trao đổi, Swap, Trade",
+      "image": ""
+    },
+    {
+      "id": 1824329082863626,
+      "term": "Previously",
+      "definition": "(adv), Trước đây, Formerly, Earlier",
+      "image": ""
+    },
+    {
+      "id": 1824329082863627,
+      "term": "Obtain",
+      "definition": "(v), Đạt được, Gain, Acquire",
+      "image": ""
+    },
+    {
+      "id": 1824329082863628,
+      "term": "Public Size",
+      "definition": "(n), Quy mô công cộng, Public Capacity, Overall Size",
+      "image": ""
+    },
+    {
+      "id": 1824329082863629,
+      "term": "First-time Customer",
+      "definition": "(n), Khách hàng lần đầu, New Customer, First-time Buyer",
+      "image": ""
+    },
+    {
+      "id": 1824329082863630,
+      "term": "Promote",
+      "definition": "(v), Quảng bá, Advertise, Market",
+      "image": ""
+    },
+    {
+      "id": 1824329082863631,
+      "term": "Over the Phone",
+      "definition": "(phr), Qua điện thoại, By Phone, Via Call",
+      "image": ""
+    },
+    {
+      "id": 1824329082863632,
+      "term": "Turnover",
+      "definition": "(n), Doanh thu, Revenue, Income",
+      "image": ""
+    },
+    {
+      "id": 1824329082863633,
+      "term": "Staff Turnover",
+      "definition": "(n), Tỷ lệ thay đổi nhân sự, Employee Turnover, Staff Retention",
+      "image": ""
+    },
+    {
+      "id": 1824329082863634,
+      "term": "Necessary",
+      "definition": "(adj), Cần thiết, Essential, Required",
+      "image": ""
+    },
+    {
+      "id": 1824329082863635,
+      "term": "Automotive",
+      "definition": "(adj), Liên quan đến ô tô, Automobile-related, Vehicle-based",
+      "image": ""
+    },
+    {
+      "id": 1824329082863636,
+      "term": "Strict",
+      "definition": "(adj), Nghiêm khắc, Rigid, Severe",
+      "image": ""
+    },
+    {
+      "id": 1824329082863637,
+      "term": "Observe",
+      "definition": "(v), Tuân theo, Follow, Comply with",
+      "image": ""
+    },
+    {
+      "id": 1824329082863638,
+      "term": "Rules should be strictly observed",
+      "definition": "(phr), Quy tắc phải được tuân thủ nghiêm ngặt, Rules must be followed strictly, Regulations must be enforced",
+      "image": ""
+    },
+    {
+      "id": 1824329082863639,
+      "term": "Tour",
+      "definition": "(n), Chuyến tham quan, Trip, Excursion",
+      "image": ""
+    },
+    {
+      "id": 1824329082863640,
+      "term": "Assembly",
+      "definition": "(n), Lắp ráp, Assembly Line, Construction",
+      "image": ""
+    },
+    {
+      "id": 1824329082863641,
+      "term": "Violation of the rule",
+      "definition": "(n), Vi phạm quy tắc, Breach, Infraction",
+      "image": ""
+    },
+    {
+      "id": 1824329082863642,
+      "term": "Premises",
+      "definition": "(n), Khuôn viên, Building, Facility",
+      "image": ""
+    },
+    {
+      "id": 1824329082863643,
+      "term": "Compliance",
+      "definition": "(n), Sự tuân thủ, Adherence, Observance",
+      "image": ""
+    },
+    {
+      "id": 1824329082863644,
+      "term": "Signals",
+      "definition": "(n), Tín hiệu, Signs, Indications",
+      "image": ""
+    },
+    {
+      "id": 1824329082863645,
+      "term": "Obey",
+      "definition": "(v), Tuân theo, Follow, Adhere to",
+      "image": ""
+    },
+    {
+      "id": 1824329082863646,
+      "term": "Evacuation instruction",
+      "definition": "(n), Hướng dẫn sơ tán, Emergency Instructions, Evacuation Plan",
+      "image": ""
+    },
+    {
+      "id": 1824329082863647,
+      "term": "Permission",
+      "definition": "(n), Sự cho phép, Authorization, Consent",
+      "image": ""
+    },
+    {
+      "id": 1824329082863648,
+      "term": "Place",
+      "definition": "(n), Địa điểm, Location, Site",
+      "image": ""
+    },
+    {
+      "id": 1824329082863649,
+      "term": "Storage room",
+      "definition": "(n), Phòng chứa đồ, Storage Area, Warehouse",
+      "image": ""
+    },
+    {
+      "id": 1824329082863650,
+      "term": "Threat",
+      "definition": "(n), Mối đe dọa, Danger, Risk",
+      "image": ""
+    },
+    {
+      "id": 1824329082863651,
+      "term": "It's up to you",
+      "definition": "(phr), Tuỳ bạn, It's your choice, It depends on you",
+      "image": ""
+    },
+    {
+      "id": 1824329082863652,
+      "term": "Set aside some time",
+      "definition": "(phr), Dành thời gian, Allocate time, Reserve time",
+      "image": ""
+    },
+    {
+      "id": 1824329082863653,
+      "term": "Sort",
+      "definition": "(v), Phân loại, Categorize, Arrange",
+      "image": ""
+    },
+    {
+      "id": 1824329082863654,
+      "term": "Retailer",
+      "definition": "(n), Nhà bán lẻ, Vendor, Merchant",
+      "image": ""
+    },
+    {
+      "id": 1824329082863655,
+      "term": "Launch an outlet store",
+      "definition": "(phr), Mở cửa hàng bán lẻ, Open a store, Start a retail shop",
+      "image": ""
+    },
+    {
+      "id": 1824329082863656,
+      "term": "Unique",
+      "definition": "(adj), Độc đáo, Distinctive, One-of-a-kind",
+      "image": ""
+    },
+    {
+      "id": 1824329082863657,
+      "term": "Hands-on",
+      "definition": "(adj), Thực hành, Practical, Experiential",
+      "image": ""
+    },
+    {
+      "id": 1824329082863658,
+      "term": "Position",
+      "definition": "(n), Vị trí, Job Position, Role",
+      "image": ""
+    },
+    {
+      "id": 1824329082863659,
+      "term": "Identify",
+      "definition": "(v), Nhận diện, Recognize, Detect",
+      "image": ""
+    },
+    {
+      "id": 1824329082863660,
+      "term": "Feature",
+      "definition": "(n), Đặc điểm, Attribute, Characteristic",
+      "image": ""
+    },
+    {
+      "id": 1824329082863661,
+      "term": "Sensor",
+      "definition": "(n), Cảm biến, Detector, Monitor",
+      "image": ""
+    },
+    {
+      "id": 1824329082863662,
+      "term": "Determine",
+      "definition": "(v), Xác định, Establish, Define",
+      "image": ""
+    },
+    {
+      "id": 1824329082863663,
+      "term": "Foot measurement",
+      "definition": "(n), Đo kích thước chân, Foot Size Measurement, Shoe Fitting",
+      "image": ""
+    },
+    {
+      "id": 1824329082863664,
+      "term": "Length",
+      "definition": "(n), Chiều dài, Distance, Extent",
+      "image": ""
+    },
+    {
+      "id": 1824329082863665,
+      "term": "Width",
+      "definition": "(n), Chiều rộng, Breadth, Span",
+      "image": ""
+    },
+    {
+      "id": 1824329082863666,
+      "term": "Ambitious",
+      "definition": "(adj), Tham vọng, Aspiring, Driven",
+      "image": ""
+    },
+    {
+      "id": 1824329082863667,
+      "term": "Knowledgeable",
+      "definition": "(adj), Am hiểu, Well-informed, Expert",
+      "image": ""
+    },
+    {
+      "id": 1824329082863668,
+      "term": "Tenant",
+      "definition": "(n), Người thuê nhà, Leaseholder, Renter",
+      "image": ""
+    },
+    {
+      "id": 1824329082863669,
+      "term": "Structural",
+      "definition": "(adj), Thuộc về cấu trúc, Architectural, Framework-related",
+      "image": ""
+    },
+    {
+      "id": 1824329082863670,
+      "term": "Plumbing",
+      "definition": "(n), Hệ thống ống nước, Pipework, Water System",
+      "image": ""
+    },
+    {
+      "id": 1824329082863671,
+      "term": "Sealing",
+      "definition": "(n), Niêm phong, Closure, Sealing Process",
+      "image": ""
+    },
+    {
+      "id": 1824329082863672,
+      "term": "Discolor",
+      "definition": "(v), Bị đổi màu, Stain, Tarnish",
+      "image": ""
+    },
+    {
+      "id": 1824329082863673,
+      "term": "A water leak",
+      "definition": "(n), Rò rỉ nước, Water Damage, Leak Issue",
+      "image": ""
+    },
+    {
+      "id": 1824329082863674,
+      "term": "Be present",
+      "definition": "(phr), Có mặt, Attend, Exist",
+      "image": ""
+    },
+    {
+      "id": 1824329082863675,
+      "term": "Investigate",
+      "definition": "(v), Điều tra, Examine, Inspect",
+      "image": ""
+    },
+    {
+      "id": 1824329082863676,
+      "term": "Adopt a system",
+      "definition": "(phr), Áp dụng hệ thống, Implement a system, Introduce a system",
+      "image": ""
+    },
+    {
+      "id": 1824329082863677,
+      "term": "Enable somebody to verb",
+      "definition": "(phr), Cho phép ai làm gì, Allow someone to do something, Facilitate",
+      "image": ""
+    },
+    {
+      "id": 1824329082863678,
+      "term": "Scan the fingerprint",
+      "definition": "(phr), Quét dấu vân tay, Fingerprint Scan, Biometric Identification",
+      "image": ""
+    },
+    {
+      "id": 1824329082863679,
+      "term": "Tremendous asset",
+      "definition": "(n), Tài sản lớn, Valuable Asset, Major Resource",
+      "image": ""
+    },
+    {
+      "id": 1824329082863680,
+      "term": "Identification badge",
+      "definition": "(n), Thẻ nhận diện, ID Badge, Identification Card",
+      "image": ""
+    },
+    {
+      "id": 1824329082863681,
+      "term": "Pose a security threat",
+      "definition": "(phr), Gây ra mối đe dọa an ninh, Create a security risk, Present a danger",
+      "image": ""
+    },
+    {
+      "id": 1824329082863682,
+      "term": "All in all",
+      "definition": "(phr), Tóm lại, Overall, In summary",
+      "image": ""
+    },
+    {
+      "id": 1824329082863683,
+      "term": "Costly",
+      "definition": "(adj), Đắt đỏ, Expensive, Pricey",
+      "image": ""
+    },
+    {
+      "id": 1824329082863684,
+      "term": "Risky",
+      "definition": "(adj), Rủi ro, Dangerous, Uncertain",
+      "image": ""
+    },
+    {
+      "id": 1824329082863685,
+      "term": "Oversee",
+      "definition": "(v), Giám sát, Supervise, Manage",
+      "image": ""
+    },
+    {
+      "id": 1824329082863686,
+      "term": "Multiple",
+      "definition": "(adj), Nhiều, Numerous, Various",
+      "image": ""
+    },
+    {
+      "id": 1824329082863687,
+      "term": "Misplaced",
+      "definition": "(adj), Bị mất, Lost, Mislaid",
+      "image": ""
+    },
+    {
+      "id": 1824329082863688,
+      "term": "Facilities",
+      "definition": "(n), Cơ sở vật chất, Amenities, Infrastructure",
+      "image": ""
+    },
+    {
+      "id": 1824329082863689,
+      "term": "Lower expenses",
+      "definition": "(phr), Giảm chi phí, Reduce costs, Cut expenses",
+      "image": ""
+    },
+    {
+      "id": 1824329082863690,
+      "term": "Based in",
+      "definition": "(phr), Đặt trụ sở tại, Located in, Headquartered in",
+      "image": ""
+    },
+    {
+      "id": 1824329082863691,
+      "term": "The building has been boarded up",
+      "definition": "(phr), Tòa nhà đã bị bịt kín, Sealed, Blocked",
+      "image": ""
+    },
+    {
+      "id": 1824329082863692,
+      "term": "Modest",
+      "definition": "(adj), Khiêm tốn / Đơn giản, Humble, Simple",
+      "image": ""
+    },
+    {
+      "id": 1824329082863693,
+      "term": "Intact",
+      "definition": "(adj), Nguyên vẹn, Undamaged, Unharmed",
+      "image": ""
+    },
+    {
+      "id": 1824329082863694,
+      "term": "Modification",
+      "definition": "(n), Sự sửa đổi, Adjustment, Alteration",
+      "image": ""
+    },
+    {
+      "id": 1824329082863695,
+      "term": "Minor",
+      "definition": "(adj), Nhỏ, Slight, Insignificant",
+      "image": ""
+    },
+    {
+      "id": 1824329082863696,
+      "term": "Fond memory",
+      "definition": "(n), ký ức tươi đẹp",
+      "image": ""
+    },
+    {
+      "id": 1824329082863697,
+      "term": "Usable",
+      "definition": "(adj), Có thể sử dụng, Functional, Operational",
+      "image": ""
+    },
+    {
+      "id": 1824329082863698,
+      "term": "Enforce the building regulation",
+      "definition": "(phr), Thi hành quy định xây dựng, Implement rules, Enforce laws",
+      "image": ""
+    },
+    {
+      "id": 1824329082863699,
+      "term": "Undergo renovations",
+      "definition": "(phr), Trải qua cải tạo, Be renovated, Go through remodeling",
+      "image": ""
+    },
+    {
+      "id": 1824329082863700,
+      "term": "Charm",
+      "definition": "(n), Sự quyến rũ, Attractiveness, Appeal",
+      "image": ""
+    },
+    {
+      "id": 1824329082863701,
+      "term": "Solely",
+      "definition": "(adv), Chỉ duy nhất, Exclusively, Only",
+      "image": ""
+    },
+    {
+      "id": 1824329082863702,
+      "term": "Sponsor",
+      "definition": "(n), Nhà tài trợ, Patron, Backer",
+      "image": ""
+    },
+    {
+      "id": 1824329082863703,
+      "term": "Intend",
+      "definition": "(v), Dự định, Plan, Mean",
+      "image": ""
+    },
+    {
+      "id": 1824329082863704,
+      "term": "Staff lounge",
+      "definition": "(n), Phòng nghỉ nhân viên, Employee lounge, Break room",
+      "image": ""
+    },
+    {
+      "id": 1824329082863705,
+      "term": "Process",
+      "definition": "(n), Quy trình, Procedure, Method",
+      "image": ""
+    },
+    {
+      "id": 1824329082863706,
+      "term": "Assist somebody in",
+      "definition": "(phr), Hỗ trợ ai đó trong việc gì, Help with, Aid in",
+      "image": ""
+    },
+    {
+      "id": 1824329082863707,
+      "term": "Issue a refund",
+      "definition": "(phr), Cấp tiền hoàn lại, Provide reimbursement, Refund money",
+      "image": ""
+    },
+    {
+      "id": 1824329082863708,
+      "term": "Points are credited",
+      "definition": "(phr), Điểm thưởng được ghi nhận, Rewards added, Credits applied",
+      "image": ""
+    },
+    {
+      "id": 1824329082863709,
+      "term": "Valid",
+      "definition": "(adj), Hợp lệ, Legitimate, Validated",
+      "image": ""
+    },
+    {
+      "id": 1824329082863710,
+      "term": "Go well",
+      "definition": "(phr), Diễn ra tốt đẹp, Proceed smoothly, Turn out well",
+      "image": ""
+    },
+    {
+      "id": 1824329082863711,
+      "term": "Assign",
+      "definition": "(v), Phân công, Allocate, Appoint",
+      "image": ""
+    },
+    {
+      "id": 1824329082863712,
+      "term": "Parking permit",
+      "definition": "(n), Giấy phép đỗ xe, Parking pass, Vehicle permit",
+      "image": ""
+    },
+    {
+      "id": 1824329082863713,
+      "term": "Business attire",
+      "definition": "(n), Trang phục công sở, Professional clothing, Formal dress",
+      "image": ""
+    },
+    {
+      "id": 1824329082863714,
+      "term": "Casual attire",
+      "definition": "(n), Trang phục thường ngày, Informal wear, Relaxed outfit",
+      "image": ""
+    },
+    {
+      "id": 1824329082863715,
+      "term": "Designated",
+      "definition": "(adj), Được chỉ định, Assigned, Allocated",
+      "image": ""
+    },
+    {
+      "id": 1824329082863716,
+      "term": "Comply with",
+      "definition": "(phr), Tuân thủ, Adhere to, Abide by",
+      "image": ""
+    },
+    {
+      "id": 1824329082863717,
+      "term": "Projected",
+      "definition": "(adj), Dự báo, Estimated, Expected",
+      "image": ""
+    },
+    {
+      "id": 1824329082863718,
+      "term": "Apparel",
+      "definition": "(n), Quần áo, Clothing, Garments",
+      "image": ""
+    }
+  ]
+}
