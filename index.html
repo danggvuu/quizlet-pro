@@ -983,72 +983,165 @@
     let isWaitingNext = false;
     let fcIndex = 0;
     let fcFlipped = false;
+    let currentRoundOptions = [];
+    let currentCorrectChoice = "";
 
-    // AUDIO API FOR BEEPS
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // AUDIO API FOR BEEPS (SINGLETON AUDIOCONTEXT TO PREVENT BROWSER LIMIT)
+    let sharedAudioCtx = null;
+    function getAudioContext() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return null;
+        if (!sharedAudioCtx || sharedAudioCtx.state === "closed") {
+          sharedAudioCtx = new AudioCtx();
+        }
+        if (sharedAudioCtx.state === "suspended") {
+          sharedAudioCtx.resume().catch(() => {});
+        }
+        return sharedAudioCtx;
+      } catch (e) {
+        return null;
+      }
+    }
+
     function playBeep(success) {
       try {
-        if (audioCtx.state === "suspended") audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
         osc.connect(gain);
-        gain.connect(audioCtx.destination);
+        gain.connect(ctx.destination);
+        const t = ctx.currentTime;
         if (success) {
           osc.type = "sine";
-          osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(783.99, audioCtx.currentTime + 0.15);
-          gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.2);
+          osc.frequency.setValueAtTime(523.25, t);
+          osc.frequency.exponentialRampToValueAtTime(783.99, t + 0.15);
+          gain.gain.setValueAtTime(0.18, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+          osc.start(t);
+          osc.stop(t + 0.2);
         } else {
           osc.type = "sawtooth";
-          osc.frequency.setValueAtTime(220, audioCtx.currentTime);
-          osc.frequency.setValueAtTime(160, audioCtx.currentTime + 0.12);
-          gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.25);
+          osc.frequency.setValueAtTime(220, t);
+          osc.frequency.setValueAtTime(160, t + 0.12);
+          gain.gain.setValueAtTime(0.2, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+          osc.start(t);
+          osc.stop(t + 0.25);
         }
       } catch (e) {}
     }
 
-    // HIGH-DEFINITION TTS ENGINE (DIRECT GOOGLE AUDIO STREAM)
-    let currentTtsAudio = null;
-    function speakText(text, lang = "en") {
-      if (!text) return;
-      let clean = text.split("\n")[0].replace(/[\/\(\)=><\+]/g, " ").trim();
-      if (clean.includes("=")) clean = clean.split("=")[0].trim();
-      clean = clean.substring(0, 100);
-
-      if (currentTtsAudio) {
-        currentTtsAudio.pause();
-        currentTtsAudio.currentTime = 0;
+    // HIGH-DEFINITION CLIENT TTS ENGINE (VOICE PRELOAD & CHROMIUM GC FIX)
+    let cachedVoices = [];
+    function initSpeechVoices() {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        cachedVoices = window.speechSynthesis.getVoices() || [];
       }
-
-      // Direct Google TTS stream (no server needed, works 100% on Vercel and mobile)
-      const directUrl = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${lang}&q=${encodeURIComponent(clean)}`;
-      currentTtsAudio = new Audio(directUrl);
-      currentTtsAudio.play().catch(() => {
-        // Fallback: try local server endpoint
-        const serverUrl = `/api/tts?tl=${lang}&q=${encodeURIComponent(clean)}`;
-        currentTtsAudio = new Audio(serverUrl);
-        currentTtsAudio.play().catch(() => {
-          // Fallback: browser speech synthesis
-          fallbackSpeechSynthesis(clean, lang);
-        });
-      });
+    }
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      initSpeechVoices();
+      if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = initSpeechVoices;
+      }
     }
 
-    function fallbackSpeechSynthesis(text, lang = "en") {
-      if (!window.speechSynthesis) return;
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.resume();
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = lang === "vi" ? "vi-VN" : "en-US";
-      utter.rate = 0.95;
-      window.activeUtterance = utter;
-      window.speechSynthesis.speak(utter);
+    function cleanTextForSpeech(text) {
+      if (!text) return "";
+      let line = text.split("\n")[0].trim();
+      if (line.includes("=")) line = line.split("=")[0].trim();
+      // Remove IPA phonetics e.g. /kə'mɜr.ʃəl/ or /'viʒn/
+      line = line.replace(/\/[^\/]+\//g, "").trim();
+      // Remove parenthesized annotations e.g. (n), (adj), (v)
+      line = line.replace(/\(.*?\)/g, "").trim();
+      // Remove leading parts of speech e.g. "n.", "v.", "adj."
+      line = line.replace(/^(n|v|adj|adv)\.\s*/i, "").trim();
+      // Remove punctuation noise
+      line = line.replace(/[:;#~*+<>]/g, " ").trim();
+      if (!line) line = text.split("\n")[0].trim();
+      return line.substring(0, 120).trim();
+    }
+
+    function speakText(text, lang = "en") {
+      if (!text) return;
+      const clean = cleanTextForSpeech(text);
+      if (!clean) return;
+
+      if (!("speechSynthesis" in window)) {
+        console.warn("SpeechSynthesis không được hỗ trợ trên trình duyệt này.");
+        return;
+      }
+
+      try {
+        window.speechSynthesis.cancel();
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume();
+        }
+      } catch (e) {}
+
+      // Slight timeout to prevent Chromium from canceling the new utterance immediately
+      setTimeout(() => {
+        try {
+          const utter = new SpeechSynthesisUtterance(clean);
+          utter.lang = lang === "vi" ? "vi-VN" : "en-US";
+          utter.rate = 0.95;
+          utter.pitch = 1.0;
+
+          if (cachedVoices.length === 0) {
+            cachedVoices = window.speechSynthesis.getVoices() || [];
+          }
+
+          if (lang === "en" && cachedVoices.length > 0) {
+            const voice = 
+              cachedVoices.find(v => (v.lang === "en-US" || v.lang === "en_US") && (v.name.includes("Google") || v.name.includes("Samantha") || v.name.includes("Natural") || v.name.includes("Ava") || v.name.includes("Alex") || v.name.includes("Jenny") || v.name.includes("Victoria"))) ||
+              cachedVoices.find(v => v.lang.startsWith("en") && !v.name.toLowerCase().includes("bad")) ||
+              cachedVoices.find(v => v.lang.startsWith("en"));
+            if (voice) {
+              utter.voice = voice;
+            }
+          }
+
+          // Retain utterance on window to protect against Chromium GC bug mid-speech
+          window._activeSpeechUtterance = utter;
+          utter.onend = () => { window._activeSpeechUtterance = null; };
+          utter.onerror = (e) => {
+            console.warn("Lỗi phát âm TTS:", e);
+            window._activeSpeechUtterance = null;
+          };
+
+          window.speechSynthesis.speak(utter);
+        } catch (err) {
+          console.error("Speak error:", err);
+        }
+      }, 25);
+    }
+
+    function speakCurrentCard() {
+      const card = currentRoundQueue[currentCardIndex];
+      if (card && card.term) speakText(card.term);
+    }
+
+    function speakCurrentFlashcard() {
+      const activePool = settings.starredOnly ? cardsState.filter(c => c.starred) : cardsState;
+      const card = activePool[fcIndex];
+      if (card && card.term) speakText(card.term);
+    }
+
+    function speakCardById(cardId) {
+      const card = cardsState.find(c => c.id === cardId);
+      if (card && card.term) speakText(card.term);
+    }
+
+    function toggleCurrentCardStar() {
+      const card = currentRoundQueue[currentCardIndex];
+      if (card) toggleStar(card.id);
+    }
+
+    function toggleCurrentFlashcardStar() {
+      const activePool = settings.starredOnly ? cardsState.filter(c => c.starred) : cardsState;
+      const card = activePool[fcIndex];
+      if (card) toggleStar(card.id);
     }
 
         // CUSTOM SETS IN LOCALSTORAGE (WORKS 100% ON VERCEL & OFFLINE)
@@ -1540,8 +1633,8 @@
 
       // Prepare image HTML
       const imageHtml = (settings.showImages && card.image) ? `
-        <div class="prompt-image-container" onclick="openLightbox('${card.image}')" title="Click để phóng to ảnh">
-          <img class="prompt-image" src="${card.image}" alt="Minh họa" />
+        <div class="prompt-image-container" onclick="openLightbox(this.querySelector('img').src)" title="Click để phóng to ảnh">
+          <img class="prompt-image" src="${escapeHtml(card.image)}" alt="Minh họa" />
         </div>
       ` : "";
 
@@ -1552,10 +1645,13 @@
         const distractors = shuffledPool.slice(0, 3).map(c => isPromptTerm ? c.definition : c.term);
         const options = [correctChoice, ...distractors].sort(() => Math.random() - 0.5);
 
+        currentRoundOptions = options;
+        currentCorrectChoice = correctChoice;
+
         bottomHtml = `
           <div class="options-grid">
             ${options.map((opt, idx) => `
-              <button class="option-btn" onclick="handleChoice(${idx}, '${encodeURIComponent(opt)}', '${encodeURIComponent(correctChoice)}')">
+              <button class="option-btn" onclick="handleChoice(${idx})">
                 <span class="opt-key">${idx + 1}</span>
                 <span class="opt-text">${escapeHtml(opt)}</span>
               </button>
@@ -1565,12 +1661,13 @@
         `;
       } else {
         // Written Mode
+        currentCorrectChoice = correctChoice;
         bottomHtml = `
           <div class="write-area">
             <input type="text" id="write-user-input" class="write-input-box" placeholder="Gõ câu trả lời bằng tiếng ${isPromptTerm ? 'Việt' : 'Anh'}..." autocomplete="off" autofocus />
             <div class="write-action-bar">
-              <button class="btn-skip" onclick="handleWriteSkip('${encodeURIComponent(correctChoice)}')">Tôi không biết (Bỏ qua)</button>
-              <button class="btn-submit-write" onclick="handleWriteSubmit('${encodeURIComponent(correctChoice)}')">Trả lời (Enter) ↵</button>
+              <button class="btn-skip" onclick="handleWriteSkip()">Tôi không biết (Bỏ qua)</button>
+              <button class="btn-submit-write" onclick="handleWriteSubmit()">Trả lời (Enter) ↵</button>
             </div>
           </div>
         `;
@@ -1584,8 +1681,8 @@
               <span class="card-mode-tag">${qType === "write" ? "✍️ Tự luận" : "🔤 Trắc nghiệm"}</span>
             </div>
             <div class="card-actions">
-              ${isPromptTerm ? `<button class="tts-btn" onclick="speakText('${card.term.replace(/'/g, "\\\\'")}')" title="Phát âm">🔊</button>` : ""}
-              <button class="star-btn ${card.starred ? "starred" : ""}" onclick="toggleStar(${card.id})" title="Gắn sao">★</button>
+              ${isPromptTerm ? `<button class="tts-btn" onclick="speakCurrentCard()" title="Phát âm (Phím S)">🔊</button>` : ""}
+              <button class="star-btn ${card.starred ? "starred" : ""}" onclick="toggleCurrentCardStar()" title="Gắn sao">★</button>
             </div>
           </div>
 
@@ -1607,24 +1704,24 @@
           if (inp) {
             inp.focus();
             inp.addEventListener("keydown", (e) => {
-              if (e.key === "Enter") handleWriteSubmit(encodeURIComponent(correctChoice));
+              if (e.key === "Enter") handleWriteSubmit();
             });
           }
         }, 50);
       }
 
       if (settings.autoSound && isPromptTerm) {
-        speakText(card.term);
+        speakCurrentCard();
       }
     }
 
     // MULTIPLE CHOICE HANDLER
-    function handleChoice(btnIndex, chosenEnc, correctEnc) {
+    function handleChoice(btnIndex) {
       if (isWaitingNext) return;
       isWaitingNext = true;
 
-      const chosen = decodeURIComponent(chosenEnc);
-      const correct = decodeURIComponent(correctEnc);
+      const chosen = currentRoundOptions[btnIndex];
+      const correct = currentCorrectChoice;
       const card = currentRoundQueue[currentCardIndex];
 
       const buttons = document.querySelectorAll(".option-btn");
@@ -1632,7 +1729,7 @@
 
       if (chosen === correct) {
         playBeep(true);
-        buttons[btnIndex].classList.add("correct");
+        if (buttons[btnIndex]) buttons[btnIndex].classList.add("correct");
         upgradeCardMastery(card);
         setTimeout(() => {
           currentCardIndex++;
@@ -1640,9 +1737,9 @@
         }, 750);
       } else {
         playBeep(false);
-        buttons[btnIndex].classList.add("incorrect");
-        buttons.forEach(b => {
-          if (b.innerText.includes(correct.substring(0, 15))) b.classList.add("correct");
+        if (buttons[btnIndex]) buttons[btnIndex].classList.add("incorrect");
+        buttons.forEach((b, i) => {
+          if (currentRoundOptions[i] === correct) b.classList.add("correct");
         });
         demoteCardMastery(card);
         setTimeout(() => {
@@ -1652,12 +1749,12 @@
     }
 
     // WRITE MODE SUBMIT HANDLER
-    function handleWriteSubmit(correctEnc) {
+    function handleWriteSubmit() {
       if (isWaitingNext) return;
       const inp = document.getElementById("write-user-input");
       if (!inp) return;
       const val = inp.value.trim();
-      const correct = decodeURIComponent(correctEnc);
+      const correct = currentCorrectChoice;
       const card = currentRoundQueue[currentCardIndex];
 
       if (!val) {
@@ -1690,10 +1787,10 @@
       }
     }
 
-    function handleWriteSkip(correctEnc) {
+    function handleWriteSkip() {
       if (isWaitingNext) return;
       isWaitingNext = true;
-      const correct = decodeURIComponent(correctEnc);
+      const correct = currentCorrectChoice;
       const card = currentRoundQueue[currentCardIndex];
       playBeep(false);
       demoteCardMastery(card);
@@ -1914,8 +2011,8 @@
 
           <div class="fc-nav">
             <button class="btn-nav" onclick="navFc(-1)" title="Thẻ trước (Phím ←)">←</button>
-            <button class="btn-nav" onclick="speakText('${card.term.replace(/'/g, "\\\\'")}')" title="Phát âm (Phím S)">🔊</button>
-            <button class="btn-nav" onclick="toggleStar(${card.id})" title="Gắn sao">★</button>
+            <button class="btn-nav" onclick="speakCurrentFlashcard()" title="Phát âm (Phím S)">🔊</button>
+            <button class="btn-nav" onclick="toggleCurrentFlashcardStar()" title="Gắn sao">★</button>
             <button class="btn-nav" onclick="navFc(1)" title="Thẻ tiếp theo (Phím →)">→</button>
           </div>
           <div style="margin-top: 10px; font-size: 12px; color: var(--text-muted);">Bấm Space để lật thẻ, phím mũi tên ← → để chuyển thẻ</div>
@@ -1941,8 +2038,8 @@
       if (card) {
         card.starred = !card.starred;
         saveProgressToStorage();
-        const btn = document.querySelector(".star-btn");
-        if (btn) btn.classList.toggle("starred", card.starred);
+        const btns = document.querySelectorAll(".star-btn");
+        btns.forEach(btn => btn.classList.toggle("starred", card.starred));
       }
     }
 
@@ -1969,7 +2066,7 @@
       );
       container.innerHTML = filtered.map((c) => `
         <div class="term-item">
-          ${c.image ? `<img class="t-thumb" src="${c.image}" onclick="openLightbox('${c.image}')" />` : ''}
+          ${c.image ? `<img class="t-thumb" src="${escapeHtml(c.image)}" onclick="openLightbox(this.src)" />` : ''}
           <div class="t-word">
             <div>${escapeHtml(c.term)}</div>
             <div style="font-size: 11px; margin-top: 3px; color: ${c.mastery === 2 ? "var(--success)" : c.mastery === 1 ? "var(--warning)" : "var(--text-muted)"}">
@@ -1977,7 +2074,7 @@
             </div>
           </div>
           <div class="t-def">${escapeHtml(c.definition)}</div>
-          <button style="background:none;border:none;cursor:pointer;font-size:16px;" onclick="speakText('${c.term.replace(/'/g, "\\\\'")}')">🔊</button>
+          <button style="background:none;border:none;cursor:pointer;font-size:16px;" onclick="speakCardById(${c.id})">🔊</button>
         </div>
       `).join("");
     }
@@ -2035,8 +2132,10 @@
       if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") return;
 
       if (e.key === "s" || e.key === "S") {
-        if (currentRoundQueue[currentCardIndex]) {
-          speakText(currentRoundQueue[currentCardIndex].term);
+        if (currentMode === "flashcards") {
+          speakCurrentFlashcard();
+        } else {
+          speakCurrentCard();
         }
         return;
       }
@@ -2064,6 +2163,7 @@
         document.getElementById("settings-modal").style.display = "none";
         document.getElementById("list-modal").style.display = "none";
         document.getElementById("manual-modal").style.display = "none";
+        document.getElementById("cloud-guide-modal").style.display = "none";
         closeLightbox();
       }
     });
