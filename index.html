@@ -1217,21 +1217,24 @@
         } catch(e) {}
       }
 
-      // 2. Parse text from Quizlet Export (Tab, 2+ spaces, " - ", " – ", "=")
+      // 2. Parse text from Quizlet Export (Tab, 2+ spaces, " - ", " – ", "=", ":")
       const lines = text.split("\n");
       const cards = [];
       lines.forEach((line, idx) => {
         const l = line.trim();
         if (!l) return;
-        let parts = l.split(/\t|\s{2,}| - | – | = /);
+        // Thêm :\s+ để hỗ trợ phân cách bằng dấu hai chấm (VD: "từ vựng: ý nghĩa")
+        let parts = l.split(/\t|\s{2,}| - | – | = |:\s+/);
         if (parts.length >= 2) {
           cards.push({ id: Date.now() + idx, term: parts[0].trim(), definition: parts.slice(1).join(" - ").trim(), image: "" });
         } else if (l.includes(",")) {
           let cparts = l.split(",");
-          cards.push({ id: Date.now() + idx, term: cparts[0].trim(), definition: cparts.slice(1).join(", ").trim(), image: "" });
-        } else {
-          cards.push({ id: Date.now() + idx, term: l, definition: "", image: "" });
+          if (cparts.length >= 2) {
+            cards.push({ id: Date.now() + idx, term: cparts[0].trim(), definition: cparts.slice(1).join(", ").trim(), image: "" });
+          }
         }
+        // Các dòng không có dấu phân cách hợp lệ (VD: tiêu đề danh mục) sẽ bị bỏ qua
+        // để tránh tạo ra flashcard bị lỗi (term có chữ, definition rỗng) giống Quizlet thật
       });
 
       if (cards.length === 0) {
