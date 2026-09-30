@@ -1262,7 +1262,32 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       return line.substring(0, 120).trim();
     }
 
-    function speakText(text, lang = "en") {
+    
+    function detectLanguage(text) {
+      if (!text) return "en-US";
+      
+      const jaRegex = /[぀-ゟ゠-ヿㇰ-ㇿ＀-￯]/;
+      const koRegex = /[가-힯ᄀ-ᇿ㄰-㆏]/;
+      const zhRegex = /[一-鿿㐀-䶿]/;
+      const viRegex = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÈÉẺẼẸÊỀẾỂỄỆÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴĐ]/;
+      const frRegex = /[çœæ]/i; // Specific French characters not common in English
+      const deRegex = /[ßäöüÄÖÜ]/; // Specific German characters
+      const ruRegex = /[А-яЁё]/; // Cyrillic
+      const esRegex = /[ñÑ¿¡]/; // Spanish
+      
+      if (jaRegex.test(text)) return "ja-JP";
+      if (koRegex.test(text)) return "ko-KR";
+      if (zhRegex.test(text)) return "zh-CN"; // Note: Japanese Kanji will match zhRegex too, so jaRegex must be tested first
+      if (viRegex.test(text)) return "vi-VN";
+      if (ruRegex.test(text)) return "ru-RU";
+      if (esRegex.test(text)) return "es-ES";
+      if (frRegex.test(text)) return "fr-FR";
+      if (deRegex.test(text)) return "de-DE";
+      
+      return "en-US";
+    }
+
+    function speakText(text, forceLang = null) {
       if (!text) return;
       const clean = cleanTextForSpeech(text);
       if (!clean) return;
@@ -1279,23 +1304,26 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         }
       } catch (e) {}
 
-      // Slight timeout to prevent Chromium from canceling the new utterance immediately
       setTimeout(() => {
         try {
+          const detectedLang = forceLang || detectLanguage(clean);
           const utter = new SpeechSynthesisUtterance(clean);
-          utter.lang = lang === "vi" ? "vi-VN" : "en-US";
-          utter.rate = 0.95;
+          utter.lang = detectedLang;
+          utter.rate = detectedLang.startsWith("ja") || detectedLang.startsWith("zh") ? 0.85 : 0.95; // Speak Asian languages slightly slower for clarity
           utter.pitch = 1.0;
 
           if (cachedVoices.length === 0) {
             cachedVoices = window.speechSynthesis.getVoices() || [];
           }
 
-          if (lang === "en" && cachedVoices.length > 0) {
+          if (cachedVoices.length > 0) {
+            // Find a high quality voice for the detected language
+            const langPrefix = detectedLang.split('-')[0];
             const voice = 
-              cachedVoices.find(v => (v.lang === "en-US" || v.lang === "en_US") && (v.name.includes("Google") || v.name.includes("Samantha") || v.name.includes("Natural") || v.name.includes("Ava") || v.name.includes("Alex") || v.name.includes("Jenny") || v.name.includes("Victoria"))) ||
-              cachedVoices.find(v => v.lang.startsWith("en") && !v.name.toLowerCase().includes("bad")) ||
-              cachedVoices.find(v => v.lang.startsWith("en"));
+              cachedVoices.find(v => v.lang.startsWith(detectedLang) && (v.name.includes("Google") || v.name.includes("Natural") || v.name.includes("Premium") || v.name.includes("Enhanced"))) ||
+              cachedVoices.find(v => v.lang.startsWith(detectedLang)) ||
+              cachedVoices.find(v => v.lang.startsWith(langPrefix));
+              
             if (voice) {
               utter.voice = voice;
             }
