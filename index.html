@@ -1382,13 +1382,37 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         return raw ? JSON.parse(raw) : [];
       } catch (e) { return []; }
     }
-    function saveCustomSet(setObj) {
-      try {
-        const sets = getStoredCustomSets().filter(s => String(s.id) !== String(setObj.id));
-        sets.unshift(setObj);
-        localStorage.setItem("qp_custom_sets", JSON.stringify(sets));
-      } catch (e) {}
+    async function saveCustomSet(setObj) {
+      setObj.isCustom = true;
+      if (!setObj.cards) setObj.cards = [];
+      setObj.numTerms = setObj.cards.length;
+      await window.Database.saveSet(setObj);
     }
+    
+    async function migrateLocalStorageToIndexedDB() {
+      if (localStorage.getItem("qp_migrated_v2")) return;
+      const oldSets = getStoredCustomSets();
+      if (oldSets && oldSets.length > 0) {
+        for (const set of oldSets) {
+          await saveCustomSet(set);
+          // Also migrate progress if exists
+          try {
+             const progRaw = localStorage.getItem(`qp_progress_${set.id}`);
+             if (progRaw) {
+               const map = JSON.parse(progRaw);
+               for (const [cardId, p] of Object.entries(map)) {
+                  let box = 0;
+                  if (p.mastery === 1) box = 1;
+                  if (p.mastery === 2) box = 3;
+                  await window.Database.updateCardProgress(set.id, cardId, p.mastery > 0, p.starred);
+               }
+             }
+          } catch(e) {}
+        }
+      }
+      localStorage.setItem("qp_migrated_v2", "true");
+    }
+
 
     function toggleCloudModal() {
       const m = document.getElementById("cloud-guide-modal");
@@ -2470,8 +2494,14 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
     }
 
     // INIT
-    checkUrlHashImport();
-    loadSetsList();
+    (async () => {
+      if (window.Database) {
+        
+        await migrateLocalStorageToIndexedDB();
+      }
+      await checkUrlHashImport();
+      await loadSetsList();
+    })();
   
     
     // ==========================================
