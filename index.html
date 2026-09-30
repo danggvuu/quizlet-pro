@@ -955,6 +955,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
     <div id="create-cards-list"></div>
 
     <button class="add-card-btn" onclick="addCardRow()">+ Thêm thẻ</button>
+    <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+      <button class="btn-primary" style="width: auto; padding: 16px 48px; font-size: 18px;" onclick="saveCreatedSet()">Tạo</button>
+    </div>
   </div>
 
   <div id="dashboard-view" class="dashboard-view">
@@ -1427,7 +1430,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
     }
 
-    function parseAndImportText(text, defaultTitle = null) {
+    async function parseAndImportText(text, defaultTitle = null) {
       if (!text || !text.trim()) return;
 
       // 1. Check if text is JSON from bookmarklet or export
@@ -1435,9 +1438,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         try {
           const obj = JSON.parse(text);
           if (obj.cards && Array.isArray(obj.cards) && obj.cards.length > 0) {
-            saveCustomSet(obj);
+            await saveCustomSet(obj);
             closeAllModals();
-            loadSetsList(obj.id);
+            await loadSetsList(obj.id);
             showToast(`🎉 Đã nhập thành công: "${obj.title}" (${obj.cards.length} thuật ngữ & ảnh)!`, 4000);
             return;
           }
@@ -1482,24 +1485,24 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         cards: cards
       };
 
-      saveCustomSet(newSet);
+      await saveCustomSet(newSet);
       closeAllModals();
-      loadSetsList(newSet.id);
+      await loadSetsList(newSet.id);
       showToast(`🎉 Đã tạo thành công: "${title}" (${cards.length} thuật ngữ)!`, 4000);
     }
 
     // CHECK HASH IMPORT FROM BOOKMARKLET
-    function checkUrlHashImport() {
+    async function checkUrlHashImport() {
       if (window.location.hash.startsWith("#data=")) {
         try {
           const raw = decodeURIComponent(window.location.hash.substring(6));
           const imported = JSON.parse(raw);
           if (imported && imported.cards && imported.cards.length > 0) {
-            saveCustomSet(imported);
+            await saveCustomSet(imported);
             try {
               history.replaceState(null, null, window.location.pathname);
             } catch(e) {}
-            loadSetsList(imported.id);
+            await loadSetsList(imported.id);
             showToast(`🎉 Đã cào thành công: "${imported.title}" (${imported.cards.length} thuật ngữ & ảnh)!`, 5000);
           }
         } catch(e) {
@@ -1772,7 +1775,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       const text = document.getElementById("manual-text").value.trim();
       if (!text) { alert("Vui lòng dán nội dung từ vựng!"); return; }
 
-      parseAndImportText(text, title);
+      await parseAndImportText(text, title);
       document.getElementById("manual-title").value = "";
       document.getElementById("manual-text").value = "";
     }
