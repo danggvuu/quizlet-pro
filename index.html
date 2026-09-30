@@ -1009,6 +1009,7 @@
     <img id="lightbox-img" class="lightbox-img" src="" alt="Ảnh phóng to" />
   </div>
 
+  <script src="js/database.js"></script>
   <script>
     // GLOBAL STATE
     let currentSet = null;
@@ -1376,8 +1377,9 @@
         ];
       }
 
-      // 2. Custom sets from browser localStorage
-      const customSets = getStoredCustomSets().map(s => ({
+      // 2. Custom sets from browser IndexedDB
+      let dbSets = await window.Database.getAllSets() || [];
+      const customSets = dbSets.map(s => ({
         id: s.id,
         title: s.title,
         numTerms: s.cards ? s.cards.length : (s.numTerms || 0),
@@ -1442,8 +1444,8 @@
       try {
         let setObj = null;
 
-        // 1. Check custom sets in localStorage
-        const custom = getStoredCustomSets().find(s => String(s.id) === String(setId));
+        // 1. Check custom sets in IndexedDB
+        const custom = await window.Database.getSetById(setId);
         if (custom) {
           setObj = custom;
         } else {
@@ -1472,16 +1474,20 @@
         const totalCount = setObj.cards ? setObj.cards.length : (setObj.numTerms || 0);
         document.getElementById("list-modal-title").innerText = `📋 ${setObj.title} (${totalCount} thẻ)`;
 
-        const savedProgress = loadProgressFromStorage(setId);
+        const savedProgress = await loadProgressFromStorage(setId);
         cardsState = (setObj.cards || []).map((c, idx) => {
           const sv = savedProgress[c.id || idx] || {};
+          let m = 0;
+          if (sv.box === 3) m = 2; // Mastered
+          else if (sv.box === 1 || sv.box === 2) m = 1; // Learning
+          
           return {
             id: c.id || idx,
             term: c.term || "",
             definition: c.definition || "",
             image: c.image || "",
-            mastery: sv.mastery || 0,
-            starred: !!sv.starred,
+            mastery: m,
+            starred: !!sv.isStarred,
             incorrectCount: 0
           };
         });
@@ -1500,21 +1506,24 @@
       loadSetData(setId);
     }
 
-    // STORAGE HELPERS
+    // STORAGE HELPERS (DELEGATED TO DB)
     function getStorageKey(setId) { return `qp_progress_${setId}`; }
-    function loadProgressFromStorage(setId) {
-      try {
-        const raw = localStorage.getItem(getStorageKey(setId));
-        return raw ? JSON.parse(raw) : {};
-      } catch (e) { return {}; }
+    async function loadProgressFromStorage(setId) {
+      const progs = await window.Database.getProgress(setId);
+      const map = {};
+      progs.forEach(p => { map[p.cardId] = p; });
+      return map;
     }
     function saveProgressToStorage() {
       if (!currentSet) return;
-      try {
-        const map = {};
-        cardsState.forEach(c => { map[c.id] = { mastery: c.mastery, starred: c.starred }; });
-        localStorage.setItem(getStorageKey(currentSet.id), JSON.stringify(map));
-      } catch (e) {}
+      cardsState.forEach(c => {
+        // Map mastery back to box
+        // Mastery: 0 = Unseen, 1 = Learning (Box 1 or 2), 2 = Mastered (Box 3)
+        let box = 0;
+        if (c.mastery === 1) box = 1;
+        if (c.mastery === 2) box = 3;
+        window.Database.updateCardProgress(currentSet.id, c.id, c.mastery > 0, c.starred);
+      });
     }
 
     // SCRAPE TRIGGER (SMART ONLINE GUIDANCE & LOCAL CHROME SCRAPER)
