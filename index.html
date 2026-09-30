@@ -476,16 +476,17 @@
       align-items: center;
     }
     .btn-skip {
-      background: transparent;
-      border: none;
+      background: var(--bg);
+      border: 1px solid var(--border);
       color: var(--text-muted);
-      font-size: 13px;
-      font-weight: 600;
+      font-size: 14px;
+      font-weight: 700;
       cursor: pointer;
-      padding: 8px 12px;
-      border-radius: 8px;
+      padding: 12px 24px;
+      border-radius: 10px;
+      transition: all 0.2s;
     }
-    .btn-skip:hover { background: var(--bg); color: var(--text); }
+    .btn-skip:hover { background: var(--border); color: var(--text); }
     .btn-submit-write {
       background: var(--primary);
       color: white;
@@ -2085,8 +2086,8 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       if (requireRetype) {
         retypeHtml = `
           <div class="retype-container">
-            <div class="retype-label">✍️ Gõ lại câu trả lời đúng để tiếp tục:</div>
-            <input type="text" id="retype-input" class="retype-input" placeholder="Gõ lại chính xác câu trả lời ở trên..." autocomplete="off" />
+            <div class="retype-label">✍️ Gõ lại câu trả lời đúng để tiếp tục (Hoặc ấn Enter để bỏ qua):</div>
+            <input type="text" id="retype-input" class="retype-input" placeholder="Gõ chính xác, hoặc ấn Enter để bỏ qua..." autocomplete="off" />
           </div>
         `;
       }
@@ -2116,7 +2117,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           ${retypeHtml}
 
           <button class="btn-continue" id="btn-next-wrong" onclick="nextCardAfterFeedback()">
-            ${requireRetype ? "Tiếp tục (hoặc gõ đúng)" : "Tiếp tục (Nhấn Space / Enter) →"}
+            ${requireRetype ? "Bỏ qua & Tiếp tục (Enter)" : "Tiếp tục (Nhấn Space / Enter) →"}
           </button>
         </div>
       `;
