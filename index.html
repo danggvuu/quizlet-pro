@@ -871,6 +871,61 @@
     .add-card-btn:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
 
 </style>
+  <!-- FIREBASE SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+    import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+    // 🔴 ÔNG DÁN FIREBASE CONFIG CỦA ÔNG VÀO ĐÂY NHÉ:
+    const firebaseConfig = {
+      apiKey: "CHUA_CO_KEY",
+      authDomain: "CHUA_CO_KEY",
+      projectId: "CHUA_CO_KEY",
+      storageBucket: "CHUA_CO_KEY",
+      messagingSenderId: "CHUA_CO_KEY",
+      appId: "CHUA_CO_KEY"
+    };
+
+    let db;
+    try {
+      if (firebaseConfig.apiKey !== "CHUA_CO_KEY") {
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        window.FirebaseDB = db;
+        console.log("Firebase Connected!");
+      }
+    } catch(e) { console.error("Firebase init error:", e); }
+
+    // Cloud Database Wrapper
+    window.CloudDB = {
+      async saveSet(setObj) {
+        if (!window.FirebaseDB) return false;
+        try {
+          await setDoc(doc(window.FirebaseDB, "quizlet_sets", String(setObj.id)), setObj);
+          return true;
+        } catch(e) { console.error(e); return false; }
+      },
+      async getAllSets() {
+        if (!window.FirebaseDB) return [];
+        try {
+          const querySnapshot = await getDocs(collection(window.FirebaseDB, "quizlet_sets"));
+          const sets = [];
+          querySnapshot.forEach((doc) => {
+            sets.push(doc.data());
+          });
+          return sets;
+        } catch(e) { console.error(e); return []; }
+      },
+      async deleteSet(setId) {
+        if (!window.FirebaseDB) return false;
+        try {
+          await deleteDoc(doc(window.FirebaseDB, "quizlet_sets", String(setId)));
+          return true;
+        } catch(e) { console.error(e); return false; }
+      }
+    };
+  </script>
+
 </head>
 <body>
   <canvas id="confetti-canvas"></canvas>
@@ -1387,7 +1442,14 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       setObj.isCustom = true;
       if (!setObj.cards) setObj.cards = [];
       setObj.numTerms = setObj.cards.length;
+      
+      // Save locally first
       await window.Database.saveSet(setObj);
+      
+      // Sync to Cloud if Firebase is ready
+      if (window.CloudDB && window.FirebaseDB) {
+        await window.CloudDB.saveSet(setObj);
+      }
     }
     
     async function migrateLocalStorageToIndexedDB() {
@@ -1596,8 +1658,21 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         ];
       }
 
-      // 2. Custom sets from browser IndexedDB
+      // 2. Custom sets from Local DB & Cloud DB
       let dbSets = await window.Database.getAllSets() || [];
+      if (window.CloudDB && window.FirebaseDB) {
+         try {
+           const cloudSets = await window.CloudDB.getAllSets();
+           // Merge cloud sets with local sets
+           cloudSets.forEach(cs => {
+             if (!dbSets.some(ls => String(ls.id) === String(cs.id))) {
+               dbSets.push(cs);
+               // Cache locally
+               window.Database.saveSet(cs);
+             }
+           });
+         } catch(e) {}
+      }
       const customSets = dbSets.map(s => ({
         id: s.id,
         title: s.title,
