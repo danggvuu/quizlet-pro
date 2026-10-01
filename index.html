@@ -977,6 +977,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       <select id="set-select" class="set-select" onchange="onSetChange(this.value)">
         <!-- Options populated dynamically -->
       </select>
+      <button id="btn-export-set" class="btn-icon" style="display:none; width: 30px; height: 30px; font-size: 13px; color: var(--primary); border-color: var(--primary);" onclick="exportCurrentSet()" title="Copy/Xuất bộ thẻ này">📤</button>
       <button id="btn-del-set" class="btn-icon" style="display:none; width: 30px; height: 30px; font-size: 13px; border-color: var(--error); color: var(--error);" onclick="deleteCurrentSet()" title="Xóa bộ thẻ tự tạo này khỏi trình duyệt">🗑️</button>
     </div>
 
@@ -1537,6 +1538,18 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
     }
 
     // DELETE CUSTOM SET
+    function exportCurrentSet() {
+      if (!currentSet || !cardsState || cardsState.length === 0) return;
+      let out = "";
+      cardsState.forEach(c => {
+         out += `${c.term} : ${c.definition}
+`;
+      });
+      navigator.clipboard.writeText(out).then(() => {
+        showToast("✅ Đã copy toàn bộ từ vựng! Hãy gửi dán nó vào đâu đó.", 3000);
+      });
+    }
+
     function deleteCurrentSet() {
       if (!currentSet) return;
       const isCustom = String(currentSet.id).startsWith("set_") || String(currentSet.id).startsWith("custom_") || String(currentSet.id).startsWith("quizlet_");
