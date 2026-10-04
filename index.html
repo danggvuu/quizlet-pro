@@ -1672,6 +1672,19 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
                window.Database.saveSet(cs);
              }
            });
+           
+           // AUTO-SYNC: Push any local sets that are MISSING in the cloud
+           let syncedCount = 0;
+           for (const ls of dbSets) {
+             if (ls.isCustom && !cloudSets.some(cs => String(cs.id) === String(ls.id))) {
+                await window.CloudDB.saveSet(ls);
+                syncedCount++;
+             }
+           }
+           if (syncedCount > 0) {
+              console.log("Đã đồng bộ " + syncedCount + " bộ thẻ cũ lên Cloud!");
+           }
+
          } catch(e) {}
       }
       const customSets = dbSets.map(s => ({
