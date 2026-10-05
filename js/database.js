@@ -96,6 +96,27 @@ const Database = {
         };
     },
 
+    // Xoá toàn bộ tiến độ học của một bộ thẻ (reset học lại từ đầu)
+    async clearProgress(setId) {
+        const db = await dbPromise;
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(STORE_PROGRESS, 'readwrite');
+            const store = transaction.objectStore(STORE_PROGRESS);
+            const index = store.index('setId');
+            const request = index.openCursor(IDBKeyRange.only(setId));
+            request.onsuccess = (event) => {
+                const cursor = event.target.result;
+                if (cursor) {
+                    cursor.delete();
+                    cursor.continue();
+                } else {
+                    resolve();
+                }
+            };
+            request.onerror = () => reject(request.error);
+        });
+    },
+
 // ==========================================
 // 3. THUẬT TOÁN LẶP LẠI NGẮT QUÃNG (SRS)
 // ==========================================

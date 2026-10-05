@@ -811,6 +811,33 @@
     .set-card-info { flex: 1; overflow: hidden; }
     .set-card-title { font-weight: 800; font-size: 16px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .set-card-meta { font-size: 12px; font-weight: 700; color: var(--text-muted); }
+    .btn-card-delete {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--error);
+      border-radius: 8px;
+      width: 32px;
+      height: 32px;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      opacity: 0.4;
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+    .set-card:hover .btn-card-delete, .jump-back-card:hover .btn-card-delete {
+      opacity: 0.8;
+      border-color: var(--border);
+    }
+    .btn-card-delete:hover {
+      opacity: 1 !important;
+      background: rgba(239, 68, 68, 0.15) !important;
+      border-color: var(--error) !important;
+      transform: scale(1.1);
+    }
     .jump-back-card {
       background: linear-gradient(135deg, var(--card-bg) 0%, var(--primary-light) 100%);
       border: 2px solid var(--border);
@@ -960,8 +987,11 @@
   <!-- CREATE SET VIEW -->
   <div id="create-set-view" class="create-set-container" style="display: none;">
     <div class="create-header">
-      <h2 class="section-title" style="margin:0;">Tạo học phần mới</h2>
-      <button class="btn-primary" style="width: auto; padding: 12px 32px;" onclick="saveCreatedSet()">Tạo</button>
+      <h2 class="section-title" id="create-view-heading" style="margin:0;">Tạo học phần mới</h2>
+      <div style="display:flex; gap:12px;">
+        <button class="btn-cancel" onclick="showDashboard()">Hủy</button>
+        <button class="btn-primary" id="btn-save-set-top" style="width: auto; padding: 12px 32px;" onclick="saveCreatedSet()">Tạo</button>
+      </div>
     </div>
     
     <input type="text" id="create-title" class="q-input" placeholder="Nhập tiêu đề, ví dụ: Sinh học - Chương 22: Tiến hóa" style="font-size: 20px; font-weight: 800; border: none; border-bottom: 2px solid var(--text); border-radius: 0; padding: 10px 0; margin-bottom: 30px; box-shadow: none;">
@@ -1012,8 +1042,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
     <div id="create-cards-list"></div>
 
     <button class="add-card-btn" onclick="addCardRow()">+ Thêm thẻ</button>
-    <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
-      <button class="btn-primary" style="width: auto; padding: 16px 48px; font-size: 18px;" onclick="saveCreatedSet()">Tạo</button>
+    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+      <button class="btn-cancel" onclick="showDashboard()">Hủy</button>
+      <button class="btn-primary" id="btn-save-set-bottom" style="width: auto; padding: 16px 48px; font-size: 18px;" onclick="saveCreatedSet()">Tạo</button>
     </div>
   </div>
 
@@ -1033,8 +1064,10 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       <select id="set-select" class="set-select" onchange="onSetChange(this.value)">
         <!-- Options populated dynamically -->
       </select>
+      <button id="btn-edit-set" class="btn-icon" style="display:none; width: 30px; height: 30px; font-size: 13px; color: var(--text);" onclick="openEditCurrentSet()" title="Sửa học phần / Xóa từng thẻ">✏️</button>
+      <button id="btn-reset-prog" class="btn-icon" style="display:none; width: 30px; height: 30px; font-size: 13px; color: var(--text-muted);" onclick="resetSetProgress()" title="Đặt lại tiến độ / Học lại từ đầu">🔄</button>
       <button id="btn-export-set" class="btn-icon" style="display:none; width: 30px; height: 30px; font-size: 13px; color: var(--primary); border-color: var(--primary);" onclick="exportCurrentSet()" title="Copy/Xuất bộ thẻ này">📤</button>
-      <button id="btn-del-set" class="btn-icon" style="display:none; width: 30px; height: 30px; font-size: 13px; border-color: var(--error); color: var(--error);" onclick="deleteCurrentSet()" title="Xóa bộ thẻ tự tạo này khỏi trình duyệt">🗑️</button>
+      <button id="btn-del-set" class="btn-icon" style="display:none; width: 30px; height: 30px; font-size: 13px; border-color: var(--error); color: var(--error);" onclick="deleteCurrentSet()" title="Xóa vĩnh viễn bộ thẻ này">🗑️</button>
     </div>
 
     <div class="mode-pills">
@@ -1613,23 +1646,74 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       });
     }
 
-    function deleteCurrentSet() {
-      if (!currentSet) return;
-      const isCustom = String(currentSet.id).startsWith("set_") || String(currentSet.id).startsWith("custom_") || String(currentSet.id).startsWith("quizlet_");
+    async function deleteSet(setId, title = "") {
+      if (!setId) return;
+      const isCustom = String(setId).startsWith("set_") || String(setId).startsWith("custom_") || String(setId).startsWith("quizlet_");
       if (!isCustom) {
         alert("Bộ đề mẫu mặc định không thể xóa!");
         return;
       }
-      if (confirm(`Bạn có chắc chắn muốn xóa bộ thẻ "${currentSet.title}" khỏi trình duyệt không?`)) {
-        try {
-          const sets = getStoredCustomSets().filter(s => String(s.id) !== String(currentSet.id));
-          localStorage.setItem("qp_custom_sets", JSON.stringify(sets));
-          localStorage.removeItem(getStorageKey(currentSet.id));
-          showToast(`Đã xóa bộ thẻ "${currentSet.title}"!`, 3000);
-          loadSetsList();
-        } catch(e) {
-          console.error(e);
+      const setDisplayName = title || (currentSet && currentSet.title) || "bộ thẻ này";
+      if (!confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn bộ thẻ "${setDisplayName}" không?\n(Dữ liệu trên máy và Cloud Firebase sẽ bị xóa hoàn toàn)`)) {
+        return;
+      }
+      try {
+        // 1. Delete from IndexedDB
+        if (window.Database && window.Database.deleteSet) {
+          await window.Database.deleteSet(setId);
         }
+        // 2. Delete from Cloud Firebase
+        if (window.CloudDB && window.FirebaseDB) {
+          await window.CloudDB.deleteSet(setId);
+        }
+        // 3. Delete from localStorage
+        try {
+          const sets = getStoredCustomSets().filter(s => String(s.id) !== String(setId));
+          localStorage.setItem("qp_custom_sets", JSON.stringify(sets));
+          localStorage.removeItem(getStorageKey(setId));
+        } catch(e) {}
+
+        showToast(`🗑️ Đã xóa vĩnh viễn bộ thẻ "${setDisplayName}"!`, 3000);
+        
+        // If currently viewing this deleted set, go back to dashboard
+        if (currentSet && String(currentSet.id) === String(setId)) {
+          showDashboard();
+        }
+        await loadSetsList();
+      } catch(e) {
+        console.error("Lỗi khi xóa bộ thẻ:", e);
+        alert("Lỗi khi xóa bộ thẻ!");
+      }
+    }
+
+    function deleteCurrentSet() {
+      if (!currentSet) return;
+      deleteSet(currentSet.id, currentSet.title);
+    }
+
+    async function resetSetProgress() {
+      if (!currentSet) return;
+      if (!confirm(`Bạn có muốn xóa toàn bộ tiến độ ghi nhớ và học lại từ đầu bộ thẻ "${currentSet.title}" không?`)) {
+        return;
+      }
+      try {
+        if (window.Database && window.Database.clearProgress) {
+          await window.Database.clearProgress(currentSet.id);
+        }
+        localStorage.removeItem(getStorageKey(currentSet.id));
+        
+        if (cardsState) {
+          cardsState.forEach(c => {
+            c.mastery = 0;
+            c.incorrectCount = 0;
+          });
+        }
+        
+        updateProgressUI();
+        startModeView();
+        showToast("🔄 Đã đặt lại toàn bộ tiến độ! Học lại từ đầu.", 3000);
+      } catch(e) {
+        console.error("Lỗi khi đặt lại tiến độ:", e);
       }
     }
 
@@ -1739,12 +1823,19 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
     }
 
     function updateDeleteButtonVisibility() {
-      const btnDel = document.getElementById("btn-del-set");
-      if (!btnDel) return;
       const select = document.getElementById("set-select");
       const val = select ? String(select.value) : "";
       const isCustom = val.startsWith("set_") || val.startsWith("custom_") || val.startsWith("quizlet_");
-      btnDel.style.display = isCustom ? "inline-flex" : "none";
+      
+      const btnDel = document.getElementById("btn-del-set");
+      const btnExport = document.getElementById("btn-export-set");
+      const btnEdit = document.getElementById("btn-edit-set");
+      const btnReset = document.getElementById("btn-reset-prog");
+      
+      if (btnDel) btnDel.style.display = isCustom ? "inline-flex" : "none";
+      if (btnExport) btnExport.style.display = isCustom ? "inline-flex" : "none";
+      if (btnEdit) btnEdit.style.display = isCustom ? "inline-flex" : "none";
+      if (btnReset) btnReset.style.display = "inline-flex";
     }
 
     // LOAD SPECIFIC SET (DIRECT STATIC CDN & LOCALSTORAGE)
@@ -2611,18 +2702,60 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
     // ==========================================
     let createCardCounter = 0;
 
+    let currentEditingSetId = null;
+
     function showCreateSetView() {
+      currentEditingSetId = null;
       document.getElementById('dashboard-view').style.display = 'none';
       document.getElementById('study-view').style.display = 'none';
-      const csView = document.getElementById('create-set-view'); if(csView) csView.style.display = 'none';
-      document.getElementById('create-set-view').style.display = 'block';
+      const csView = document.getElementById('create-set-view');
+      csView.style.display = 'block';
       
+      const heading = document.getElementById('create-view-heading');
+      if (heading) heading.textContent = 'Tạo học phần mới';
+      const btnTop = document.getElementById('btn-save-set-top');
+      if (btnTop) btnTop.textContent = 'Tạo';
+      const btnBottom = document.getElementById('btn-save-set-bottom');
+      if (btnBottom) btnBottom.textContent = 'Tạo';
+
       document.getElementById('create-title').value = '';
+      const descInput = document.getElementById('create-desc');
+      if (descInput) descInput.value = '';
       document.getElementById('create-cards-list').innerHTML = '';
       createCardCounter = 0;
       
       // Add 5 default empty rows
       for(let i=0; i<5; i++) addCardRow();
+    }
+
+    function openEditCurrentSet() {
+      if (!currentSet) return;
+      currentEditingSetId = currentSet.id;
+
+      document.getElementById('dashboard-view').style.display = 'none';
+      document.getElementById('study-view').style.display = 'none';
+      const csView = document.getElementById('create-set-view');
+      csView.style.display = 'block';
+
+      const heading = document.getElementById('create-view-heading');
+      if (heading) heading.textContent = '✏️ Chỉnh sửa học phần / Xóa thẻ';
+      const btnTop = document.getElementById('btn-save-set-top');
+      if (btnTop) btnTop.textContent = '💾 Lưu thay đổi';
+      const btnBottom = document.getElementById('btn-save-set-bottom');
+      if (btnBottom) btnBottom.textContent = '💾 Lưu thay đổi';
+
+      document.getElementById('create-title').value = currentSet.title || '';
+      document.getElementById('create-cards-list').innerHTML = '';
+      createCardCounter = 0;
+
+      const cards = (currentSet.cards && currentSet.cards.length > 0) ? currentSet.cards : (cardsState || []);
+      if (cards.length > 0) {
+        cards.forEach(c => {
+          addCardRow(c.term || '', c.definition || '');
+        });
+      } else {
+        for(let i=0; i<3; i++) addCardRow();
+      }
     }
 
     
@@ -2728,23 +2861,31 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       });
       
       if (cards.length === 0) {
-        alert("Bạn phải nhập ít nhất 1 thẻ để tạo học phần!");
+        alert("Bạn phải nhập ít nhất 1 thẻ để lưu học phần!");
         return;
       }
 
-      const newSet = {
-        id: "set_" + Date.now(),
+      const isEdit = !!currentEditingSetId;
+      const targetId = isEdit ? currentEditingSetId : ("set_" + Date.now());
+
+      const setObj = {
+        id: targetId,
         title: title,
         numTerms: cards.length,
         cards: cards,
         isCustom: true
       };
 
-      await window.Database.saveSet(newSet);
-      showToast(`🎉 Đã tạo học phần: "${title}" (${cards.length} thẻ)!`, 4000);
+      await window.Database.saveSet(setObj);
+      if (window.CloudDB && window.FirebaseDB) {
+        await window.CloudDB.saveSet(setObj);
+      }
+
+      showToast(`🎉 ${isEdit ? 'Đã cập nhật' : 'Đã tạo'} học phần: "${title}" (${cards.length} thẻ)!`, 4000);
       
+      currentEditingSetId = null;
       document.getElementById('create-set-view').style.display = 'none';
-      await loadSetsList(newSet.id);
+      await loadSetsList(targetId);
     }
 
     function showDashboard() {
@@ -2763,11 +2904,16 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       let html = `
         <h2 class="section-title" style="margin-top: 0;">Jump back in</h2>
         <div class="jump-back-card" onclick="document.getElementById('set-select').value='${firstSet.id}'; onSetChange('${firstSet.id}')">
-          <div class="jump-info">
+          <div class="jump-info" style="flex:1;">
             <h3>${firstSet.title}</h3>
-            <p>${firstSet.numTerms} cards completed</p>
+            <p>${firstSet.numTerms} cards ${firstSet.isCustom ? '· by you' : 'completed'}</p>
             <button class="btn-primary" style="width: auto; padding: 10px 24px; margin-top: 24px;">Continue</button>
           </div>
+          ${firstSet.isCustom ? `
+            <button class="btn-card-delete" onclick="event.stopPropagation(); deleteSet('${firstSet.id}', '${(firstSet.title||'').replace(/'/g, "\\'")}');" title="Xóa bộ thẻ này">
+              🗑️
+            </button>
+          ` : ''}
         </div>
       `;
       
@@ -2777,10 +2923,15 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           html += `
             <div class="set-card" onclick="document.getElementById('set-select').value='${s.id}'; onSetChange('${s.id}')">
               <div class="set-card-icon">🗂️</div>
-              <div class="set-card-info">
+              <div class="set-card-info" style="flex:1; min-width:0;">
                 <div class="set-card-title">${s.title}</div>
                 <div class="set-card-meta">${s.numTerms} cards ${s.isCustom ? '· by you' : ''}</div>
               </div>
+              ${s.isCustom ? `
+                <button class="btn-card-delete" onclick="event.stopPropagation(); deleteSet('${s.id}', '${(s.title||'').replace(/'/g, "\\'")}');" title="Xóa bộ thẻ này">
+                  🗑️
+                </button>
+              ` : ''}
             </div>
           `;
         });
