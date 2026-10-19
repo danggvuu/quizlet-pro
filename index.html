@@ -897,6 +897,689 @@
     .add-card-btn { background: var(--card-bg); border: 2px dashed var(--border); color: var(--text); font-size: 16px; font-weight: 800; width: 100%; padding: 32px; border-radius: 12px; cursor: pointer; transition: all 0.2s; text-align: center; margin-bottom: 60px; }
     .add-card-btn:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
 
+
+    /* ============================================================ */
+    /* 🌟 QUIZLET PRO 2026 ENHANCEMENTS: LATEST UI, MATCH & TEST */
+    /* ============================================================ */
+    .pro-badge {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #ffffff;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+      margin-left: 6px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .nav-link {
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 14px;
+      text-decoration: none;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: all 0.15s;
+    }
+    .nav-link:hover {
+      color: var(--text);
+      background: var(--bg);
+    }
+    .nav-link.active {
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+    .header-streak-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      color: #f59e0b;
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: default;
+    }
+    .user-avatar-badge {
+      background: linear-gradient(135deg, var(--primary), #8b5cf6);
+      color: white;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 12px;
+      box-shadow: 0 2px 8px rgba(66, 85, 255, 0.3);
+      cursor: pointer;
+    }
+
+    /* DASHBOARD ENHANCEMENTS */
+    .dash-welcome-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(135deg, rgba(66, 85, 255, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 28px;
+    }
+    .dash-welcome-text h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .dash-welcome-text p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin: 0;
+    }
+    .dash-streak-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 10px 18px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .dash-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .dash-section-title {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--text);
+      margin: 0;
+    }
+    .dash-search-box input {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 13.5px;
+      color: var(--text);
+      outline: none;
+      width: 240px;
+      transition: all 0.2s;
+    }
+    .dash-search-box input:focus {
+      border-color: var(--primary);
+      width: 280px;
+    }
+
+    /* HERO JUMP CARD */
+    .hero-jump-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 18px;
+      padding: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+      transition: all 0.2s;
+    }
+    .hero-jump-card:hover {
+      box-shadow: 0 8px 26px rgba(0,0,0,0.08);
+      border-color: var(--border-darker);
+    }
+    .hero-set-badge {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+    .hero-set-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .hero-set-meta {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn-hero-action {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-hero-action:hover {
+      background: var(--card-bg);
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-2px);
+    }
+    .btn-hero-action.primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(66, 85, 255, 0.35);
+    }
+    .btn-hero-action.primary:hover {
+      background: var(--primary-hover);
+    }
+    .hero-jump-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 16px;
+    }
+    .hero-set-icon {
+      font-size: 64px;
+      opacity: 0.8;
+    }
+
+    /* MODERN SET CARD */
+    .set-card-modern {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+    .set-card-modern:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+      border-color: var(--border-darker);
+    }
+    .set-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .set-card-terms-count {
+      background: var(--bg);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+    .set-card-heading {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    .set-card-author {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .author-avatar {
+      font-size: 14px;
+    }
+    .set-card-footer {
+      display: flex;
+      gap: 6px;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      margin-top: auto;
+    }
+    .btn-card-quick {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 6px 4px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-card-quick:hover {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+    .btn-card-del-sub {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+      padding: 4px;
+      border-radius: 6px;
+      transition: opacity 0.2s;
+      opacity: 0.6;
+    }
+    .btn-card-del-sub:hover {
+      opacity: 1;
+      background: var(--error-light);
+    }
+
+    /* MATCH MODE STYLES */
+    .match-start-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px 32px;
+      text-align: center;
+      max-width: 580px;
+      width: 100%;
+      margin: 40px auto;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .match-best-badge {
+      background: rgba(245, 158, 11, 0.12);
+      color: #f59e0b;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .match-container {
+      width: 100%;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .match-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 20px;
+    }
+    .match-timer-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .match-timer-value {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--primary);
+      font-family: monospace;
+    }
+    .match-giveup-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .match-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 14px;
+      width: 100%;
+    }
+    .match-tile {
+      background: var(--card-bg);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 24px 16px;
+      min-height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 15.5px;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      user-select: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .match-tile:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-darker);
+    }
+    .match-tile.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      transform: scale(1.02);
+      box-shadow: 0 0 0 3px rgba(66, 85, 255, 0.25);
+    }
+    .match-tile.matched {
+      border-color: var(--success);
+      background: var(--success-light);
+      color: var(--success);
+      transform: scale(0.8);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.35s ease;
+    }
+    .match-tile.wrong {
+      border-color: var(--error);
+      background: var(--error-light);
+      animation: shake 0.4s ease;
+    }
+    .match-win-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 44px 32px;
+      text-align: center;
+      max-width: 540px;
+      width: 100%;
+      margin: 40px auto;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .match-score-badge {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 36px;
+      margin-top: 10px;
+    }
+
+    /* TEST MODE STYLES */
+    .test-container {
+      width: 100%;
+      max-width: 780px;
+      margin: 0 auto;
+    }
+    .test-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 24px;
+      margin-bottom: 24px;
+    }
+    .test-question-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .test-q-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.03);
+    }
+    .test-q-num {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .test-q-prompt {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+    .test-options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .test-opt-btn {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 15px;
+      color: var(--text);
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.15s;
+    }
+    .test-opt-btn:hover {
+      background: var(--card-bg);
+      border-color: var(--border-darker);
+    }
+    .test-opt-btn.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 700;
+    }
+    .test-opt-letter {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .test-tf-btn {
+      flex: 1;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .test-tf-btn:hover {
+      background: var(--card-bg);
+      border-color: var(--border-darker);
+    }
+    .test-tf-btn.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+    .test-written-input {
+      width: 100%;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 16px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .test-written-input:focus {
+      border-color: var(--primary);
+    }
+    .test-score-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 28px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .test-score-circle {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 900;
+      color: #fff;
+    }
+    .test-score-circle.high {
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+    }
+    .test-score-circle.med {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35);
+    }
+    .test-score-circle.low {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
+    }
+    .test-review-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 22px;
+      margin-bottom: 12px;
+    }
+    .test-review-item.correct {
+      border-left: 5px solid var(--success);
+    }
+    .test-review-item.incorrect {
+      border-left: 5px solid var(--error);
+    }
+
+    /* TERMS OVERVIEW TABLE BELOW STUDY */
+    .set-terms-overview {
+      max-width: 820px;
+      width: 100%;
+      margin: 32px auto 60px;
+    }
+    .terms-overview-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.03);
+    }
+    .terms-overview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .terms-table {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .term-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      transition: all 0.15s;
+    }
+    .term-row:hover {
+      border-color: var(--border-darker);
+      background: var(--card-bg);
+    }
+    .term-col-word {
+      flex: 1;
+      font-weight: 800;
+      font-size: 16px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .term-col-def {
+      flex: 1.5;
+      font-size: 15px;
+      color: var(--text-muted);
+    }
+    .term-col-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-icon-sub {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.15s;
+    }
+    .btn-icon-sub:hover {
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+    .btn-icon-sub.starred {
+      color: #f59e0b;
+      border-color: #f59e0b;
+    }
+    .term-img-thumb {
+      width: 36px;
+      height: 36px;
+      object-fit: cover;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
 </style>
   <!-- FIREBASE SDK -->
   <script type="module">
@@ -959,27 +1642,38 @@
   <canvas id="confetti-canvas"></canvas>
 
   <header>
-    <a class="brand" onclick="showDashboard()" style="font-size: 26px; font-weight: 900; letter-spacing: -0.5px; color: var(--primary);">
-      Quizlet<span style="color: #ffcd1f;">Pro</span>
-    </a>
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <a class="brand" onclick="showDashboard()" style="font-size: 26px; font-weight: 900; letter-spacing: -0.5px; color: var(--primary); display: flex; align-items: center;">
+        Quizlet<span class="pro-badge">PRO</span>
+      </a>
+      <nav class="header-nav">
+        <a class="nav-link active" onclick="showDashboard()">🕒 Gần đây (Latest)</a>
+        <a class="nav-link" onclick="showCreateSetView()">➕ Tạo học phần</a>
+      </nav>
+    </div>
 
     <div class="scrape-bar-wrap">
-      <input type="text" id="scrape-url-input" class="scrape-input" placeholder="Dán link Quizlet (VD: https://quizlet.com/vn/...)" />
+      <input type="text" id="scrape-url-input" class="scrape-input" placeholder="🔍 Dán link Quizlet để tải học phần..." />
       <button class="btn-scrape" id="btn-scrape" onclick="triggerScrape()">
         <span>⚡ Tải & Học</span>
       </button>
       <button class="btn-paste" id="btn-quick-paste" onclick="pasteFromClipboard()" title="Dán nhanh từ vựng đã copy từ Quizlet (1 Click)">
-        <span>📋 Dán từ Quizlet</span>
+        <span>📋 Dán 1-Click</span>
       </button>
     </div>
 
     <div class="header-actions">
+      <div class="header-streak-pill" title="Chuỗi ngày học liên tiếp của bạn">
+        <span>🔥</span>
+        <span id="nav-streak-count" style="font-weight: 800; font-size: 13px;">5</span>
+      </div>
       <button class="btn-icon" id="btn-cloud-guide" title="Hướng dẫn cào thẻ & Bookmarklet" onclick="toggleCloudModal()">💡</button>
       <button class="btn-icon" id="btn-create-set" title="Tạo học phần mới" onclick="showCreateSetView()">➕</button>
       <button class="btn-icon" id="btn-manual-import" title="Nhập thẻ dạng Text (Import)" onclick="toggleManualModal()">📄</button>
       <button class="btn-icon" id="btn-list" title="Danh sách thẻ" onclick="toggleListModal()">📋</button>
       <button class="btn-icon" id="btn-settings" title="Tùy chọn học" onclick="toggleSettingsModal()">⚙️</button>
       <button class="btn-icon" id="btn-theme" title="Sáng / Tối">🌓</button>
+      <div class="user-avatar-badge" title="Đặng Vũ • Tài khoản Quizlet Pro">ĐV</div>
     </div>
   </header>
   
@@ -1072,9 +1766,11 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
     <div class="mode-pills">
       <button class="mode-pill active" id="mode-learn" onclick="switchMode('learn')">🎯 Học (SRS)</button>
+      <button class="mode-pill" id="mode-flashcards" onclick="switchMode('flashcards')">🃏 Thẻ nhớ</button>
+      <button class="mode-pill" id="mode-test" onclick="switchMode('test')">📝 Kiểm tra</button>
+      <button class="mode-pill" id="mode-match" onclick="switchMode('match')">⚡ Ghép thẻ</button>
       <button class="mode-pill" id="mode-write" onclick="switchMode('write')">✍️ Tự luận</button>
       <button class="mode-pill" id="mode-choice" onclick="switchMode('choice')">🔤 Trắc nghiệm</button>
-      <button class="mode-pill" id="mode-flashcards" onclick="switchMode('flashcards')">🃏 Thẻ nhớ</button>
     </div>
   </div>
 
@@ -1102,6 +1798,8 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
   <main id="app">
     <!-- Dynamic Study View rendered by JS -->
   </main>
+
+  <div id="set-terms-overview" class="set-terms-overview" style="display: none;"></div>
 
   <!-- MODAL: TÙY CHỌN HỌC -->
   <div id="settings-modal" class="modal-overlay" style="display: none;">
@@ -1901,6 +2599,8 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
     function onSetChange(setId) {
       document.getElementById('dashboard-view').style.display = 'none';
       document.getElementById('study-view').style.display = 'flex';
+      const toEl = document.getElementById('set-terms-overview');
+      if (toEl) toEl.style.display = 'block';
       updateDeleteButtonVisibility();
       loadSetData(setId);
     }
@@ -2014,7 +2714,12 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         fcIndex = 0;
         fcFlipped = false;
         renderFlashcardView();
+      } else if (currentMode === "match") {
+        startMatchMode();
+      } else if (currentMode === "test") {
+        startTestMode();
       }
+      renderSetTermsOverview();
     }
 
     // UPDATE TOP PROGRESS
@@ -2891,53 +3596,619 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
     function showDashboard() {
       document.getElementById('study-view').style.display = 'none';
       const csView = document.getElementById('create-set-view'); if(csView) csView.style.display = 'none';
+      const toEl = document.getElementById('set-terms-overview'); if(toEl) toEl.style.display = 'none';
       document.getElementById('dashboard-view').style.display = 'block';
+      if (window.allDashboardSets) renderDashboard(window.allDashboardSets);
     }
     
     function renderDashboard(sets) {
       const view = document.getElementById('dashboard-view');
-      if (!sets || sets.length === 0) return;
-      
-      const firstSet = sets[0];
-      const restSets = sets.slice(1);
-      
-      let html = `
-        <h2 class="section-title" style="margin-top: 0;">Jump back in</h2>
-        <div class="jump-back-card" onclick="document.getElementById('set-select').value='${firstSet.id}'; onSetChange('${firstSet.id}')">
-          <div class="jump-info" style="flex:1;">
-            <h3>${firstSet.title}</h3>
-            <p>${firstSet.numTerms} cards ${firstSet.isCustom ? '· by you' : 'completed'}</p>
-            <button class="btn-primary" style="width: auto; padding: 10px 24px; margin-top: 24px;">Continue</button>
+      if (!sets || sets.length === 0) {
+        view.innerHTML = `
+          <div class="summary-box">
+            <div style="font-size: 48px; margin-bottom: 12px;">📚</div>
+            <div class="summary-title">Chưa có học phần nào</div>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Hãy tạo học phần mới hoặc dán link Quizlet để bắt đầu học nhé!</p>
+            <button class="btn-primary" onclick="showCreateSetView()">+ Tạo học phần mới</button>
           </div>
-          ${firstSet.isCustom ? `
-            <button class="btn-card-delete" onclick="event.stopPropagation(); deleteSet('${firstSet.id}', '${(firstSet.title||'').replace(/'/g, "\\'")}');" title="Xóa bộ thẻ này">
-              🗑️
-            </button>
-          ` : ''}
+        `;
+        return;
+      }
+
+      window.allDashboardSets = sets;
+      const firstSet = sets[0];
+      const streak = parseInt(localStorage.getItem('qp_streak_days') || "5");
+      const streakEl = document.getElementById('nav-streak-count');
+      if (streakEl) streakEl.innerText = streak;
+
+      let html = `
+        <div class="dash-welcome-banner">
+          <div class="dash-welcome-text">
+            <h2>Chào mừng bạn trở lại! 👋</h2>
+            <p>Hôm nay bạn muốn học gì? Tiếp tục giữ vững chuỗi học tập nhé!</p>
+          </div>
+          <div class="dash-streak-badge">
+            <span style="font-size: 28px;">🔥</span>
+            <div>
+              <div style="font-size: 18px; font-weight: 800; color: #f59e0b;">${streak} ngày</div>
+              <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Chuỗi học tập</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-section-header">
+          <h2 class="dash-section-title">Tiếp tục học (Jump back in)</h2>
+        </div>
+
+        <div class="hero-jump-card">
+          <div class="hero-jump-left">
+            <div class="hero-set-badge">HỌC PHẦN GẦN NHẤT</div>
+            <h3 class="hero-set-title">${escapeHtml(firstSet.title)}</h3>
+            <p class="hero-set-meta">${firstSet.numTerms} thuật ngữ ${firstSet.isCustom ? '· Tạo bởi bạn' : '· Hệ thống'}</p>
+            
+            <div class="hero-actions">
+              <button class="btn-hero-action primary" onclick="launchSetMode('${firstSet.id}', 'learn')">
+                🎯 Học (SRS)
+              </button>
+              <button class="btn-hero-action" onclick="launchSetMode('${firstSet.id}', 'flashcards')">
+                🃏 Thẻ nhớ
+              </button>
+              <button class="btn-hero-action" onclick="launchSetMode('${firstSet.id}', 'test')">
+                📝 Kiểm tra
+              </button>
+              <button class="btn-hero-action" onclick="launchSetMode('${firstSet.id}', 'match')">
+                ⚡ Ghép thẻ
+              </button>
+            </div>
+          </div>
+          <div class="hero-jump-right">
+            <div class="hero-set-icon">🗂️</div>
+            ${firstSet.isCustom ? `
+              <button class="btn-card-delete" onclick="event.stopPropagation(); deleteSet('${firstSet.id}', '${(firstSet.title||'').replace(/'/g, "\'")}');" title="Xóa bộ thẻ này">
+                🗑️
+              </button>
+            ` : ''}
+          </div>
+        </div>
+
+        <div class="dash-section-header" style="margin-top: 40px;">
+          <h2 class="dash-section-title">Học phần gần đây (Recents)</h2>
+          <div class="dash-search-box">
+            <input type="text" id="dash-filter-input" placeholder="🔍 Tìm kiếm học phần..." oninput="filterDashboardSets(this.value)" />
+          </div>
+        </div>
+
+        <div class="grid-recents" id="dash-sets-grid">
+          ${renderSetsGrid(sets)}
         </div>
       `;
-      
-      if (restSets.length > 0) {
-        html += `<h2 class="section-title">Recents</h2><div class="grid-recents">`;
-        restSets.forEach(s => {
-          html += `
-            <div class="set-card" onclick="document.getElementById('set-select').value='${s.id}'; onSetChange('${s.id}')">
-              <div class="set-card-icon">🗂️</div>
-              <div class="set-card-info" style="flex:1; min-width:0;">
-                <div class="set-card-title">${s.title}</div>
-                <div class="set-card-meta">${s.numTerms} cards ${s.isCustom ? '· by you' : ''}</div>
-              </div>
+
+      view.innerHTML = html;
+    }
+
+    function renderSetsGrid(sets) {
+      return sets.map(s => `
+        <div class="set-card-modern" onclick="launchSetMode('${s.id}', 'learn')">
+          <div class="set-card-top">
+            <span class="set-card-terms-count">${s.numTerms} thuật ngữ</span>
+            <div class="set-card-actions-hover" onclick="event.stopPropagation()">
               ${s.isCustom ? `
-                <button class="btn-card-delete" onclick="event.stopPropagation(); deleteSet('${s.id}', '${(s.title||'').replace(/'/g, "\\'")}');" title="Xóa bộ thẻ này">
-                  🗑️
-                </button>
+                <button class="btn-card-del-sub" onclick="deleteSet('${s.id}', '${(s.title||'').replace(/'/g, "\'")}');" title="Xóa">🗑️</button>
               ` : ''}
             </div>
-          `;
-        });
-        html += `</div>`;
+          </div>
+          <div class="set-card-body">
+            <h4 class="set-card-heading">${escapeHtml(s.title)}</h4>
+            <div class="set-card-author">
+              <span class="author-avatar">${s.isCustom ? '👤' : '⭐'}</span>
+              <span>${s.isCustom ? 'Tạo bởi bạn' : 'Quizlet Verified'}</span>
+            </div>
+          </div>
+          <div class="set-card-footer">
+            <button class="btn-card-quick" onclick="event.stopPropagation(); launchSetMode('${s.id}', 'flashcards')">🃏 Thẻ nhớ</button>
+            <button class="btn-card-quick" onclick="event.stopPropagation(); launchSetMode('${s.id}', 'test')">📝 Thi thử</button>
+            <button class="btn-card-quick" onclick="event.stopPropagation(); launchSetMode('${s.id}', 'match')">⚡ Ghép thẻ</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterDashboardSets(query) {
+      if (!window.allDashboardSets) return;
+      const q = query.toLowerCase().trim();
+      const filtered = window.allDashboardSets.filter(s => s.title.toLowerCase().includes(q));
+      const grid = document.getElementById("dash-sets-grid");
+      if (grid) grid.innerHTML = renderSetsGrid(filtered);
+    }
+
+    function launchSetMode(setId, mode) {
+      const select = document.getElementById('set-select');
+      if (select) select.value = setId;
+      currentMode = mode;
+      document.querySelectorAll(".mode-pill").forEach(p => p.classList.remove("active"));
+      const pill = document.getElementById(`mode-${mode}`);
+      if (pill) pill.classList.add("active");
+      onSetChange(setId);
+    }
+
+    // ==========================================
+    // ⚡ MATCH MODE (GHÉP THẺ - QUIZLET GAME)
+    // ==========================================
+    let matchState = {
+      tiles: [],
+      selectedTile: null,
+      matchedCount: 0,
+      totalPairs: 0,
+      startTime: 0,
+      timerInterval: null,
+      penaltySeconds: 0,
+      isLocked: false
+    };
+
+    function startMatchMode() {
+      const activePool = settings.starredOnly ? cardsState.filter(c => c.starred) : cardsState;
+      if (activePool.length < 2) {
+        document.getElementById("app").innerHTML = `
+          <div class="summary-box">
+            <div style="font-size: 40px; margin-bottom: 12px;">⚡</div>
+            <div class="summary-title">Cần ít nhất 2 thẻ để chơi Ghép thẻ!</div>
+            <button class="btn-primary" style="margin-top: 16px;" onclick="switchMode('flashcards')">Quay lại Thẻ ghi nhớ</button>
+          </div>
+        `;
+        return;
       }
-      view.innerHTML = html;
+
+      const shuffledCards = [...activePool].sort(() => Math.random() - 0.5);
+      const selectedCards = shuffledCards.slice(0, Math.min(6, shuffledCards.length));
+      matchState.totalPairs = selectedCards.length;
+      matchState.matchedCount = 0;
+      matchState.selectedTile = null;
+      matchState.penaltySeconds = 0;
+      matchState.isLocked = false;
+
+      let tiles = [];
+      selectedCards.forEach((c, idx) => {
+        tiles.push({ id: `term_${idx}`, cardId: c.id, text: c.term, type: 'term' });
+        tiles.push({ id: `def_${idx}`, cardId: c.id, text: c.definition, type: 'def' });
+      });
+      tiles.sort(() => Math.random() - 0.5);
+      matchState.tiles = tiles;
+
+      renderMatchStartScreen();
+    }
+
+    function renderMatchStartScreen() {
+      const app = document.getElementById("app");
+      const bestTime = localStorage.getItem('qp_best_match_' + (currentSet ? currentSet.id : 'default'));
+      app.innerHTML = `
+        <div class="match-start-card">
+          <div style="font-size: 54px; margin-bottom: 8px;">⚡</div>
+          <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 12px; color: var(--text);">Trò chơi Ghép thẻ (Match)</h2>
+          <p style="color: var(--text-muted); font-size: 16px; max-width: 460px; line-height: 1.6; margin-bottom: 24px;">
+            Ghép các thuật ngữ với định nghĩa tương ứng càng nhanh càng tốt. Ghép sai sẽ bị phạt <b>+1 giây</b>!
+          </p>
+          ${bestTime ? `<div class="match-best-badge">🏆 Kỷ lục của bạn: <b>${bestTime}s</b></div>` : ''}
+          <button class="btn-primary" style="padding: 16px 48px; font-size: 18px; border-radius: 12px; box-shadow: 0 6px 20px rgba(66,85,255,0.35);" onclick="initMatchGame()">
+            Bắt đầu trò chơi 🚀
+          </button>
+        </div>
+      `;
+    }
+
+    function initMatchGame() {
+      const app = document.getElementById("app");
+      app.innerHTML = `
+        <div class="match-container">
+          <div class="match-header">
+            <div class="match-timer-box">
+              <span>⏱️ Thời gian:</span>
+              <span id="match-timer" class="match-timer-value">0.0s</span>
+            </div>
+            <button class="match-giveup-btn" onclick="startMatchMode()">Chơi lại 🔄</button>
+          </div>
+          <div class="match-grid" id="match-grid">
+            ${matchState.tiles.map(tile => `
+              <div class="match-tile" id="tile_${tile.id}" onclick="onMatchTileClick('${tile.id}')">
+                <span>${escapeHtml(tile.text)}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      matchState.startTime = performance.now();
+      if (matchState.timerInterval) clearInterval(matchState.timerInterval);
+      matchState.timerInterval = setInterval(() => {
+        const elapsed = (performance.now() - matchState.startTime) / 1000 + matchState.penaltySeconds;
+        const timerEl = document.getElementById("match-timer");
+        if (timerEl) timerEl.innerText = elapsed.toFixed(1) + "s";
+      }, 100);
+    }
+
+    function onMatchTileClick(tileId) {
+      if (matchState.isLocked) return;
+      const tile = matchState.tiles.find(t => t.id === tileId);
+      const el = document.getElementById(`tile_${tileId}`);
+      if (!tile || !el || el.classList.contains("matched")) return;
+
+      if (matchState.selectedTile && matchState.selectedTile.id === tileId) {
+        el.classList.remove("selected");
+        matchState.selectedTile = null;
+        return;
+      }
+
+      if (!matchState.selectedTile) {
+        matchState.selectedTile = tile;
+        el.classList.add("selected");
+        return;
+      }
+
+      const firstTile = matchState.selectedTile;
+      const firstEl = document.getElementById(`tile_${firstTile.id}`);
+      el.classList.add("selected");
+      matchState.isLocked = true;
+
+      const isCorrect = (firstTile.cardId === tile.cardId) && (firstTile.type !== tile.type);
+
+      if (isCorrect) {
+        playBeep(true);
+        firstEl.classList.remove("selected");
+        el.classList.remove("selected");
+        firstEl.classList.add("matched");
+        el.classList.add("matched");
+        matchState.matchedCount++;
+        matchState.selectedTile = null;
+        matchState.isLocked = false;
+
+        if (matchState.matchedCount >= matchState.totalPairs) {
+          clearInterval(matchState.timerInterval);
+          const finalTime = ((performance.now() - matchState.startTime) / 1000 + matchState.penaltySeconds).toFixed(1);
+          triggerConfetti();
+          
+          const setKey = 'qp_best_match_' + (currentSet ? currentSet.id : 'default');
+          const currentBest = parseFloat(localStorage.getItem(setKey) || "9999");
+          let isNewRecord = false;
+          if (parseFloat(finalTime) < currentBest) {
+            localStorage.setItem(setKey, finalTime);
+            isNewRecord = true;
+          }
+
+          setTimeout(() => {
+            renderMatchWinScreen(finalTime, isNewRecord);
+          }, 600);
+        }
+      } else {
+        playBeep(false);
+        matchState.penaltySeconds += 1.0;
+        firstEl.classList.add("wrong");
+        el.classList.add("wrong");
+
+        setTimeout(() => {
+          firstEl.classList.remove("selected", "wrong");
+          el.classList.remove("selected", "wrong");
+          matchState.selectedTile = null;
+          matchState.isLocked = false;
+        }, 600);
+      }
+    }
+
+    function renderMatchWinScreen(finalTime, isNewRecord) {
+      const app = document.getElementById("app");
+      app.innerHTML = `
+        <div class="match-win-card">
+          <div style="font-size: 60px; margin-bottom: 10px;">🎉</div>
+          <h2 style="font-size: 32px; font-weight: 800; margin-bottom: 8px; color: var(--text);">Xuất sắc!</h2>
+          <p style="font-size: 18px; color: var(--text-muted); margin-bottom: 24px;">Bạn đã ghép sạch tất cả các thẻ!</p>
+          
+          <div class="match-score-badge">
+            <div style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 4px;">Thời gian hoàn thành</div>
+            <div style="font-size: 42px; font-weight: 900; color: var(--primary);">${finalTime}s</div>
+            ${isNewRecord ? `<div style="color: #f59e0b; font-weight: 800; font-size: 14px; margin-top: 6px;">🏆 KỶ LỤC MỚI CỦA BẠN!</div>` : ''}
+          </div>
+
+          <div style="display: flex; gap: 16px; margin-top: 32px;">
+            <button class="btn-primary" style="padding: 14px 32px; font-size: 16px; border-radius: 10px;" onclick="startMatchMode()">
+              Chơi lại 🔄
+            </button>
+            <button class="btn-cancel" style="padding: 14px 28px; font-size: 16px; border: 1.5px solid var(--border);" onclick="switchMode('flashcards')">
+              Chế độ Thẻ ghi nhớ 🃏
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    // ==========================================
+    // 📝 TEST MODE (KIỂM TRA - QUIZLET PRACTICE TEST)
+    // ==========================================
+    let testState = {
+      questions: [],
+      userAnswers: {},
+      isSubmitted: false
+    };
+
+    function startTestMode() {
+      const activePool = settings.starredOnly ? cardsState.filter(c => c.starred) : cardsState;
+      if (activePool.length < 3) {
+        document.getElementById("app").innerHTML = `
+          <div class="summary-box">
+            <div style="font-size: 40px; margin-bottom: 12px;">📝</div>
+            <div class="summary-title">Cần ít nhất 3 thẻ để tạo bài kiểm tra!</div>
+            <button class="btn-primary" style="margin-top: 16px;" onclick="switchMode('flashcards')">Quay lại Thẻ ghi nhớ</button>
+          </div>
+        `;
+        return;
+      }
+
+      const poolShuffled = [...activePool].sort(() => Math.random() - 0.5);
+      const testCards = poolShuffled.slice(0, Math.min(10, poolShuffled.length));
+      testState.questions = [];
+      testState.userAnswers = {};
+      testState.isSubmitted = false;
+
+      testCards.forEach((card, idx) => {
+        const typeRoll = Math.random();
+        if (typeRoll < 0.5 || activePool.length < 4) {
+          const distractors = activePool.filter(c => c.id !== card.id).sort(() => Math.random() - 0.5).slice(0, 3);
+          const options = [card.definition, ...distractors.map(d => d.definition)].sort(() => Math.random() - 0.5);
+          testState.questions.push({
+            id: idx + 1,
+            cardId: card.id,
+            type: 'choice',
+            prompt: card.term,
+            correct: card.definition,
+            options: options,
+            image: card.image
+          });
+        } else if (typeRoll < 0.8) {
+          const isTrue = Math.random() > 0.5;
+          let displayedDef = card.definition;
+          if (!isTrue) {
+            const wrongCard = activePool.find(c => c.id !== card.id) || card;
+            displayedDef = wrongCard.definition;
+          }
+          testState.questions.push({
+            id: idx + 1,
+            cardId: card.id,
+            type: 'tf',
+            prompt: card.term,
+            displayedDef: displayedDef,
+            correct: isTrue ? 'true' : 'false',
+            actualDef: card.definition,
+            image: card.image
+          });
+        } else {
+          testState.questions.push({
+            id: idx + 1,
+            cardId: card.id,
+            type: 'written',
+            prompt: card.definition,
+            correct: card.term,
+            image: card.image
+          });
+        }
+      });
+
+      renderTestQuestions();
+    }
+
+    function renderTestQuestions() {
+      const app = document.getElementById("app");
+      app.innerHTML = `
+        <div class="test-container">
+          <div class="test-header">
+            <div>
+              <h2 style="font-size: 24px; font-weight: 800; color: var(--text); margin-bottom: 4px;">📝 Bài kiểm tra thử</h2>
+              <div style="font-size: 14px; color: var(--text-muted);">${testState.questions.length} câu hỏi tổng hợp</div>
+            </div>
+            <button class="btn-cancel" onclick="switchMode('learn')">Thoát ✕</button>
+          </div>
+
+          <div class="test-question-list">
+            ${testState.questions.map((q, idx) => `
+              <div class="test-q-card" id="test_q_${q.id}">
+                <div class="test-q-num">CÂU HỎI ${idx + 1} / ${testState.questions.length}</div>
+                <div class="test-q-prompt">
+                  ${escapeHtml(q.prompt)}
+                  ${q.image ? `<img src="${q.image}" style="max-height: 100px; border-radius: 8px; margin-top: 10px; display: block;" />` : ''}
+                </div>
+
+                ${q.type === 'choice' ? `
+                  <div class="test-options-grid">
+                    ${q.options.map((opt, oIdx) => `
+                      <button class="test-opt-btn ${testState.userAnswers[q.id] === opt ? 'selected' : ''}" 
+                              onclick="selectTestAnswer(${q.id}, '${escapeHtml(opt).replace(/'/g, "\'")}')">
+                        <span class="test-opt-letter">${String.fromCharCode(65 + oIdx)}</span>
+                        <span>${escapeHtml(opt)}</span>
+                      </button>
+                    `).join('')}
+                  </div>
+                ` : ''}
+
+                ${q.type === 'tf' ? `
+                  <div class="test-tf-box">
+                    <div style="font-size: 15px; color: var(--text-muted); margin-bottom: 12px;">
+                      Định nghĩa hiển thị: <b style="color: var(--text);">${escapeHtml(q.displayedDef)}</b>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                      <button class="test-tf-btn ${testState.userAnswers[q.id] === 'true' ? 'selected' : ''}" 
+                              onclick="selectTestAnswer(${q.id}, 'true')">
+                        ✓ Đúng (True)
+                      </button>
+                      <button class="test-tf-btn ${testState.userAnswers[q.id] === 'false' ? 'selected' : ''}" 
+                              onclick="selectTestAnswer(${q.id}, 'false')">
+                        ✗ Sai (False)
+                      </button>
+                    </div>
+                  </div>
+                ` : ''}
+
+                ${q.type === 'written' ? `
+                  <div style="margin-top: 14px;">
+                    <input type="text" class="test-written-input" placeholder="Nhập câu trả lời của bạn..." 
+                           value="${escapeHtml(testState.userAnswers[q.id] || '')}"
+                           oninput="selectTestAnswer(${q.id}, this.value)" />
+                  </div>
+                ` : ''}
+              </div>
+            `).join('')}
+          </div>
+
+          <div style="text-align: center; margin-top: 32px; margin-bottom: 60px;">
+            <button class="btn-primary" style="padding: 16px 54px; font-size: 18px; border-radius: 12px; box-shadow: 0 6px 20px rgba(66,85,255,0.35);" onclick="submitTest()">
+              Nộp bài kiểm tra 🏁
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function selectTestAnswer(qId, val) {
+      testState.userAnswers[qId] = val;
+      const cardEl = document.getElementById(`test_q_${qId}`);
+      if (!cardEl) return;
+      const btns = cardEl.querySelectorAll(".test-opt-btn, .test-tf-btn");
+      btns.forEach(b => {
+        if (b.innerText.includes(val) || (val === 'true' && b.innerText.includes('Đúng')) || (val === 'false' && b.innerText.includes('Sai'))) {
+          b.classList.add("selected");
+        } else {
+          b.classList.remove("selected");
+        }
+      });
+    }
+
+    function submitTest() {
+      let correctCount = 0;
+      testState.questions.forEach(q => {
+        const userAns = (testState.userAnswers[q.id] || "").trim();
+        let isCorrect = false;
+        if (q.type === 'choice') {
+          isCorrect = userAns === q.correct;
+        } else if (q.type === 'tf') {
+          isCorrect = userAns === q.correct;
+        } else if (q.type === 'written') {
+          isCorrect = checkFuzzyMatch(userAns, q.correct);
+        }
+        q.userAns = userAns;
+        q.isCorrect = isCorrect;
+        if (isCorrect) correctCount++;
+      });
+
+      const total = testState.questions.length;
+      const scorePercent = Math.round((correctCount / total) * 100);
+
+      if (scorePercent >= 80) triggerConfetti();
+
+      renderTestResults(correctCount, total, scorePercent);
+    }
+
+    function renderTestResults(correctCount, total, scorePercent) {
+      const app = document.getElementById("app");
+      app.innerHTML = `
+        <div class="test-result-container">
+          <div class="test-score-card">
+            <div class="test-score-circle ${scorePercent >= 80 ? 'high' : scorePercent >= 50 ? 'med' : 'low'}">
+              ${scorePercent}%
+            </div>
+            <h2 style="font-size: 28px; font-weight: 800; margin-top: 16px; margin-bottom: 6px; color: var(--text);">
+              ${scorePercent === 100 ? 'Tuyệt đối! Hoàn hảo 🌟' : scorePercent >= 80 ? 'Xuất sắc! Bạn làm rất tốt 🏆' : scorePercent >= 50 ? 'Khá tốt! Cần luyện thêm một chút 👍' : 'Đừng nản, hãy ôn tập lại nhé! 💪'}
+            </h2>
+            <p style="font-size: 16px; color: var(--text-muted);">Bạn đã trả lời đúng <b>${correctCount} / ${total}</b> câu hỏi.</p>
+
+            <div style="display: flex; gap: 14px; justify-content: center; margin-top: 24px;">
+              <button class="btn-primary" style="padding: 12px 30px; font-size: 15px; border-radius: 8px;" onclick="startTestMode()">
+                Làm lại bài kiểm tra 🔄
+              </button>
+              <button class="btn-cancel" style="padding: 12px 24px; font-size: 15px; border: 1.5px solid var(--border);" onclick="switchMode('learn')">
+                Tiếp tục học (SRS) 🎯
+              </button>
+            </div>
+          </div>
+
+          <h3 style="font-size: 20px; font-weight: 800; margin: 32px 0 16px; color: var(--text);">Chi tiết bài thi của bạn</h3>
+          <div class="test-review-list">
+            ${testState.questions.map((q, idx) => `
+              <div class="test-review-item ${q.isCorrect ? 'correct' : 'incorrect'}">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span style="font-size: 12px; font-weight: 800; text-transform: uppercase;">Câu ${idx + 1}</span>
+                  <span style="font-size: 13px; font-weight: 800;">${q.isCorrect ? '✓ ĐÚNG' : '✗ SAI'}</span>
+                </div>
+                <div style="font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px;">
+                  ${escapeHtml(q.prompt)}
+                </div>
+                <div style="font-size: 14px; color: var(--text-muted);">
+                  Câu trả lời của bạn: <b style="color: ${q.isCorrect ? 'var(--success)' : 'var(--error)'};">${escapeHtml(q.userAns || '(Chưa trả lời)')}</b>
+                </div>
+                ${!q.isCorrect ? `
+                  <div style="font-size: 14px; color: var(--success); margin-top: 4px; font-weight: 700;">
+                    Đáp án đúng: ${escapeHtml(q.type === 'tf' ? (q.correct === 'true' ? 'Đúng' : 'Sai (Định nghĩa chuẩn là: ' + q.actualDef + ')') : q.correct)}
+                  </div>
+                ` : ''}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // ==========================================
+    // 📋 TERMS LIST IN SET OVERVIEW (BELOW STUDY)
+    // ==========================================
+    function renderSetTermsOverview() {
+      const container = document.getElementById("set-terms-overview");
+      if (!container || !cardsState || cardsState.length === 0) {
+        if (container) container.style.display = "none";
+        return;
+      }
+
+      container.style.display = "block";
+      container.innerHTML = `
+        <div class="terms-overview-card">
+          <div class="terms-overview-header">
+            <div>
+              <h3 style="font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 4px;">
+                Thuật ngữ trong học phần này (${cardsState.length})
+              </h3>
+              <p style="font-size: 13px; color: var(--text-muted); margin: 0;">Ôn tập nhanh tất cả từ vựng có trong bộ thẻ</p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="terms-filter-input" class="scrape-input" style="width: 220px; padding: 6px 14px; font-size: 13px;" placeholder="🔍 Lọc từ vựng..." oninput="filterTermsOverview(this.value)" />
+            </div>
+          </div>
+          <div class="terms-table" id="terms-table-body">
+            ${renderTermsRows(cardsState)}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTermsRows(cards) {
+      return cards.map(c => `
+        <div class="term-row">
+          <div class="term-col-word">
+            <span class="term-word-text">${escapeHtml(c.term)}</span>
+            ${c.image ? `<img src="${c.image}" class="term-img-thumb" onclick="openLightbox(this.src)" />` : ''}
+          </div>
+          <div class="term-col-def">
+            <span>${escapeHtml(c.definition)}</span>
+          </div>
+          <div class="term-col-actions">
+            <button class="btn-icon-sub ${c.starred ? 'starred' : ''}" onclick="toggleStar(${c.id}); renderSetTermsOverview();" title="Gắn sao">
+              ★
+            </button>
+            <button class="btn-icon-sub" onclick="speakCardById(${c.id})" title="Phát âm">
+              🔊
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterTermsOverview(query) {
+      const q = query.toLowerCase().trim();
+      const filtered = cardsState.filter(c => c.term.toLowerCase().includes(q) || c.definition.toLowerCase().includes(q));
+      const tbody = document.getElementById("terms-table-body");
+      if (tbody) tbody.innerHTML = renderTermsRows(filtered);
     }
 
   </script>
