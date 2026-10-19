@@ -2910,11 +2910,6 @@
         <span class="quick-import-label">Nhập thẻ</span>
       </button>
 
-      <div class="streak-pill-modern" title="Chuỗi ngày học liên tiếp của bạn">
-        <span class="streak-flame">🔥</span>
-        <span id="nav-streak-count" class="streak-number">5</span>
-      </div>
-
       <button class="btn-theme-toggle" id="btn-theme-toggle" onclick="toggleTheme()" title="Chuyển chế độ Sáng / Tối">
         <span id="theme-icon-label">🌙</span>
       </button>
@@ -5120,22 +5115,11 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         window.allDashboardSets = sets;
         const firstSet = sets[0];
         const displayHeroTitle = formatSetTitle(firstSet.title);
-        const streak = parseInt(localStorage.getItem('qp_streak_days') || "5");
-        const streakEl = document.getElementById('nav-streak-count');
-        if (streakEl) streakEl.innerText = streak;
-
         let html = `
         <div class="dash-welcome-banner">
           <div class="dash-welcome-text">
-            <h2>Chào mừng bạn trở lại</h2>
-            <p>Hôm nay bạn muốn học gì? Tiếp tục giữ vững chuỗi học tập nhé!</p>
-          </div>
-          <div class="dash-streak-badge">
-            <span style="font-size: 28px;">🔥</span>
-            <div>
-              <div style="font-size: 18px; font-weight: 800; color: #f59e0b;">${streak} ngày</div>
-              <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Chuỗi học tập</div>
-            </div>
+            <h2>Chào mừng bạn trở lại, Đặng Vũ! 👋</h2>
+            <p>Hôm nay bạn muốn học gì? Chúc bạn có một buổi học tập hiệu quả!</p>
           </div>
         </div>
 
