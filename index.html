@@ -1827,6 +1827,213 @@
       cursor: pointer;
     }
 
+    /* =================================================== */
+    /* 📱 RESPONSIVE & MOBILE ERGONOMICS (320px - 768px) */
+    /* =================================================== */
+    @media (max-width: 900px) {
+      .header-nav-links {
+        display: none;
+      }
+      .nav-center-search {
+        max-width: 320px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .app-header-modern {
+        padding: 0 12px;
+        height: 58px;
+        gap: 8px;
+      }
+      .nav-left {
+        gap: 8px;
+      }
+      .quizlet-logo-text {
+        font-size: 20px;
+      }
+      .pro-badge {
+        font-size: 9px;
+        padding: 2px 5px;
+      }
+      .nav-center-search {
+        max-width: none;
+        flex: 1;
+        margin: 0;
+      }
+      .smart-search-input {
+        padding: 7px 28px 7px 32px;
+        font-size: 13px;
+      }
+      .search-kbd-badge {
+        display: none !important;
+      }
+      .quick-import-label {
+        display: none !important;
+      }
+      .btn-quick-import-pill {
+        padding: 6px 10px;
+      }
+      .nav-right-actions {
+        gap: 6px;
+      }
+      .btn-create-nav {
+        padding: 6px 10px;
+        font-size: 13px;
+      }
+      .btn-create-nav span:last-child {
+        display: none;
+      }
+      .streak-pill-modern {
+        padding: 4px 8px;
+        font-size: 12px;
+      }
+      .btn-theme-toggle {
+        width: 34px;
+        height: 34px;
+        font-size: 14px;
+      }
+      .avatar-circle-modern {
+        width: 32px;
+        height: 32px;
+        font-size: 11.5px;
+      }
+      .dashboard-view {
+        padding: 16px 12px 40px;
+      }
+      .dash-welcome-banner {
+        padding: 16px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .dash-welcome-text h2 {
+        font-size: 20px;
+      }
+      .dash-welcome-text p {
+        font-size: 13px;
+      }
+      .dash-streak-badge {
+        align-self: flex-start;
+      }
+      .hero-jump-card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 18px;
+        gap: 16px;
+      }
+      .hero-jump-right {
+        display: none;
+      }
+      .hero-set-title {
+        font-size: 19px;
+      }
+      .hero-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        width: 100%;
+        gap: 8px;
+      }
+      .btn-hero-action {
+        width: 100%;
+        justify-content: center;
+        padding: 10px 8px;
+        font-size: 13px;
+      }
+      .dash-section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .dash-search-box input {
+        width: 100%;
+      }
+      .grid-recents {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+      .sub-bar {
+        padding: 8px 12px;
+        gap: 10px;
+      }
+      .set-selector-group {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .set-select {
+        max-width: 180px;
+        font-size: 13px;
+      }
+      .mode-pills {
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding: 4px;
+      }
+      .mode-pills::-webkit-scrollbar {
+        display: none;
+      }
+      .mode-pill {
+        flex-shrink: 0;
+        padding: 6px 12px;
+        font-size: 12.5px;
+      }
+      .profile-dropdown-menu, .create-dropdown-menu {
+        position: fixed;
+        top: 60px;
+        right: 12px;
+        left: 12px;
+        width: auto;
+        max-width: 360px;
+        margin: 0 auto;
+      }
+      .match-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+      }
+      .match-tile {
+        min-height: 80px !important;
+        padding: 12px 10px !important;
+        font-size: 13.5px !important;
+      }
+      .fc-face {
+        min-height: 240px;
+        padding: 24px 18px;
+      }
+      .fc-text {
+        font-size: 22px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .streak-pill-modern {
+        display: none;
+      }
+      .btn-create-nav {
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        justify-content: center;
+      }
+      .btn-create-nav span:first-child {
+        margin: 0;
+      }
+      .btn-quick-import-pill {
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        justify-content: center;
+      }
+      .set-card-modern {
+        height: auto;
+        min-height: 165px;
+        max-height: none;
+      }
+    }
+
 </style>
   <!-- FIREBASE SDK -->
   <script type="module">
@@ -1882,13 +2089,23 @@
         } catch(e) { console.error(e); return false; }
       }
     };
+
+    // Auto-trigger load once CloudDB is connected
+    if (typeof window.loadSetsList === "function") {
+      window.loadSetsList();
+    } else {
+      window.addEventListener("DOMContentLoaded", () => {
+        if (typeof window.loadSetsList === "function") window.loadSetsList();
+      });
+    }
+    window.dispatchEvent(new CustomEvent("cloud-db-ready"));
   </script>
 
 </head>
 <body>
   <canvas id="confetti-canvas"></canvas>
 
-  <header>
+  <header class="app-header-modern">
     <!-- LEFT: BRAND & NAV -->
     <div class="nav-left">
       <a class="brand" onclick="showDashboard()" title="Trang chủ Quizlet Pro">
@@ -1952,7 +2169,8 @@
     <!-- RIGHT: QUICK ACTIONS, STREAK, THEME, USER PROFILE -->
     <div class="nav-right-actions">
       <button class="btn-quick-import-pill" onclick="openQuickImportModal('link')" title="Nhập học phần nhanh từ Quizlet">
-        <span>⚡ Nhập thẻ</span>
+        <span class="quick-import-icon">⚡</span>
+        <span class="quick-import-label">Nhập thẻ</span>
       </button>
 
       <div class="streak-pill-modern" title="Chuỗi ngày học liên tiếp của bạn">
@@ -2567,7 +2785,17 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
     function toggleCurrentFlashcardStar() {
       const activePool = settings.starredOnly ? cardsState.filter(c => c.starred) : cardsState;
       const card = activePool[fcIndex];
-      if (card) toggleStar(card.id);
+      if (card) {
+        toggleStar(card.id);
+        const btn = document.getElementById("fc-star-btn");
+        if (btn) {
+          btn.innerHTML = card.starred ? "★" : "☆";
+          btn.style.color = card.starred ? "#f59e0b" : "";
+          btn.style.borderColor = card.starred ? "#f59e0b" : "";
+          btn.classList.toggle("starred", card.starred);
+          btn.classList.toggle("active", card.starred);
+        }
+      }
     }
 
         // CUSTOM SETS IN LOCALSTORAGE (WORKS 100% ON VERCEL & OFFLINE)
@@ -2824,6 +3052,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
     // LOAD SETS LIST (STATIC CDN + LOCALSTORAGE + OPTIONAL LOCAL SERVER)
     async function loadSetsList(selectedId = null) {
+      window.loadSetsList = loadSetsList;
       const select = document.getElementById("set-select");
       select.innerHTML = "";
 
@@ -2849,7 +3078,14 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       // 2. Custom sets from Local DB & Cloud DB
-      let dbSets = await window.Database.getAllSets() || [];
+      let dbSets = [];
+      try {
+        if (window.Database && typeof window.Database.getAllSets === "function") {
+          dbSets = (await window.Database.getAllSets()) || [];
+        }
+      } catch (e) {
+        console.warn("Lỗi đọc Local DB:", e);
+      }
       if (window.CloudDB && window.FirebaseDB) {
          try {
            const cloudSets = await window.CloudDB.getAllSets();
@@ -3107,6 +3343,13 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
     // MODE SWITCHING
     function switchMode(mode) {
+      if (typeof matchState !== 'undefined' && matchState && matchState.timerInterval) {
+        clearInterval(matchState.timerInterval);
+        matchState.timerInterval = null;
+      }
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        try { window.speechSynthesis.cancel(); } catch(e) {}
+      }
       currentMode = mode;
       document.querySelectorAll(".mode-pill").forEach(p => p.classList.remove("active"));
       const pill = document.getElementById(`mode-${mode}`);
@@ -3589,7 +3832,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           <div class="fc-nav">
             <button class="btn-nav" onclick="navFc(-1)" title="Thẻ trước (Phím ←)">←</button>
             <button class="btn-nav" onclick="speakCurrentFlashcard()" title="Phát âm (Phím S)">🔊</button>
-            <button class="btn-nav" onclick="toggleCurrentFlashcardStar()" title="Gắn sao">★</button>
+            <button class="btn-nav star-btn ${card.starred ? 'starred active' : ''}" id="fc-star-btn" onclick="toggleCurrentFlashcardStar()" title="Gắn sao" style="${card.starred ? 'color: #f59e0b; border-color: #f59e0b;' : ''}">${card.starred ? '★' : '☆'}</button>
             <button class="btn-nav" onclick="navFc(1)" title="Thẻ tiếp theo (Phím →)">→</button>
           </div>
           <div style="margin-top: 10px; font-size: 12px; color: var(--text-muted);">Bấm Space để lật thẻ, phím mũi tên ← → để chuyển thẻ</div>
@@ -3707,9 +3950,28 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
     const themeIcon = document.getElementById("theme-icon-label");
     if (themeIcon) themeIcon.innerText = savedTheme === "dark" ? "☀️" : "🌙";
 
-    // KEYBOARD SHORTCUTS
+    // KEYBOARD SHORTCUTS & MODAL DISMISSAL
     window.addEventListener("keydown", (e) => {
-      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") return;
+      // Global shortcut Cmd+K or Ctrl+K to jump to Search
+      if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) {
+        e.preventDefault();
+        const searchInput = document.getElementById("global-search-input");
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.select();
+        }
+        return;
+      }
+
+      // Escape closes any open modal, lightbox, or dropdown
+      if (e.key === "Escape") {
+        document.querySelectorAll(".modal-overlay").forEach(m => m.style.display = "none");
+        hideAllDropdowns();
+        closeLightbox();
+        return;
+      }
+
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT" || e.target.isContentEditable) return;
 
       if (e.key === "s" || e.key === "S") {
         if (currentMode === "flashcards") {
@@ -3739,13 +4001,19 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       } else if (e.key === "Enter" || e.key === " ") {
         const btnNext = document.getElementById("btn-next-wrong");
         if (btnNext) btnNext.click();
-      } else if (e.key === "Escape") {
-        document.getElementById("settings-modal").style.display = "none";
-        document.getElementById("list-modal").style.display = "none";
-        document.getElementById("manual-modal").style.display = "none";
-        document.getElementById("cloud-guide-modal").style.display = "none";
-        closeLightbox();
       }
+    });
+
+    // Close modals when clicking on background overlay
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".modal-overlay").forEach(modal => {
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) {
+            modal.style.display = "none";
+            if (modal.id === "lightbox-modal") closeLightbox();
+          }
+        });
+      });
     });
 
     function escapeHtml(text) {
@@ -3949,11 +4217,11 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         </div>
         <div class="card-row-inputs">
           <div class="card-row-input-group">
-            <input type="text" class="card-row-input term-input" placeholder="Nhập thuật ngữ" value="${term}">
+            <input type="text" class="card-row-input term-input" placeholder="Nhập thuật ngữ" value="${escapeHtml(term)}">
             <span class="card-row-label">Thuật ngữ</span>
           </div>
           <div class="card-row-input-group">
-            <input type="text" class="card-row-input def-input" placeholder="Nhập định nghĩa" value="${definition}">
+            <input type="text" class="card-row-input def-input" placeholder="Nhập định nghĩa" value="${escapeHtml(definition)}">
             <span class="card-row-label">Định nghĩa</span>
           </div>
         </div>
@@ -4004,6 +4272,13 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
     }
 
     function showDashboard() {
+      if (typeof matchState !== 'undefined' && matchState && matchState.timerInterval) {
+        clearInterval(matchState.timerInterval);
+        matchState.timerInterval = null;
+      }
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        try { window.speechSynthesis.cancel(); } catch(e) {}
+      }
       document.getElementById('study-view').style.display = 'none';
       const csView = document.getElementById('create-set-view'); if(csView) csView.style.display = 'none';
       const toEl = document.getElementById('set-terms-overview'); if(toEl) toEl.style.display = 'none';
@@ -4118,6 +4393,18 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
     }
 
     function renderSetsGrid(sets) {
+      if (!sets || sets.length === 0) {
+        return `
+          <div style="grid-column: 1 / -1; padding: 48px 20px; text-align: center; color: var(--text-muted); background: var(--card-bg); border-radius: 16px; border: 1.5px dashed var(--border);">
+            <div style="font-size: 38px; margin-bottom: 12px;">🔍</div>
+            <div style="font-size: 16px; font-weight: 800; color: var(--text); margin-bottom: 6px;">Không tìm thấy học phần nào phù hợp</div>
+            <p style="font-size: 13.5px; margin-bottom: 16px; max-width: 400px; margin-left: auto; margin-right: auto; line-height: 1.5;">Thử tìm kiếm với từ khóa khác hoặc xóa bộ lọc để hiển thị toàn bộ học phần.</p>
+            <button class="btn-primary" onclick="const fi = document.getElementById('dash-filter-input'); if(fi) fi.value=''; const gi = document.getElementById('global-search-input'); if(gi) gi.value=''; filterDashboardSets('');" style="width: auto; padding: 8px 20px; font-size: 13.5px; margin: 0 auto;">
+              Hiển thị lại tất cả
+            </button>
+          </div>
+        `;
+      }
       return sets.map(s => {
         const displayTitle = formatSetTitle(s.title);
         return `
@@ -4155,6 +4442,12 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         if (smartBtn) smartBtn.style.display = "flex";
       } else {
         if (smartBtn) smartBtn.style.display = "none";
+      }
+      if (q.length > 0) {
+        const dv = document.getElementById('dashboard-view');
+        if (dv && dv.style.display === 'none') {
+          showDashboard();
+        }
       }
       filterDashboardSets(q);
     }
