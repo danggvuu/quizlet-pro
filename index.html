@@ -2894,7 +2894,7 @@
         <span class="search-lens-icon">🔍</span>
         <input type="text" id="global-search-input" class="smart-search-input"
           placeholder="Tìm kiếm học phần, từ vựng hoặc dán link Quizlet..." oninput="handleGlobalSearch(this.value)"
-          onkeydown="if(event.key==='Enter') executeGlobalSearch(this.value)" />
+          onkeydown="if(!event.isComposing && event.keyCode !== 229 && event.key==='Enter') executeGlobalSearch(this.value)" />
         <button id="btn-smart-action" class="btn-smart-action" style="display: none;" onclick="executeSmartAction()">
           ⚡ Tải học phần
         </button>
@@ -4316,6 +4316,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
             if (inp) {
               inp.focus();
               inp.addEventListener("keydown", (e) => {
+                if (e.isComposing || e.keyCode === 229) return;
                 if (e.key === "Enter") handleWriteSubmit();
               });
             }
@@ -4402,25 +4403,54 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       function handleWriteSkip() {
         if (isWaitingNext) return;
         isWaitingNext = true;
-        const correct = currentCorrectChoice;
         const card = currentRoundQueue[currentCardIndex];
+        if (card) {
+          // Bỏ qua hẳn: Đặt lại chưa thuộc nhưng KHÔNG lặp lại thẻ này trong vòng học hiện tại nữa
+          card.mastery = 0;
+          for (let i = currentRoundQueue.length - 1; i > currentCardIndex; i--) {
+            if (currentRoundQueue[i].id === card.id) {
+              currentRoundQueue.splice(i, 1);
+            }
+          }
+          saveProgressToStorage();
+          updateProgressUI();
+        }
         playBeep(false);
-        demoteCardMastery(card);
-        renderFeedback(card, "(Bỏ qua)", correct, true);
+        showToast(`⏭️ Đã bỏ qua: "${card ? (card.term || card.definition) : ''}"`, 1200);
+        setTimeout(() => {
+          isWaitingNext = false;
+          currentCardIndex++;
+          renderCurrentCard();
+        }, 150);
       }
 
       function checkFuzzyMatch(input, target) {
-        const clean = (s) => s.toLowerCase()
-          .replace(/[\.,-\/#!$%\^&\*;:{}=\-_`~()]/g, "")
+        if (!input || !target) return false;
+
+        // NFKC chuẩn hóa ký tự full-width sang half-width (Fix lỗi Windows IME gõ ｎ, Ｎ, khoảng trắng toàn giác...)
+        const clean = (s) => (s || "").normalize("NFKC").toLowerCase()
+          .replace(/[\.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")
           .replace(/\s+/g, " ")
           .trim();
+
         const s1 = clean(input);
         const s2 = clean(target);
         if (s1 === s2) return true;
-        // Also check if user typed the main term when multiple synonyms exist
-        if (s2.includes("=") || s2.includes("/")) {
-          const parts = s2.split(/=|;/).map(p => clean(p));
-          if (parts.some(p => p === s1 || s1.includes(p))) return true;
+
+        // Chuẩn hóa tiếng Nhật: Ký tự ん <-> n (Romaji / Hiragana)
+        const japNorm = (s) => s.replace(/ん/g, "n").replace(/\s*n$/i, "n").trim();
+        if (japNorm(s1) === japNorm(s2)) return true;
+
+        // Bỏ qua ký hiệu ngữ pháp tiếng Nhật như "ひとつめのn" vs "ひとつめの" (n tượng trưng cho Danh từ / Noun)
+        const stripGrammarPlaceholder = (s) => s.replace(/\s*n$/i, "").trim();
+        if (stripGrammarPlaceholder(s1) && stripGrammarPlaceholder(s1) === stripGrammarPlaceholder(s2)) return true;
+
+        // Kiểm tra từ đồng nghĩa có phân cách bằng =, /, ;, ,
+        if (target.includes("=") || target.includes("/") || target.includes(";") || target.includes(",")) {
+          const parts = target.split(/[=/;,]/).map(p => clean(p));
+          if (parts.some(p => p && (p === s1 || s1.includes(p) || japNorm(p) === japNorm(s1) || stripGrammarPlaceholder(p) === stripGrammarPlaceholder(s1)))) {
+            return true;
+          }
         }
         return false;
       }
@@ -4480,7 +4510,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
           ${retypeHtml}
 
-          <button class="btn-continue" id="btn-next-wrong" onclick="nextCardAfterFeedback()">
+          <button class="btn-continue" id="btn-next-wrong" onclick="nextCardAfterFeedback(true)">
             ${requireRetype ? "Bỏ qua & Tiếp tục (Enter)" : "Tiếp tục (Nhấn Space / Enter) →"}
           </button>
         </div>
@@ -4496,18 +4526,30 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
               rInp.addEventListener("input", () => {
                 if (checkFuzzyMatch(rInp.value, correctVal)) {
                   rInp.style.borderColor = "var(--success)";
-                  setTimeout(nextCardAfterFeedback, 400);
+                  setTimeout(() => nextCardAfterFeedback(false), 400);
                 }
               });
               rInp.addEventListener("keydown", (e) => {
-                if (e.key === "Enter") nextCardAfterFeedback();
+                if (e.isComposing || e.keyCode === 229) return;
+                if (e.key === "Enter") nextCardAfterFeedback(true);
               });
             }
           }, 50);
         }
       }
 
-      function nextCardAfterFeedback() {
+      function nextCardAfterFeedback(skipRepeat = false) {
+        if (skipRepeat) {
+          const card = currentRoundQueue[currentCardIndex];
+          if (card) {
+            for (let i = currentRoundQueue.length - 1; i > currentCardIndex; i--) {
+              if (currentRoundQueue[i].id === card.id) {
+                currentRoundQueue.splice(i, 1);
+              }
+            }
+          }
+        }
+        isWaitingNext = false;
         currentCardIndex++;
         renderCurrentCard();
       }
@@ -4744,6 +4786,8 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
       // KEYBOARD SHORTCUTS & MODAL DISMISSAL
       window.addEventListener("keydown", (e) => {
+        if (e.isComposing || e.keyCode === 229) return;
+
         // Global shortcut Cmd+K or Ctrl+K to jump to Search
         if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) {
           e.preventDefault();
@@ -4857,6 +4901,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       const scrapeInput = document.getElementById("scrape-url-input");
       if (scrapeInput) {
         scrapeInput.addEventListener("keydown", (e) => {
+          if (e.isComposing || e.keyCode === 229) return;
           if (e.key === "Enter") triggerScrape();
         });
       }
