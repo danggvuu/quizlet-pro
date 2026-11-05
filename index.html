@@ -2797,32 +2797,44 @@
       }
     } catch (e) { console.error("Firebase init error:", e); }
 
-    // Cloud Database Wrapper
+    // Cloud Database Wrapper với Timeout an toàn (Không bao giờ làm nghẽn trang)
     window.CloudDB = {
       async saveSet(setObj) {
         if (!window.FirebaseDB) return false;
         try {
-          await setDoc(doc(window.FirebaseDB, "quizlet_sets", String(setObj.id)), setObj);
+          const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 2000));
+          await Promise.race([
+            setDoc(doc(window.FirebaseDB, "quizlet_sets", String(setObj.id)), setObj),
+            timeout
+          ]);
           return true;
-        } catch (e) { console.error(e); return false; }
+        } catch (e) { console.warn("CloudDB saveSet timeout/error:", e); return false; }
       },
       async getAllSets() {
         if (!window.FirebaseDB) return [];
         try {
-          const querySnapshot = await getDocs(collection(window.FirebaseDB, "quizlet_sets"));
-          const sets = [];
-          querySnapshot.forEach((doc) => {
-            sets.push(doc.data());
-          });
-          return sets;
-        } catch (e) { console.error(e); return []; }
+          const timeout = new Promise((resolve) => setTimeout(() => resolve([]), 2000));
+          const fetchPromise = (async () => {
+            const querySnapshot = await getDocs(collection(window.FirebaseDB, "quizlet_sets"));
+            const sets = [];
+            querySnapshot.forEach((doc) => {
+              sets.push(doc.data());
+            });
+            return sets;
+          })();
+          return await Promise.race([fetchPromise, timeout]);
+        } catch (e) { console.warn("CloudDB getAllSets timeout/error:", e); return []; }
       },
       async deleteSet(setId) {
         if (!window.FirebaseDB) return false;
         try {
-          await deleteDoc(doc(window.FirebaseDB, "quizlet_sets", String(setId)));
+          const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 2000));
+          await Promise.race([
+            deleteDoc(doc(window.FirebaseDB, "quizlet_sets", String(setId))),
+            timeout
+          ]);
           return true;
-        } catch (e) { console.error(e); return false; }
+        } catch (e) { console.warn("CloudDB deleteSet timeout/error:", e); return false; }
       }
     };
 
@@ -3842,34 +3854,40 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         }
       }
 
-      // LOAD SETS LIST (STATIC CDN + LOCALSTORAGE + OPTIONAL LOCAL SERVER)
+      // BỘ DỮ LIỆU TĨNH BAN ĐẦU (Render tức thì 0ms, không phụ thuộc mạng)
+      const STATIC_SETS_FALLBACK = [
+        { id: "927731678", title: "READING PART 5 6 TEST 1", numTerms: 60 },
+        { id: "927731707", title: "READING PART 5 6 TEST 2", numTerms: 60 },
+        { id: "927731719", title: "READING PART 5 6 TEST 3", numTerms: 57 },
+        { id: "927731732", title: "READING PART 5 6 TEST 4", numTerms: 57 },
+        { id: "927731743", title: "READING PART 5 6 TEST 5", numTerms: 44 },
+        { id: "927731753", title: "READING PART 5 6 TEST 6", numTerms: 52 },
+        { id: "927731770", title: "READING PART 5 6 TEST 7", numTerms: 51 },
+        { id: "927731825", title: "READING PART 5 6 TEST 8", numTerms: 44 },
+        { id: "927731839", title: "READING PART 5 6 TEST 9", numTerms: 51 },
+        { id: "927731856", title: "READING PART 5 TEST 10", numTerms: 40 },
+        { id: "1024619363", title: "READING - PART 7 - TEST 1", numTerms: 200 },
+        { id: "1007017985", title: "READING PART 7 - TEST 02", numTerms: 200 },
+        { id: "1008990116", title: "READING PART 7 - TEST 3", numTerms: 96 },
+        { id: "1010710706", title: "READING PART 7 - TEST 4", numTerms: 200 },
+        { id: "1012039369", title: "READING PART 7 - TEST 5", numTerms: 200 },
+        { id: "1013575766", title: "READING PART 7 - TEST 06", numTerms: 300 },
+        { id: "1015913274", title: "READING PART 7 - TEST 07", numTerms: 300 },
+        { id: "1020661698", title: "READING PART 7 - TEST 08", numTerms: 200 },
+        { id: "1022004296", title: "READING PART 7 - TEST 9", numTerms: 300 },
+        { id: "1023641138", title: "READING PART 7 - TEST 10", numTerms: 200 }
+      ];
+
+      // LOAD SETS LIST (SIÊU TỐC: RENDER 0MS TỪ BỘ NHỚ -> ĐỒNG BỘ NỀN)
       async function loadSetsList(selectedId = null) {
         window.loadSetsList = loadSetsList;
         const select = document.getElementById("set-select");
         select.innerHTML = "";
 
-        let allSets = [];
+        // 1. Khởi tạo tức thì từ bộ nhớ đệm có sẵn (Hiển thị ngay lập tức 0ms)
+        let allSets = STATIC_SETS_FALLBACK.map(s => ({ ...s }));
 
-        // 1. Static sets from /data/sets.json
-        try {
-          const res = await fetch("/data/sets.json");
-          if (res.ok) {
-            const data = await res.json();
-            if (Array.isArray(data) && data.length > 0) {
-              allSets = data;
-            }
-          }
-        } catch (e) { }
-
-        // Default fallback
-        if (allSets.length === 0) {
-          allSets = [
-            { id: "927731678", title: "READING PART 5 6 TEST 1", numTerms: 60 },
-            { id: "927731707", title: "READING PART 5 6 TEST 2", numTerms: 60 }
-          ];
-        }
-
-        // 2. Custom sets from Local DB & Cloud DB
+        // 2. Custom sets from Local DB (IndexedDB - Siêu nhanh 5ms)
         let dbSets = [];
         try {
           if (window.Database && typeof window.Database.getAllSets === "function") {
@@ -3878,43 +3896,22 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         } catch (e) {
           console.warn("Lỗi đọc Local DB:", e);
         }
-        if (window.CloudDB && window.FirebaseDB) {
-          try {
-            const cloudSets = await window.CloudDB.getAllSets();
-            // Merge cloud sets with local sets
-            cloudSets.forEach(cs => {
-              if (!dbSets.some(ls => String(ls.id) === String(cs.id))) {
-                dbSets.push(cs);
-                // Cache locally
-                window.Database.saveSet(cs);
-              }
-            });
 
-            // AUTO-SYNC: Push any local sets that are MISSING in the cloud
-            let syncedCount = 0;
-            for (const ls of dbSets) {
-              if (ls.isCustom && !cloudSets.some(cs => String(cs.id) === String(ls.id))) {
-                await window.CloudDB.saveSet(ls);
-                syncedCount++;
-              }
+        const mergeCustomSets = (setsToMerge) => {
+          const customSets = setsToMerge.map(s => ({
+            id: s.id,
+            title: s.title,
+            numTerms: s.cards ? s.cards.length : (s.numTerms || 0),
+            isCustom: true
+          }));
+          customSets.forEach(cs => {
+            if (!allSets.some(item => String(item.id) === String(cs.id))) {
+              allSets.push(cs);
             }
-            if (syncedCount > 0) {
-              console.log("Đã đồng bộ " + syncedCount + " bộ thẻ cũ lên Cloud!");
-            }
+          });
+        };
 
-          } catch (e) { }
-        }
-        const customSets = dbSets.map(s => ({
-          id: s.id,
-          title: s.title,
-          numTerms: s.cards ? s.cards.length : (s.numTerms || 0),
-          isCustom: true
-        }));
-        customSets.forEach(cs => {
-          if (!allSets.some(item => String(item.id) === String(cs.id))) {
-            allSets.push(cs);
-          }
-        });
+        mergeCustomSets(dbSets);
 
         // 3. If local backend exists, query it too
         if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
@@ -3933,25 +3930,83 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           } catch (e) { }
         }
 
-        allSets.forEach(s => {
-          const opt = document.createElement("option");
-          opt.value = s.id;
-          opt.textContent = `${s.title} (${s.numTerms} thẻ)`;
-          select.appendChild(opt);
-        });
+        // HÀM RENDER GIAO DIỆN TỨC THÌ
+        const renderSetsUI = () => {
+          const prevVal = select.value;
+          select.innerHTML = "";
+          allSets.forEach(s => {
+            const opt = document.createElement("option");
+            opt.value = s.id;
+            opt.textContent = `${s.title} (${s.numTerms} thẻ)`;
+            select.appendChild(opt);
+          });
 
-        renderDashboard(allSets);
+          renderDashboard(allSets);
 
-        if (selectedId) {
-          select.value = selectedId;
-          updateDeleteButtonVisibility();
-          loadSetData(select.value);
-          document.getElementById('dashboard-view').style.display = 'none';
-          document.getElementById('study-view').style.display = 'flex';
-        } else {
-          if (allSets.length > 0) select.value = allSets[0].id;
-          updateDeleteButtonVisibility();
-          showDashboard();
+          if (selectedId) {
+            select.value = selectedId;
+            updateDeleteButtonVisibility();
+            loadSetData(select.value);
+            document.getElementById('dashboard-view').style.display = 'none';
+            document.getElementById('study-view').style.display = 'flex';
+          } else {
+            if (prevVal && allSets.some(item => String(item.id) === String(prevVal))) {
+              select.value = prevVal;
+            } else if (allSets.length > 0) {
+              select.value = allSets[0].id;
+            }
+            updateDeleteButtonVisibility();
+            if (document.getElementById('study-view').style.display !== 'flex') {
+              showDashboard();
+            }
+          }
+        };
+
+        // RENDER TỨC THÌ TRONG 10MS TỪ BỘ NHỚ CỤC BỘ (Không phải chờ mạng)
+        renderSetsUI();
+
+        // 4. ĐỒNG BỘ CLOUD DATABASE BẤT ĐỒNG BỘ CHẠY NGẦM (Không bao giờ làm nghẽn trang)
+        if (window.CloudDB && window.FirebaseDB) {
+          (async () => {
+            try {
+              // Thêm timeout 2.5s phòng khi mạng chậm hoặc Firestore bị chặn
+              const fetchCloudWithTimeout = new Promise((resolve) => {
+                const timer = setTimeout(() => resolve([]), 2500);
+                window.CloudDB.getAllSets().then(res => {
+                  clearTimeout(timer);
+                  resolve(res || []);
+                }).catch(() => {
+                  clearTimeout(timer);
+                  resolve([]);
+                });
+              });
+
+              const cloudSets = await fetchCloudWithTimeout;
+              let hasNewCloudSets = false;
+
+              cloudSets.forEach(cs => {
+                if (!dbSets.some(ls => String(ls.id) === String(cs.id))) {
+                  dbSets.push(cs);
+                  window.Database.saveSet(cs);
+                  hasNewCloudSets = true;
+                }
+              });
+
+              if (hasNewCloudSets) {
+                mergeCustomSets(cloudSets);
+                renderSetsUI();
+              }
+
+              // Auto-sync ngầm: Đẩy bộ thẻ local còn thiếu lên Cloud
+              for (const ls of dbSets) {
+                if (ls.isCustom && !cloudSets.some(cs => String(cs.id) === String(ls.id))) {
+                  await window.CloudDB.saveSet(ls);
+                }
+              }
+            } catch (e) {
+              console.warn("Cloud sync ngầm gặp lỗi (đã tự bỏ qua):", e);
+            }
+          })();
         }
       }
 
