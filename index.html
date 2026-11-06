@@ -3783,44 +3783,104 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         });
       }
 
+      // QUẢN LÝ DANH SÁCH BỘ THẺ ĐÃ BỊ XÓA (Vĩnh viễn không hiển thị lại)
+      function getDeletedSetIds() {
+        try {
+          const raw = localStorage.getItem("qp_deleted_set_ids");
+          return raw ? JSON.parse(raw) : [];
+        } catch (e) { return []; }
+      }
+
+      function markSetAsDeleted(setId) {
+        try {
+          const list = getDeletedSetIds();
+          const idStr = String(setId);
+          if (!list.includes(idStr)) {
+            list.push(idStr);
+            localStorage.setItem("qp_deleted_set_ids", JSON.stringify(list));
+          }
+        } catch (e) { }
+      }
+
+      // DELETE SET (TỨC THÌ 0MS - KHÔNG CẦN F5 TẢI LẠI TRANG)
       async function deleteSet(setId, title = "") {
         if (!setId) return;
-        const isCustom = String(setId).startsWith("set_") || String(setId).startsWith("custom_") || String(setId).startsWith("quizlet_");
-        if (!isCustom) {
-          alert("Bộ đề mẫu mặc định không thể xóa!");
-          return;
-        }
+        const idStr = String(setId);
         const setDisplayName = title || (currentSet && currentSet.title) || "bộ thẻ này";
-        if (!confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn bộ thẻ "${setDisplayName}" không?\n(Dữ liệu trên máy và Cloud Firebase sẽ bị xóa hoàn toàn)`)) {
+        if (!confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn bộ thẻ "${setDisplayName}" không?`)) {
           return;
         }
-        try {
-          // 1. Delete from IndexedDB
-          if (window.Database && window.Database.deleteSet) {
-            await window.Database.deleteSet(setId);
-          }
-          // 2. Delete from Cloud Firebase
-          if (window.CloudDB && window.FirebaseDB) {
-            await window.CloudDB.deleteSet(setId);
-          }
-          // 3. Delete from localStorage
-          try {
-            const sets = getStoredCustomSets().filter(s => String(s.id) !== String(setId));
-            localStorage.setItem("qp_custom_sets", JSON.stringify(sets));
-            localStorage.removeItem(getStorageKey(setId));
-          } catch (e) { }
 
-          showToast(`🗑️ Đã xóa vĩnh viễn bộ thẻ "${setDisplayName}"!`, 3000);
+        // 1. CẬP NHẬT GIAO DIỆN TỨC THÌ TRONG 0MS (Optimistic UI Update)
+        markSetAsDeleted(idStr);
 
-          // If currently viewing this deleted set, go back to dashboard
-          if (currentSet && String(currentSet.id) === String(setId)) {
-            showDashboard();
-          }
-          await loadSetsList();
-        } catch (e) {
-          console.error("Lỗi khi xóa bộ thẻ:", e);
-          alert("Lỗi khi xóa bộ thẻ!");
+        if (window.allDashboardSets) {
+          window.allDashboardSets = window.allDashboardSets.filter(s => String(s.id) !== idStr);
+          renderDashboard(window.allDashboardSets);
         }
+
+        const select = document.getElementById("set-select");
+        if (select) {
+          const opt = select.querySelector(`option[value="${idStr}"]`);
+          if (opt) opt.remove();
+        }
+
+        // Nếu đang mở đúng bộ thẻ này trong giao diện học -> Trở về Dashboard ngay
+        if (currentSet && String(currentSet.id) === idStr) {
+          currentSet = null;
+          showDashboard();
+        }
+
+        showToast(`🗑️ Đã xóa vĩnh viễn bộ thẻ "${setDisplayName}"!`, 2500);
+
+        // 2. CHẠY NGẦM DỌN DẸP BỘ NHỚ (IndexedDB, CloudDB, localStorage)
+        try {
+          if (window.Database && window.Database.deleteSet) {
+            window.Database.deleteSet(idStr);
+            if (!isNaN(idStr)) window.Database.deleteSet(Number(idStr));
+          }
+        } catch (e) { console.warn("Lỗi xóa IndexedDB:", e); }
+
+        try {
+          if (window.CloudDB && window.FirebaseDB) {
+            window.CloudDB.deleteSet(idStr);
+          }
+        } catch (e) { console.warn("Lỗi xóa CloudDB:", e); }
+
+        try {
+          const sets = getStoredCustomSets().filter(s => String(s.id) !== idStr);
+          localStorage.setItem("qp_custom_sets", JSON.stringify(sets));
+          localStorage.removeItem(getStorageKey(idStr));
+        } catch (e) { }
+      }
+
+      // XÓA NHANH TOÀN BỘ 20 BỘ ĐỀ TOEIC TIẾNG ANH MẪU
+      function deleteAllSampleSets() {
+        if (!confirm("Bạn có chắc chắn muốn xóa toàn bộ các bộ đề TOEIC mẫu khỏi trang chủ để giao diện gọn gàng không?")) {
+          return;
+        }
+        const sampleIds = [
+          "927731678", "927731707", "927731719", "927731732", "927731743",
+          "927731753", "927731770", "927731825", "927731839", "927731856",
+          "1024619363", "1007017985", "1008990116", "1010710706", "1012039369",
+          "1013575766", "1015913274", "1020661698", "1022004296", "1023641138"
+        ];
+        sampleIds.forEach(id => markSetAsDeleted(id));
+
+        if (window.allDashboardSets) {
+          window.allDashboardSets = window.allDashboardSets.filter(s => !sampleIds.includes(String(s.id)));
+          renderDashboard(window.allDashboardSets);
+        }
+
+        const select = document.getElementById("set-select");
+        if (select) {
+          sampleIds.forEach(id => {
+            const opt = select.querySelector(`option[value="${id}"]`);
+            if (opt) opt.remove();
+          });
+        }
+
+        showToast("🧹 Đã dọn sạch toàn bộ 20 bộ đề TOEIC mẫu!", 3000);
       }
 
       function deleteCurrentSet() {
@@ -3884,26 +3944,33 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         const select = document.getElementById("set-select");
         select.innerHTML = "";
 
-        // 1. Khởi tạo tức thì từ bộ nhớ đệm có sẵn (Hiển thị ngay lập tức 0ms)
-        let allSets = STATIC_SETS_FALLBACK.map(s => ({ ...s }));
+        const deletedIds = new Set(getDeletedSetIds());
+
+        // 1. Khởi tạo tức thì từ bộ nhớ đệm có sẵn (Lọc bỏ những bộ người dùng đã xóa)
+        let allSets = STATIC_SETS_FALLBACK
+          .filter(s => !deletedIds.has(String(s.id)))
+          .map(s => ({ ...s }));
 
         // 2. Custom sets from Local DB (IndexedDB - Siêu nhanh 5ms)
         let dbSets = [];
         try {
           if (window.Database && typeof window.Database.getAllSets === "function") {
-            dbSets = (await window.Database.getAllSets()) || [];
+            const rawSets = (await window.Database.getAllSets()) || [];
+            dbSets = rawSets.filter(s => !deletedIds.has(String(s.id)));
           }
         } catch (e) {
           console.warn("Lỗi đọc Local DB:", e);
         }
 
         const mergeCustomSets = (setsToMerge) => {
-          const customSets = setsToMerge.map(s => ({
-            id: s.id,
-            title: s.title,
-            numTerms: s.cards ? s.cards.length : (s.numTerms || 0),
-            isCustom: true
-          }));
+          const customSets = setsToMerge
+            .filter(s => !deletedIds.has(String(s.id)))
+            .map(s => ({
+              id: s.id,
+              title: s.title,
+              numTerms: s.cards ? s.cards.length : (s.numTerms || 0),
+              isCustom: true
+            }));
           customSets.forEach(cs => {
             if (!allSets.some(item => String(item.id) === String(cs.id))) {
               allSets.push(cs);
@@ -3981,7 +4048,8 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
                 });
               });
 
-              const cloudSets = await fetchCloudWithTimeout;
+              const rawCloudSets = await fetchCloudWithTimeout;
+              const cloudSets = rawCloudSets.filter(cs => !deletedIds.has(String(cs.id)));
               let hasNewCloudSets = false;
 
               cloudSets.forEach(cs => {
@@ -4011,18 +4079,14 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       function updateDeleteButtonVisibility() {
-        const select = document.getElementById("set-select");
-        const val = select ? String(select.value) : "";
-        const isCustom = val.startsWith("set_") || val.startsWith("custom_") || val.startsWith("quizlet_");
-
         const btnDel = document.getElementById("btn-del-set");
         const btnExport = document.getElementById("btn-export-set");
         const btnEdit = document.getElementById("btn-edit-set");
         const btnReset = document.getElementById("btn-reset-prog");
 
-        if (btnDel) btnDel.style.display = isCustom ? "inline-flex" : "none";
-        if (btnExport) btnExport.style.display = isCustom ? "inline-flex" : "none";
-        if (btnEdit) btnEdit.style.display = isCustom ? "inline-flex" : "none";
+        if (btnDel) btnDel.style.display = "inline-flex";
+        if (btnExport) btnExport.style.display = "inline-flex";
+        if (btnEdit) btnEdit.style.display = "inline-flex";
         if (btnReset) btnReset.style.display = "inline-flex";
       }
 
@@ -5250,16 +5314,21 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           </div>
           <div class="hero-jump-right">
             <div class="hero-set-icon">🗂️</div>
-            ${firstSet.isCustom ? `
-              <button class="btn-card-delete" onclick="event.stopPropagation(); deleteSet('${firstSet.id}', '${(displayHeroTitle || '').replace(/'/g, "\\'")}');" title="Xóa bộ thẻ này">
-                🗑️
-              </button>
-            ` : ''}
+            <button class="btn-card-delete" onclick="event.stopPropagation(); deleteSet('${firstSet.id}', '${(displayHeroTitle || '').replace(/'/g, "\\'")}');" title="Xóa bộ thẻ này">
+              🗑️
+            </button>
           </div>
         </div>
 
-        <div class="dash-section-header" style="margin-top: 40px;">
-          <h2 class="dash-section-title">Học phần gần đây (Recents)</h2>
+        <div class="dash-section-header" style="margin-top: 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <h2 class="dash-section-title">Học phần gần đây (Recents)</h2>
+            ${sets.some(s => String(s.id).length >= 9 && !isNaN(Number(s.id))) ? `
+              <button onclick="deleteAllSampleSets()" style="background: rgba(255, 114, 91, 0.1); border: 1px solid var(--error); color: var(--error); padding: 4px 10px; border-radius: 8px; font-size: 12.5px; font-weight: 700; cursor: pointer;" title="Ẩn/Xóa tất cả 20 bộ đề TOEIC mẫu">
+                🧹 Xóa tất cả đề TOEIC mẫu
+              </button>
+            ` : ''}
+          </div>
           <div class="dash-search-box">
             <input type="text" id="dash-filter-input" placeholder="🔍 Tìm kiếm học phần..." oninput="filterDashboardSets(this.value)" />
           </div>
@@ -5293,9 +5362,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           <div class="set-card-top">
             <span class="set-card-terms-count">${s.numTerms} thuật ngữ</span>
             <div class="set-card-actions-hover" onclick="event.stopPropagation()">
-              ${s.isCustom ? `
-                <button class="btn-card-del-sub" onclick="deleteSet('${s.id}', '${(displayTitle || '').replace(/'/g, "\\'")}');" title="Xóa">🗑️</button>
-              ` : ''}
+              <button class="btn-card-del-sub" onclick="deleteSet('${s.id}', '${(displayTitle || '').replace(/'/g, "\\'")}');" title="Xóa">🗑️</button>
             </div>
           </div>
           <div class="set-card-body">
