@@ -139,6 +139,29 @@ const Database = {
         return `${setId}_${cardId}`;
     },
 
+    // Thiết lập trực tiếp hộp ghi nhớ chính xác (0: Chưa học, 1: Khó, 2: Đang học, 3: Đã thuộc)
+    async setCardBox(setId, cardId, box, isStarred = null) {
+        const progId = this._getProgressId(setId, cardId);
+        let prog = await tx(STORE_PROGRESS, 'readonly', store => store.get(progId));
+        if (!prog) {
+            prog = {
+                id: progId,
+                setId: setId,
+                cardId: cardId,
+                box: box,
+                isStarred: isStarred !== null ? isStarred : false,
+                nextReview: 0
+            };
+        } else {
+            prog.box = box;
+            if (isStarred !== null) {
+                prog.isStarred = isStarred;
+            }
+        }
+        await tx(STORE_PROGRESS, 'readwrite', store => store.put(prog));
+        return prog;
+    },
+
     // Cập nhật tiến độ của 1 thẻ sau khi trả lời
     // isCorrect: true (Đúng), false (Sai)
     async updateCardProgress(setId, cardId, isCorrect, isStarred = null) {

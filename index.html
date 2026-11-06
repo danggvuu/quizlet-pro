@@ -2083,6 +2083,37 @@
       background: var(--error-light);
     }
 
+    .cloud-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .cloud-status-pill.online {
+      border-color: var(--success);
+      color: var(--success);
+      background: var(--success-light);
+    }
+    .cloud-status-pill.offline {
+      border-color: #ff9800;
+      color: #e65100;
+      background: #fff3e0;
+    }
+    [data-theme="dark"] .cloud-status-pill.offline {
+      background: #3e2723;
+      color: #ffb74d;
+      border-color: #f57c00;
+    }
+
     /* MATCH MODE STYLES */
     .match-start-card {
       background: var(--card-bg);
@@ -2797,6 +2828,45 @@
       }
     } catch (e) { console.error("Firebase init error:", e); }
 
+    function updateCloudSyncUI(status, message = "") {
+      const badge = document.getElementById("cloud-status-badge");
+      const text = document.getElementById("cloud-status-text");
+      const icon = document.getElementById("cloud-status-icon");
+      if (!badge || !text) return;
+
+      if (status === "connected") {
+        badge.className = "cloud-status-pill online";
+        if (icon) icon.innerText = "☁️";
+        text.innerText = "Đã đồng bộ";
+        badge.title = "Dữ liệu đang được đồng bộ tự động giữa các thiết bị qua Firebase.";
+      } else if (status === "locked") {
+        badge.className = "cloud-status-pill offline";
+        if (icon) icon.innerText = "⚠️";
+        text.innerText = "Chưa mở quyền";
+        badge.title = message || "Firebase đang khóa quyền ghi/đọc (Lỗi 403). Bấm vào để xem cách mở quyền.";
+      } else {
+        badge.className = "cloud-status-pill offline";
+        if (icon) icon.innerText = "📡";
+        text.innerText = "Lưu trên máy";
+        badge.title = "Đang hoạt động ngoại tuyến, lưu trong bộ nhớ máy này.";
+      }
+    }
+    window.updateCloudSyncUI = updateCloudSyncUI;
+
+    window.showCloudStatusHelp = function() {
+      alert(
+        "☁️ TRẠNG THÁI ĐỒNG BỘ CLOUD GIỮA CÁC THIẾT BỊ:\n\n" +
+        "1. Tại sao máy bạn bè không tự thấy bài học (như Lesson 15)?\n" +
+        "-> Hiện tại Firebase Firestore (bhjbhj-c8bdd) đang bị hết hạn quy tắc bảo mật 30 ngày (Lỗi 403 Permission Denied). Do đó dữ liệu mới chỉ lưu trong máy riêng của từng người.\n\n" +
+        "2. Cách để 2 máy tự động thấy bài của nhau:\n" +
+        "-> Vào: https://console.firebase.google.com/project/bhjbhj-c8bdd/firestore/rules\n" +
+        "-> Đổi thành: allow read, write: if true;\n" +
+        "-> Bấm Publish. Ngay lập tức các máy sẽ tự động đồng bộ!\n\n" +
+        "3. Cách chia sẻ ngay lập tức không cần chờ Firebase:\n" +
+        "-> Người tạo bộ thẻ bấm nút '📤' trên thanh công cụ để tải file JSON hoặc sao chép mã, rồi gửi qua Zalo/Messenger cho bạn bè nhập vào học ngay!"
+      );
+    };
+
     // Cloud Database Wrapper với Timeout an toàn (Không bao giờ làm nghẽn trang)
     window.CloudDB = {
       async saveSet(setObj) {
@@ -2807,8 +2877,13 @@
             setDoc(doc(window.FirebaseDB, "quizlet_sets", String(setObj.id)), setObj),
             timeout
           ]);
+          updateCloudSyncUI("connected");
           return true;
-        } catch (e) { console.warn("CloudDB saveSet timeout/error:", e); return false; }
+        } catch (e) {
+          console.warn("CloudDB saveSet timeout/error:", e);
+          updateCloudSyncUI("locked");
+          return false;
+        }
       },
       async getAllSets() {
         if (!window.FirebaseDB) return [];
@@ -2820,10 +2895,15 @@
             querySnapshot.forEach((doc) => {
               sets.push(doc.data());
             });
+            updateCloudSyncUI("connected");
             return sets;
           })();
           return await Promise.race([fetchPromise, timeout]);
-        } catch (e) { console.warn("CloudDB getAllSets timeout/error:", e); return []; }
+        } catch (e) {
+          console.warn("CloudDB getAllSets timeout/error:", e);
+          updateCloudSyncUI("locked");
+          return [];
+        }
       },
       async deleteSet(setId) {
         if (!window.FirebaseDB) return false;
@@ -2916,6 +2996,12 @@
 
     <!-- RIGHT: QUICK ACTIONS, STREAK, THEME, USER PROFILE -->
     <div class="nav-right-actions">
+      <!-- Cloud Sync Status Pill -->
+      <div id="cloud-status-badge" class="cloud-status-pill offline" onclick="showCloudStatusHelp()" title="Kiểm tra trạng thái đồng bộ Cloud">
+        <span id="cloud-status-icon">☁️</span>
+        <span id="cloud-status-text">Cloud</span>
+      </div>
+
       <button class="btn-quick-import-pill" onclick="openQuickImportModal('link')"
         title="Nhập học phần nhanh từ Quizlet">
         <span class="quick-import-icon">⚡</span>
@@ -3388,7 +3474,8 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       let cardsState = [];
       let currentMode = "learn"; // 'learn', 'write', 'choice', 'flashcards'
 
-      let settings = {
+      // CÀI ĐẶT NGƯỜI DÙNG (LƯU VĨNH VIỄN VÀO LOCALSTORAGE)
+      const DEFAULT_SETTINGS = {
         answerWith: "definition",
         learnQuestionType: "both", // 'both', 'choice_only', 'write_only'
         roundSize: 7,
@@ -3397,7 +3484,17 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         starredOnly: false
       };
 
-      // ROUND RUNTIME
+      function loadSavedSettings() {
+        try {
+          const raw = localStorage.getItem("qp_settings");
+          if (raw) return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+        } catch (e) { }
+        return { ...DEFAULT_SETTINGS };
+      }
+
+      let settings = loadSavedSettings();
+
+      // ROUND RUNTIME & ACTIVE SESSION
       let currentRoundQueue = [];
       let currentCardIndex = 0;
       let isWaitingNext = false;
@@ -3405,6 +3502,27 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       let fcFlipped = false;
       let currentRoundOptions = [];
       let currentCorrectChoice = "";
+
+      // LƯU PHIÊN HỌC HIỆN TẠI (F5 RELOAD TRẢ VỀ ĐÚNG BỘ THẺ & VỊ TRÍ ĐANG HỌC)
+      function saveActiveSession() {
+        if (!currentSet) return;
+        try {
+          const sess = {
+            setId: String(currentSet.id),
+            mode: currentMode || "learn",
+            fcIndex: fcIndex || 0,
+            cardIndex: currentCardIndex || 0,
+            timestamp: Date.now()
+          };
+          localStorage.setItem("qp_active_session", JSON.stringify(sess));
+        } catch (e) { }
+      }
+
+      function clearActiveSession() {
+        try {
+          localStorage.removeItem("qp_active_session");
+        } catch (e) { }
+      }
 
       // AUDIO API FOR BEEPS (SINGLETON AUDIOCONTEXT TO PREVENT BROWSER LIMIT)
       let sharedAudioCtx = null;
@@ -3770,17 +3888,42 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         }
       }
 
-      // DELETE CUSTOM SET
+      // XUẤT BỘ THẺ (TẢI FILE JSON & COPY TEXT ĐỂ CHIA SẺ VỚI BẠN BÈ)
       function exportCurrentSet() {
-        if (!currentSet || !cardsState || cardsState.length === 0) return;
-        let out = "";
-        cardsState.forEach(c => {
-          out += `${c.term} : ${c.definition}
-`;
-        });
-        navigator.clipboard.writeText(out).then(() => {
-          showToast("✅ Đã copy toàn bộ từ vựng! Hãy gửi dán nó vào đâu đó.", 3000);
-        });
+        if (!currentSet) return;
+        const exportObj = {
+          id: currentSet.id,
+          title: currentSet.title,
+          description: currentSet.description || "",
+          cards: (cardsState && cardsState.length > 0) ? cardsState.map(c => ({
+            id: c.id,
+            term: c.term,
+            definition: c.definition,
+            image: c.image || ""
+          })) : (currentSet.cards || [])
+        };
+
+        const jsonStr = JSON.stringify(exportObj, null, 2);
+
+        // 1. Tải file JSON về máy
+        try {
+          const blob = new Blob([jsonStr], { type: "application/json" });
+          const a = document.createElement("a");
+          const safeName = (currentSet.title || "hoc_phan").replace(/[^a-zA-Z0-9_\-\u00C0-\u1EF9]/g, "_");
+          a.href = URL.createObjectURL(blob);
+          a.download = `${safeName}.json`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(a.href);
+        } catch (e) { }
+
+        // 2. Đồng thời copy JSON vào clipboard để dán chia sẻ qua tin nhắn
+        try {
+          navigator.clipboard.writeText(jsonStr);
+        } catch (e) { }
+
+        showToast(`📁 Đã tải file "${currentSet.title}.json" và sao chép mã! Bạn có thể gửi file này cho bạn bè dán vào học ngay.`, 4000);
       }
 
       // QUẢN LÝ DANH SÁCH BỘ THẺ ĐÃ BỊ XÓA (Vĩnh viễn không hiển thị lại)
@@ -4129,8 +4272,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           cardsState = (setObj.cards || []).map((c, idx) => {
             const sv = savedProgress[c.id || idx] || {};
             let m = 0;
-            if (sv.box === 3) m = 2; // Mastered
-            else if (sv.box === 1 || sv.box === 2) m = 1; // Learning
+            if (sv.box === 3) m = 2; // Đã thuộc (Mastered)
+            else if (sv.box === 1 || sv.box === 2) m = 1; // Đang học (Learning)
+            else m = 0; // Chưa học (Unseen)
 
             return {
               id: c.id || idx,
@@ -4145,6 +4289,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
           updateProgressUI();
           startModeView();
+          saveActiveSession();
         } catch (e) {
           console.error("Lỗi trong loadSetData:", e);
         }
@@ -4157,26 +4302,33 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         if (toEl) toEl.style.display = 'block';
         updateDeleteButtonVisibility();
         loadSetData(setId);
+        saveActiveSession();
       }
 
       // STORAGE HELPERS (DELEGATED TO DB)
       function getStorageKey(setId) { return `qp_progress_${setId}`; }
       async function loadProgressFromStorage(setId) {
-        const progs = await window.Database.getProgress(setId);
-        const map = {};
-        progs.forEach(p => { map[p.cardId] = p; });
+        let map = {};
+        try {
+          if (window.Database && window.Database.getProgress) {
+            const progs = await window.Database.getProgress(setId);
+            (progs || []).forEach(p => { map[p.cardId] = p; });
+          }
+        } catch (e) { console.warn("Lỗi đọc progress:", e); }
         return map;
       }
+
       function saveProgressToStorage() {
-        if (!currentSet) return;
+        if (!currentSet || !cardsState) return;
         cardsState.forEach(c => {
-          // Map mastery back to box
-          // Mastery: 0 = Unseen, 1 = Learning (Box 1 or 2), 2 = Mastered (Box 3)
-          let box = 0;
-          if (c.mastery === 1) box = 1;
-          if (c.mastery === 2) box = 3;
-          window.Database.updateCardProgress(currentSet.id, c.id, c.mastery > 0, c.starred);
+          let box = 0; // 0: Chưa học
+          if (c.mastery === 1) box = 2; // Đang học
+          if (c.mastery === 2) box = 3; // Đã thuộc
+          if (window.Database && window.Database.setCardBox) {
+            window.Database.setCardBox(currentSet.id, c.id, box, c.starred);
+          }
         });
+        saveActiveSession();
       }
 
       // SCRAPE TRIGGER (SMART ONLINE GUIDANCE & LOCAL CHROME SCRAPER)
@@ -4266,6 +4418,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         const pill = document.getElementById(`mode-${mode}`);
         if (pill) pill.classList.add("active");
         startModeView();
+        saveActiveSession();
       }
 
       function startModeView() {
@@ -4803,6 +4956,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         fcIndex = (fcIndex + dir + activePool.length) % activePool.length;
         fcFlipped = false;
         renderFlashcardView();
+        saveActiveSession();
       }
 
       // STAR TOGGLE
@@ -4816,10 +4970,28 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         }
       }
 
-      // MODAL TOGGLES
+      // MODAL TOGGLES & SETTINGS SYNC
+      function syncSettingsToUI() {
+        const elAnswer = document.getElementById("opt-answer-with");
+        const elType = document.getElementById("opt-learn-question-type");
+        const elRound = document.getElementById("opt-round-size");
+        const elSound = document.getElementById("opt-sound");
+        const elImg = document.getElementById("opt-show-images");
+        const elStar = document.getElementById("opt-starred-only");
+
+        if (elAnswer) elAnswer.value = settings.answerWith || "definition";
+        if (elType) elType.value = settings.learnQuestionType || "both";
+        if (elRound) elRound.value = String(settings.roundSize || 7);
+        if (elSound) elSound.checked = settings.autoSound !== false;
+        if (elImg) elImg.checked = settings.showImages !== false;
+        if (elStar) elStar.checked = !!settings.starredOnly;
+      }
+
       function toggleSettingsModal() {
         const m = document.getElementById("settings-modal");
-        m.style.display = m.style.display === "none" ? "flex" : "none";
+        const isOpening = m.style.display === "none";
+        m.style.display = isOpening ? "flex" : "none";
+        if (isOpening) syncSettingsToUI();
       }
       function toggleManualModal() {
         const m = document.getElementById("manual-modal");
@@ -4863,8 +5035,15 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         settings.autoSound = document.getElementById("opt-sound").checked;
         settings.showImages = document.getElementById("opt-show-images").checked;
         settings.starredOnly = document.getElementById("opt-starred-only").checked;
+
+        // Lưu vĩnh viễn tùy chọn học vào localStorage (Không bao giờ bị reset khi load lại trang)
+        try {
+          localStorage.setItem("qp_settings", JSON.stringify(settings));
+        } catch (e) { }
+
         toggleSettingsModal();
         startModeView();
+        showToast("⚙️ Đã lưu cài đặt học tập!", 2000);
       }
 
       function resetCurrentSetProgress() {
@@ -5025,14 +5204,43 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         });
       }
 
-      // INIT
+      // INIT (KHÔI PHỤC TIẾN ĐỘ & VỊ TRÍ HỌC DỞ KHI F5 / LOAD LẠI TRANG)
       (async () => {
         if (window.Database) {
-
           await migrateLocalStorageToIndexedDB();
         }
         await checkUrlHashImport();
-        await loadSetsList();
+
+        // 1. Khôi phục phiên học đang dở nếu có (Không bị reset về màn hình trắng hay đoạn lung tung)
+        let resumeSetId = null;
+        let resumeMode = null;
+        let resumeFcIndex = 0;
+        try {
+          const rawSess = localStorage.getItem("qp_active_session");
+          if (rawSess) {
+            const sess = JSON.parse(rawSess);
+            if (sess && sess.setId) {
+              resumeSetId = sess.setId;
+              resumeMode = sess.mode || "learn";
+              resumeFcIndex = sess.fcIndex || 0;
+            }
+          }
+        } catch (e) { }
+
+        await loadSetsList(resumeSetId);
+
+        // 2. Chuyển vào đúng chế độ và vị trí thẻ đang học
+        if (resumeSetId && resumeMode) {
+          currentMode = resumeMode;
+          document.querySelectorAll(".mode-pill").forEach(p => p.classList.remove("active"));
+          const pill = document.getElementById(`mode-${resumeMode}`);
+          if (pill) pill.classList.add("active");
+
+          if (resumeMode === "flashcards" && typeof resumeFcIndex === "number") {
+            fcIndex = resumeFcIndex;
+            renderFlashcardView();
+          }
+        }
       })();
 
 
@@ -5228,6 +5436,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       function showDashboard() {
+        clearActiveSession();
         if (typeof matchState !== 'undefined' && matchState && matchState.timerInterval) {
           clearInterval(matchState.timerInterval);
           matchState.timerInterval = null;
@@ -5507,6 +5716,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         const pill = document.getElementById(`mode-${mode}`);
         if (pill) pill.classList.add("active");
         onSetChange(setId);
+        saveActiveSession();
       }
 
       // ==========================================
