@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>Quizlet Pro - Học Miễn Phí (Learn & Write Mode)</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <style>
@@ -56,8 +56,11 @@
       background-color: var(--bg);
       color: var(--text);
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
+      overflow-x: hidden;
+      padding-bottom: env(safe-area-inset-bottom);
       transition: background-color 0.25s, color 0.25s;
     }
 
@@ -2552,7 +2555,7 @@
     }
 
     /* =================================================== */
-    /* 📱 RESPONSIVE & MOBILE ERGONOMICS (320px - 768px) */
+    /* 📱 RESPONSIVE & MOBILE ERGONOMICS (320px - 900px) */
     /* =================================================== */
     @media (max-width: 900px) {
       .header-nav-links {
@@ -2567,7 +2570,7 @@
     @media (max-width: 768px) {
       .app-header-modern {
         padding: 0 12px;
-        height: 58px;
+        height: 56px;
         gap: 8px;
       }
 
@@ -2576,7 +2579,7 @@
       }
 
       .quizlet-logo-text {
-        font-size: 20px;
+        font-size: clamp(18px, 4vw, 21px);
       }
 
       .pro-badge {
@@ -2592,7 +2595,7 @@
 
       .smart-search-input {
         padding: 7px 28px 7px 32px;
-        font-size: 13px;
+        font-size: 16px !important; /* Ngăn iOS Safari tự động phóng to khó chịu */
       }
 
       .search-kbd-badge {
@@ -2605,6 +2608,7 @@
 
       .btn-quick-import-pill {
         padding: 6px 10px;
+        min-height: 36px;
       }
 
       .nav-right-actions {
@@ -2614,6 +2618,7 @@
       .btn-create-nav {
         padding: 6px 10px;
         font-size: 13px;
+        min-height: 36px;
       }
 
       .btn-create-nav span:last-child {
@@ -2626,15 +2631,17 @@
       }
 
       .btn-theme-toggle {
-        width: 34px;
-        height: 34px;
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
         font-size: 14px;
       }
 
       .avatar-circle-modern {
-        width: 32px;
-        height: 32px;
-        font-size: 11.5px;
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        font-size: 12px;
       }
 
       .dashboard-view {
@@ -2649,7 +2656,7 @@
       }
 
       .dash-welcome-text h2 {
-        font-size: 20px;
+        font-size: clamp(1.2rem, 1rem + 1.2vw, 1.45rem);
       }
 
       .dash-welcome-text p {
@@ -2663,7 +2670,7 @@
       .hero-jump-card {
         flex-direction: column;
         align-items: flex-start;
-        padding: 18px;
+        padding: 18px 16px;
         gap: 16px;
       }
 
@@ -2672,7 +2679,7 @@
       }
 
       .hero-set-title {
-        font-size: 19px;
+        font-size: clamp(1.15rem, 1rem + 1.2vw, 1.35rem);
       }
 
       .hero-actions {
@@ -2685,18 +2692,20 @@
       .btn-hero-action {
         width: 100%;
         justify-content: center;
-        padding: 10px 8px;
-        font-size: 13px;
+        padding: 12px 8px;
+        min-height: 44px;
+        font-size: 13.5px;
       }
 
       .dash-section-header {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
         gap: 10px;
       }
 
       .dash-search-box input {
         width: 100%;
+        font-size: 16px !important;
       }
 
       .grid-recents {
@@ -2712,11 +2721,15 @@
       .set-selector-group {
         width: 100%;
         justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
       }
 
       .set-select {
-        max-width: 180px;
-        font-size: 13px;
+        flex: 1;
+        min-width: 130px;
+        max-width: none;
+        font-size: 14px;
       }
 
       .mode-pills {
@@ -2734,8 +2747,9 @@
 
       .mode-pill {
         flex-shrink: 0;
-        padding: 6px 12px;
-        font-size: 12.5px;
+        padding: 8px 14px;
+        min-height: 40px;
+        font-size: 13px;
       }
 
       .profile-dropdown-menu,
@@ -2760,25 +2774,220 @@
         font-size: 13.5px !important;
       }
 
+      .fc-wrapper {
+        height: clamp(260px, 46dvh, 360px);
+      }
+
       .fc-face {
         min-height: 240px;
         padding: 24px 18px;
       }
 
       .fc-text {
-        font-size: 22px;
+        font-size: clamp(1.25rem, 1rem + 1.2vw, 1.6rem);
+      }
+
+      .modal-content {
+        padding: 22px 18px;
+        max-height: 88dvh;
+        border-radius: 16px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      /* Cloud status icon-only on mobile */
+      .cloud-status-pill {
+        padding: 0;
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        border-radius: 50%;
+        justify-content: center;
+      }
+
+      #cloud-status-text {
+        display: none;
+      }
+
+      #cloud-status-icon {
+        margin: 0;
+        font-size: 16px;
+      }
+
+      /* Create Set View Mobile Layout */
+      .create-set-view {
+        padding: 16px 12px 60px;
+      }
+
+      .create-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+
+      .create-actions {
+        width: 100%;
+        display: flex;
+        justify-content: stretch;
+        gap: 8px;
+      }
+
+      .create-actions button {
+        flex: 1;
+        min-height: 44px;
+      }
+
+      .card-row {
+        padding: 16px 14px;
+        margin-bottom: 12px;
+      }
+
+      .card-row-inputs {
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .card-row-input {
+        font-size: 16px !important; /* Tránh zoom iOS */
+      }
+
+      .add-card-btn {
+        padding: 20px 14px;
+        font-size: 15px;
+      }
+
+      /* Study Card Adaptive Heights & Tap Targets */
+      main {
+        padding: 12px 8px;
+      }
+
+      .study-card {
+        min-height: clamp(290px, 50dvh, 460px);
+        padding: 18px 14px;
+        border-radius: 16px;
+      }
+
+      .prompt-area {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .prompt-text {
+        font-size: clamp(1.15rem, 1rem + 1.2vw, 1.45rem);
+      }
+
+      .prompt-image-container {
+        width: 100%;
+        height: 150px;
+      }
+
+      .options-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .option-btn {
+        min-height: 48px;
+        padding: 12px 14px;
+        font-size: 14.5px;
+      }
+
+      .write-action-bar {
+        flex-direction: column-reverse;
+        gap: 10px;
+        width: 100%;
+      }
+
+      .btn-skip,
+      .btn-submit-write {
+        width: 100%;
+        justify-content: center;
+        padding: 13px 16px;
+        min-height: 46px;
+        font-size: 15px;
+      }
+
+      .write-input-box {
+        font-size: 16px !important;
+      }
+
+      /* Test Mode Mobile */
+      .test-container {
+        padding: 0 4px;
+      }
+
+      .test-q-card {
+        padding: 18px 14px;
+        border-radius: 14px;
+      }
+
+      .test-q-prompt {
+        font-size: 16px;
+      }
+
+      .test-opt-btn {
+        min-height: 46px;
+        padding: 10px 14px;
+        font-size: 14px;
+      }
+
+      /* Terms Overview Table Mobile */
+      .terms-overview-card {
+        padding: 18px 14px;
+        border-radius: 14px;
+      }
+
+      .terms-overview-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+
+      #terms-filter-input {
+        width: 100% !important;
+        font-size: 16px !important;
+      }
+
+      .term-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 14px;
+      }
+
+      .term-col-word {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .term-col-def {
+        width: 100%;
+        font-size: 14px;
+      }
+
+      .term-col-actions {
+        align-self: flex-end;
       }
     }
 
     @media (max-width: 480px) {
+      .app-header-modern {
+        padding: 0 8px;
+        height: 52px;
+        gap: 6px;
+      }
+
       .streak-pill-modern {
         display: none;
       }
 
       .btn-create-nav {
         border-radius: 50%;
-        width: 32px;
-        height: 32px;
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
         padding: 0;
         justify-content: center;
       }
@@ -2789,15 +2998,16 @@
 
       .btn-quick-import-pill {
         border-radius: 50%;
-        width: 32px;
-        height: 32px;
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
         padding: 0;
         justify-content: center;
       }
 
       .set-card-modern {
         height: auto;
-        min-height: 165px;
+        min-height: 160px;
         max-height: none;
       }
     }
@@ -3144,9 +3354,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
   </div>
 
   <div id="dashboard-view" class="dashboard-view">
-    <h2 class="section-title">Jump back in / Gần đây</h2>
-    <div id="dashboard-grid" class="grid-recents">
-      <!-- Generated by JS -->
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; color: var(--text-muted);">
+      <div class="spinner" style="margin-bottom: 16px;"></div>
+      <div style="font-size: 15px; font-weight: 700;">Đang tải danh sách học phần...</div>
     </div>
   </div>
 
