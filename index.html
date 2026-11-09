@@ -4299,10 +4299,20 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
         const deletedIds = new Set(getDeletedSetIds());
 
-        // 1. Khởi tạo tức thì từ bộ nhớ đệm có sẵn (Lọc bỏ những bộ người dùng đã xóa)
-        let allSets = STATIC_SETS_FALLBACK
+        // 1. Danh sách đề mẫu mặc định
+        const staticSets = STATIC_SETS_FALLBACK
           .filter(s => !deletedIds.has(String(s.id)))
           .map(s => ({ ...s }));
+
+        // Map lưu trữ bộ thẻ do người dùng tạo (Ưu tiên bộ mới nhất lên đầu tiên)
+        const customSetsMap = new Map();
+        let allSets = [...staticSets];
+
+        const rebuildAllSets = () => {
+          // Sắp xếp các bộ thẻ tự tạo: Bộ nào tạo sau / cập nhật sau thì lên đầu bảng
+          const sortedCustom = Array.from(customSetsMap.values()).reverse();
+          allSets = [...sortedCustom, ...staticSets];
+        };
 
         // 2. Custom sets from Local DB (IndexedDB - Siêu nhanh 5ms)
         let dbSets = [];
@@ -4316,19 +4326,17 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         }
 
         const mergeCustomSets = (setsToMerge) => {
-          const customSets = setsToMerge
+          (setsToMerge || [])
             .filter(s => !deletedIds.has(String(s.id)))
-            .map(s => ({
-              id: s.id,
-              title: s.title,
-              numTerms: s.cards ? s.cards.length : (s.numTerms || 0),
-              isCustom: true
-            }));
-          customSets.forEach(cs => {
-            if (!allSets.some(item => String(item.id) === String(cs.id))) {
-              allSets.push(cs);
-            }
-          });
+            .forEach(s => {
+              customSetsMap.set(String(s.id), {
+                id: s.id,
+                title: s.title,
+                numTerms: s.cards ? s.cards.length : (s.numTerms || 0),
+                isCustom: true
+              });
+            });
+          rebuildAllSets();
         };
 
         mergeCustomSets(dbSets);
@@ -4506,11 +4514,15 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       function onSetChange(setId) {
+        window.scrollTo({ top: 0, behavior: 'instant' });
         document.getElementById('dashboard-view').style.display = 'none';
         document.getElementById('study-view').style.display = 'flex';
         const toEl = document.getElementById('set-terms-overview');
         if (toEl) toEl.style.display = 'block';
         updateDeleteButtonVisibility();
+        currentCardIndex = 0;
+        fcIndex = 0;
+        fcFlipped = false;
         loadSetData(setId);
         saveActiveSession();
       }
@@ -4616,6 +4628,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
       // MODE SWITCHING
       function switchMode(mode) {
+        window.scrollTo({ top: 0, behavior: 'instant' });
         if (typeof matchState !== 'undefined' && matchState && matchState.timerInterval) {
           clearInterval(matchState.timerInterval);
           matchState.timerInterval = null;
@@ -4624,6 +4637,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           try { window.speechSynthesis.cancel(); } catch (e) { }
         }
         currentMode = mode;
+        currentCardIndex = 0;
+        fcIndex = 0;
+        fcFlipped = false;
         document.querySelectorAll(".mode-pill").forEach(p => p.classList.remove("active"));
         const pill = document.getElementById(`mode-${mode}`);
         if (pill) pill.classList.add("active");
@@ -4686,17 +4702,18 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           return;
         }
 
-        candidates.sort((a, b) => b.mastery - a.mastery);
         const rSize = settings.roundSize === 999 ? candidates.length : settings.roundSize;
         const selected = candidates.slice(0, rSize);
 
-        currentRoundQueue = [...selected].sort(() => Math.random() - 0.5);
+        // Luôn giữ đúng thứ tự từ vựng từ đầu đến cuối theo bài học (Bắt đầu từ thẻ số 1)
+        currentRoundQueue = [...selected];
         currentCardIndex = 0;
         renderCurrentCard();
       }
 
       // RENDER QUESTION CARD
       function renderCurrentCard() {
+        window.scrollTo({ top: 0, behavior: 'instant' });
         isWaitingNext = false;
         if (currentCardIndex >= currentRoundQueue.length) {
           renderRoundSummaryView();
@@ -5117,6 +5134,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
       // FLASHCARDS VIEW
       function renderFlashcardView() {
+        window.scrollTo({ top: 0, behavior: 'instant' });
         const activePool = settings.starredOnly ? cardsState.filter(c => c.starred) : cardsState;
         if (activePool.length === 0) {
           document.getElementById("app").innerHTML = `<div class="summary-box">Không có thẻ nào phù hợp!</div>`;
@@ -5462,6 +5480,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       let currentEditingSetId = null;
 
       function showCreateSetView() {
+        window.scrollTo({ top: 0, behavior: 'instant' });
         currentEditingSetId = null;
         document.getElementById('dashboard-view').style.display = 'none';
         document.getElementById('study-view').style.display = 'none';
@@ -5487,6 +5506,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
       function openEditCurrentSet() {
         if (!currentSet) return;
+        window.scrollTo({ top: 0, behavior: 'instant' });
         currentEditingSetId = currentSet.id;
 
         document.getElementById('dashboard-view').style.display = 'none';
@@ -5646,6 +5666,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       function showDashboard() {
+        window.scrollTo({ top: 0, behavior: 'instant' });
         clearActiveSession();
         if (typeof matchState !== 'undefined' && matchState && matchState.timerInterval) {
           clearInterval(matchState.timerInterval);
@@ -5919,9 +5940,13 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       function launchSetMode(setId, mode) {
+        window.scrollTo({ top: 0, behavior: 'instant' });
         const select = document.getElementById('set-select');
         if (select) select.value = setId;
         currentMode = mode;
+        currentCardIndex = 0;
+        fcIndex = 0;
+        fcFlipped = false;
         document.querySelectorAll(".mode-pill").forEach(p => p.classList.remove("active"));
         const pill = document.getElementById(`mode-${mode}`);
         if (pill) pill.classList.add("active");
@@ -5944,6 +5969,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       };
 
       function startMatchMode() {
+        window.scrollTo({ top: 0, behavior: 'instant' });
         const activePool = settings.starredOnly ? cardsState.filter(c => c.starred) : cardsState;
         if (activePool.length < 2) {
           document.getElementById("app").innerHTML = `
@@ -6126,6 +6152,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       };
 
       function startTestMode() {
+        window.scrollTo({ top: 0, behavior: 'instant' });
         const activePool = settings.starredOnly ? cardsState.filter(c => c.starred) : cardsState;
         if (activePool.length < 3) {
           document.getElementById("app").innerHTML = `
