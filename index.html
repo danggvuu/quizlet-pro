@@ -3082,9 +3082,26 @@
       async saveSet(setObj) {
         if (!window.FirebaseDB) return false;
         try {
+          // Chỉ đồng bộ nội dung học phần (term, definition, image), TUYỆT ĐỐI KHÔNG gửi tiến độ cá nhân (mastery, box, starred) lên Cloud.
+          // Đảm bảo máy của bạn và máy của bạn bè hoàn toàn độc lập 100% về tiến độ học!
+          const cleanCards = (setObj.cards || []).map(c => ({
+            id: c.id,
+            term: c.term || "",
+            definition: c.definition || "",
+            image: c.image || ""
+          }));
+          const cleanSet = {
+            id: String(setObj.id),
+            title: setObj.title || "Học phần không tên",
+            description: setObj.description || "",
+            numTerms: cleanCards.length,
+            cards: cleanCards,
+            isCustom: true,
+            updatedAt: Date.now()
+          };
           const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 8000));
           await Promise.race([
-            setDoc(doc(window.FirebaseDB, "quizlet_sets", String(setObj.id)), setObj),
+            setDoc(doc(window.FirebaseDB, "quizlet_sets", String(cleanSet.id)), cleanSet),
             timeout
           ]);
           updateCloudSyncUI("connected");
@@ -3224,15 +3241,15 @@
 
       <!-- User Avatar with Dropdown -->
       <div class="profile-dropdown-wrap">
-        <div class="avatar-circle-modern" onclick="toggleProfileDropdown(event)" title="Tài khoản Đặng Vũ">
+        <div class="avatar-circle-modern" id="nav-user-avatar" onclick="toggleProfileDropdown(event)" title="Hồ sơ người học (Thiết bị này)">
           ĐV
         </div>
         <div id="profile-dropdown-menu" class="profile-dropdown-menu" style="display: none;">
           <div class="profile-menu-header">
-            <div class="profile-menu-avatar">ĐV</div>
+            <div class="profile-menu-avatar" id="profile-menu-avatar-val">ĐV</div>
             <div>
-              <div class="profile-menu-name">Đặng Vũ</div>
-              <div class="profile-menu-tier">Quizlet Pro Member ⭐</div>
+              <div class="profile-menu-name" id="profile-menu-name-val">Đặng Vũ</div>
+              <div class="profile-menu-tier" id="profile-menu-device-val">Tiến độ lưu riêng trên máy này ⭐</div>
             </div>
           </div>
           <div class="dropdown-divider"></div>
@@ -3510,12 +3527,25 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           <button class="btn-icon" onclick="toggleSettingsModal()">✕</button>
         </div>
         <div style="display: flex; flex-direction: column; gap: 16px;">
+          <!-- THIẾT LẬP TIẾN ĐỘ ĐỘC LẬP TỪNG THIẾT BỊ -->
+          <div style="background: rgba(16, 185, 129, 0.08); border: 1.5px solid var(--success); border-radius: 10px; padding: 12px 14px;">
+            <div style="font-weight: 800; font-size: 13px; color: var(--success); display: flex; align-items: center; gap: 6px; margin-bottom: 5px;">
+              <span>🔒 TIẾN ĐỘ HỌC ĐỘC LẬP TRÊN THIẾT BỊ NÀY</span>
+            </div>
+            <p style="font-size: 12px; color: var(--text-muted); margin: 0 0 10px 0; line-height: 1.5;">
+              Học phần được đồng bộ qua Cloud để dùng chung, nhưng <b>tiến độ ghi nhớ (đã thuộc, đang học, gắn sao)</b> được lưu riêng biệt 100% trong máy này. Máy bạn và máy bạn bè học độc lập, tuyệt đối không bị đè hay lẫn lộn!
+            </p>
+            <label style="font-weight: 700; font-size: 12px; display: block; margin-bottom: 4px; color: var(--text);">Tên người học trên máy này:</label>
+            <input type="text" id="opt-learner-name" placeholder="VD: Đặng Vũ hoặc tên bạn bè"
+              style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 13px;">
+          </div>
+
           <div>
             <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">Trả lời bằng:</label>
             <select id="opt-answer-with"
               style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text);">
-              <option value="definition">Định nghĩa (Hỏi Tiếng Anh -> Chọn / Gõ Tiếng Việt)</option>
-              <option value="term">Thuật ngữ (Hỏi Tiếng Việt -> Chọn / Gõ Tiếng Anh)</option>
+              <option value="definition">Định nghĩa (Hỏi Thuật ngữ -> Chọn / Gõ Định nghĩa)</option>
+              <option value="term">Thuật ngữ (Hỏi Định nghĩa -> Chọn / Gõ Thuật ngữ)</option>
             </select>
           </div>
 
@@ -3544,9 +3574,19 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           </div>
 
           <div>
+            <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">Tốc độ phát âm giọng nói (Studio Voice):</label>
+            <select id="opt-speech-rate"
+              style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text);">
+              <option value="0.8">Chậm rõ ràng (0.8x) - Dễ nghe từ mới / Hán tự</option>
+              <option value="0.95" selected>Chuẩn tự nhiên (0.95x) - Khuyên dùng</option>
+              <option value="1.1">Nhanh (1.1x) - Phản xạ nhanh</option>
+            </select>
+          </div>
+
+          <div>
             <label
               style="display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; cursor: pointer;">
-              <input type="checkbox" id="opt-sound" checked> Tự động phát âm tiếng Anh (Audio TTS)
+              <input type="checkbox" id="opt-sound" checked> Tự động phát âm giọng bản xứ (Studio Audio)
             </label>
           </div>
 
@@ -3690,6 +3730,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         learnQuestionType: "both", // 'both', 'choice_only', 'write_only'
         roundSize: 7,
         autoSound: true,
+        speechRate: 0.95, // Tốc độ phát âm Studio Voice
         showImages: true,
         starredOnly: false
       };
@@ -3703,6 +3744,35 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       let settings = loadSavedSettings();
+
+      // HỒ SƠ NGƯỜI HỌC TRÊN THIẾT BỊ NÀY (TIẾN ĐỘ & TÀI KHOẢN HOÀN TOÀN TÁCH BIỆT THEO MÁY)
+      function getLearnerName() {
+        try {
+          return localStorage.getItem("qp_learner_name") || "Đặng Vũ";
+        } catch (e) { return "Đặng Vũ"; }
+      }
+
+      function updateLearnerProfileUI() {
+        try {
+          const name = getLearnerName();
+          const words = name.trim().split(/\s+/).filter(Boolean);
+          let initials = "QP";
+          if (words.length >= 2) {
+            initials = (words[0][0] + words[words.length - 1][0]).toUpperCase();
+          } else if (words.length === 1 && words[0].length > 0) {
+            initials = words[0].substring(0, 2).toUpperCase();
+          }
+          const navAvatar = document.getElementById("nav-user-avatar");
+          const menuAvatar = document.getElementById("profile-menu-avatar-val");
+          const menuName = document.getElementById("profile-menu-name-val");
+          if (navAvatar) {
+            navAvatar.innerText = initials;
+            navAvatar.title = `Tài khoản: ${name} (Thiết bị này)`;
+          }
+          if (menuAvatar) menuAvatar.innerText = initials;
+          if (menuName) menuName.innerText = name;
+        } catch (e) { }
+      }
 
       // ROUND RUNTIME & ACTIVE SESSION
       let currentRoundQueue = [];
@@ -3781,8 +3851,12 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         } catch (e) { }
       }
 
-      // HIGH-DEFINITION CLIENT TTS ENGINE (VOICE PRELOAD & CHROMIUM GC FIX)
+      // ==========================================
+      // 🎙️ STUDIO DUAL-ENGINE TTS (PHÁT ÂM CHUẨN BẢN XỨ GOOGLE STUDIO + OFFLINE FALLBACK)
+      // ==========================================
       let cachedVoices = [];
+      let currentTtsAudio = null;
+
       function initSpeechVoices() {
         if (typeof window !== "undefined" && "speechSynthesis" in window) {
           cachedVoices = window.speechSynthesis.getVoices() || [];
@@ -3797,37 +3871,60 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
       function cleanTextForSpeech(text) {
         if (!text) return "";
-        let line = text.split("\n")[0].trim();
+        let line = String(text).trim();
+        if (line.includes("\n")) line = line.split("\n")[0].trim();
         if (line.includes("=")) line = line.split("=")[0].trim();
-        // Remove IPA phonetics e.g. /kə'mɜr.ʃəl/ or /'viʒn/
-        line = line.replace(/\/[^\/]+\//g, "").trim();
-        // Remove parenthesized annotations e.g. (n), (adj), (v)
-        line = line.replace(/\(.*?\)/g, "").trim();
-        // Remove leading parts of speech e.g. "n.", "v.", "adj."
-        line = line.replace(/^(n|v|adj|adv)\.\s*/i, "").trim();
-        // Remove punctuation noise
-        line = line.replace(/[:;#~*+<>]/g, " ").trim();
-        if (!line) line = text.split("\n")[0].trim();
-        return line.substring(0, 120).trim();
-      }
 
+        // Bỏ số thứ tự câu ví dụ: "1. ", "7. ", "8) "
+        line = line.replace(/^\d+[\.\)]\s*/, "").trim();
+
+        // Bỏ ký hiệu mũi tên và gạch dưới bài tập: "➡___いった___", "->", "=>"
+        line = line.replace(/(➡|->|=>).*?(\)|$)/g, "").trim();
+        line = line.replace(/_{2,}/g, "").trim();
+
+        // Bỏ phiên âm IPA ví dụ: /kə'mɜr.ʃəl/ hoặc /'viʒn/
+        line = line.replace(/\/[^\/]+\//g, "").trim();
+
+        // Bỏ các chú thích trong ngoặc đơn ví dụ: (n), (adj), (v), (いきました)
+        line = line.replace(/\(.*?\)/g, "").trim();
+        line = line.replace(/（.*?）/g, "").trim();
+
+        // Bỏ chú thích trong ngoặc vuông ví dụ: 【頭】, [ĐẦU], [くすり]
+        line = line.replace(/【.*?】/g, "").trim();
+        line = line.replace(/\[.*?\]/g, "").trim();
+
+        // Bỏ từ loại viết tắt đầu câu: "n.", "v.", "adj."
+        line = line.replace(/^(n|v|adj|adv)\.\s*/i, "").trim();
+
+        // Bỏ ký tự đặc biệt gây ngắt tiếng
+        line = line.replace(/[:;#~*+<>]/g, " ").trim();
+
+        if (!line) line = String(text).split("\n")[0].trim();
+        return line.substring(0, 160).trim();
+      }
 
       function detectLanguage(text) {
         if (!text) return "en-US";
 
-        const jaRegex = /[぀-ゟ゠-ヿㇰ-ㇿ＀-￯]/;
-        const koRegex = /[가-힯ᄀ-ᇿ㄰-㆏]/;
-        const zhRegex = /[一-鿿㐀-䶿]/;
+        const jaHiraganaKatakana = /[぀-ゟ゠-ヿㇰ-ㇿ]/;
+        const cjkIdeographs = /[一-鿿㐀-䶿]/; // Chữ Hán (Kanji / Hanzi)
+        const koRegex = /[가-힯ᄀ-ᇿ]/;
         const viRegex = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÈÉẺẼẸÊỀẾỂỄỆÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴĐ]/;
-        const frRegex = /[çœæ]/i; // Specific French characters not common in English
-        const deRegex = /[ßäöüÄÖÜ]/; // Specific German characters
-        const ruRegex = /[А-яЁё]/; // Cyrillic
-        const esRegex = /[ñÑ¿¡]/; // Spanish
 
-        if (jaRegex.test(text)) return "ja-JP";
+        // Nếu chứa Hiragana hoặc Katakana -> 100% Tiếng Nhật
+        if (jaHiraganaKatakana.test(text)) return "ja-JP";
+
+        // Nếu chứa chữ Hán (Kanji) trong bài học -> Luôn đọc theo Tiếng Nhật (ja-JP), tuyệt đối không đọc tiếng Trung
+        if (cjkIdeographs.test(text)) return "ja-JP";
+
         if (koRegex.test(text)) return "ko-KR";
-        if (zhRegex.test(text)) return "zh-CN"; // Note: Japanese Kanji will match zhRegex too, so jaRegex must be tested first
         if (viRegex.test(text)) return "vi-VN";
+
+        const frRegex = /[çœæ]/i;
+        const deRegex = /[ßäöüÄÖÜ]/;
+        const ruRegex = /[А-яЁё]/;
+        const esRegex = /[ñÑ¿¡]/;
+
         if (ruRegex.test(text)) return "ru-RU";
         if (esRegex.test(text)) return "es-ES";
         if (frRegex.test(text)) return "fr-FR";
@@ -3841,56 +3938,84 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         const clean = cleanTextForSpeech(text);
         if (!clean) return;
 
-        if (!("speechSynthesis" in window)) {
-          console.warn("SpeechSynthesis không được hỗ trợ trên trình duyệt này.");
-          return;
+        const detectedLang = forceLang || detectLanguage(clean);
+        const langCode = detectedLang.split("-")[0]; // 'ja', 'en', 'vi', v.v.
+
+        // Dừng bất kỳ âm thanh phát âm nào đang chạy dở
+        if (currentTtsAudio) {
+          try {
+            currentTtsAudio.pause();
+            currentTtsAudio.currentTime = 0;
+          } catch (e) { }
+          currentTtsAudio = null;
+        }
+        if (typeof window !== "undefined" && "speechSynthesis" in window) {
+          try { window.speechSynthesis.cancel(); } catch (e) { }
         }
 
+        // 1. ENGINE CHÍNH: Google Studio High-Definition Audio (Chuẩn giọng người bản xứ 100%, không bị robot hay ngọng)
+        const encoded = encodeURIComponent(clean);
+        const googleUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encoded}&tl=${langCode}&client=tw-ob`;
+
+        const audio = new Audio();
+        currentTtsAudio = audio;
+        audio.playbackRate = (settings && settings.speechRate) || 0.95;
+
+        let hasFallenBack = false;
+        const fallbackToSpeechSynth = () => {
+          if (hasFallenBack) return;
+          hasFallenBack = true;
+          currentTtsAudio = null;
+          speakWithSpeechSynthesis(clean, detectedLang);
+        };
+
+        audio.onerror = fallbackToSpeechSynth;
+
+        const timeout = setTimeout(() => {
+          if (audio.readyState === 0 && !hasFallenBack) {
+            fallbackToSpeechSynth();
+          }
+        }, 2500);
+
+        audio.onplay = () => clearTimeout(timeout);
+        audio.onended = () => {
+          clearTimeout(timeout);
+          currentTtsAudio = null;
+        };
+
+        audio.src = googleUrl;
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(fallbackToSpeechSynth);
+        }
+      }
+
+      function speakWithSpeechSynthesis(text, lang) {
+        if (!("speechSynthesis" in window)) return;
         try {
-          window.speechSynthesis.cancel();
-          if (window.speechSynthesis.paused) {
-            window.speechSynthesis.resume();
+          const utter = new SpeechSynthesisUtterance(text);
+          utter.lang = lang;
+          utter.rate = (settings && settings.speechRate) || (lang.startsWith("ja") ? 0.85 : 0.95);
+          utter.pitch = 1.0;
+
+          if (cachedVoices.length === 0) {
+            cachedVoices = window.speechSynthesis.getVoices() || [];
           }
-        } catch (e) { }
-
-        setTimeout(() => {
-          try {
-            const detectedLang = forceLang || detectLanguage(clean);
-            const utter = new SpeechSynthesisUtterance(clean);
-            utter.lang = detectedLang;
-            utter.rate = detectedLang.startsWith("ja") || detectedLang.startsWith("zh") ? 0.85 : 0.95; // Speak Asian languages slightly slower for clarity
-            utter.pitch = 1.0;
-
-            if (cachedVoices.length === 0) {
-              cachedVoices = window.speechSynthesis.getVoices() || [];
-            }
-
-            if (cachedVoices.length > 0) {
-              // Find a high quality voice for the detected language
-              const langPrefix = detectedLang.split('-')[0];
-              const voice =
-                cachedVoices.find(v => v.lang.startsWith(detectedLang) && (v.name.includes("Google") || v.name.includes("Natural") || v.name.includes("Premium") || v.name.includes("Enhanced"))) ||
-                cachedVoices.find(v => v.lang.startsWith(detectedLang)) ||
-                cachedVoices.find(v => v.lang.startsWith(langPrefix));
-
-              if (voice) {
-                utter.voice = voice;
-              }
-            }
-
-            // Retain utterance on window to protect against Chromium GC bug mid-speech
-            window._activeSpeechUtterance = utter;
-            utter.onend = () => { window._activeSpeechUtterance = null; };
-            utter.onerror = (e) => {
-              console.warn("Lỗi phát âm TTS:", e);
-              window._activeSpeechUtterance = null;
-            };
-
-            window.speechSynthesis.speak(utter);
-          } catch (err) {
-            console.error("Speak error:", err);
+          if (cachedVoices.length > 0) {
+            const prefix = lang.split("-")[0];
+            const voice =
+              cachedVoices.find(v => v.lang.startsWith(lang) && (v.name.includes("Google") || v.name.includes("Natural") || v.name.includes("Premium") || v.name.includes("Enhanced") || v.name.includes("Kyoko") || v.name.includes("Otoya"))) ||
+              cachedVoices.find(v => v.lang.startsWith(lang)) ||
+              cachedVoices.find(v => v.lang.startsWith(prefix));
+            if (voice) utter.voice = voice;
           }
-        }, 25);
+          window._activeSpeechUtterance = utter;
+          utter.onend = () => { window._activeSpeechUtterance = null; };
+          utter.onerror = () => { window._activeSpeechUtterance = null; };
+          window.speechSynthesis.speak(utter);
+        } catch (e) {
+          console.warn("SpeechSynthesis fallback error:", e);
+        }
       }
 
       function speakCurrentCard() {
@@ -5203,16 +5328,20 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         const elAnswer = document.getElementById("opt-answer-with");
         const elType = document.getElementById("opt-learn-question-type");
         const elRound = document.getElementById("opt-round-size");
+        const elRate = document.getElementById("opt-speech-rate");
         const elSound = document.getElementById("opt-sound");
         const elImg = document.getElementById("opt-show-images");
         const elStar = document.getElementById("opt-starred-only");
+        const elLearner = document.getElementById("opt-learner-name");
 
         if (elAnswer) elAnswer.value = settings.answerWith || "definition";
         if (elType) elType.value = settings.learnQuestionType || "both";
         if (elRound) elRound.value = String(settings.roundSize || 7);
+        if (elRate) elRate.value = String(settings.speechRate || 0.95);
         if (elSound) elSound.checked = settings.autoSound !== false;
         if (elImg) elImg.checked = settings.showImages !== false;
         if (elStar) elStar.checked = !!settings.starredOnly;
+        if (elLearner) elLearner.value = getLearnerName();
       }
 
       function toggleSettingsModal() {
@@ -5260,9 +5389,22 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         settings.answerWith = document.getElementById("opt-answer-with").value;
         settings.learnQuestionType = document.getElementById("opt-learn-question-type").value;
         settings.roundSize = parseInt(document.getElementById("opt-round-size").value, 10);
+        if (document.getElementById("opt-speech-rate")) {
+          settings.speechRate = parseFloat(document.getElementById("opt-speech-rate").value) || 0.95;
+        }
         settings.autoSound = document.getElementById("opt-sound").checked;
         settings.showImages = document.getElementById("opt-show-images").checked;
         settings.starredOnly = document.getElementById("opt-starred-only").checked;
+
+        // Cập nhật tên người học riêng cho thiết bị này
+        const elLearner = document.getElementById("opt-learner-name");
+        if (elLearner) {
+          const newName = elLearner.value.trim();
+          if (newName) {
+            localStorage.setItem("qp_learner_name", newName);
+            updateLearnerProfileUI();
+          }
+        }
 
         // Lưu vĩnh viễn tùy chọn học vào localStorage (Không bao giờ bị reset khi load lại trang)
         try {
@@ -5271,7 +5413,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
         toggleSettingsModal();
         startModeView();
-        showToast("⚙️ Đã lưu cài đặt học tập!", 2000);
+        showToast("⚙️ Đã lưu cài đặt và hồ sơ học tập!", 2000);
       }
 
       function resetCurrentSetProgress() {
@@ -5366,8 +5508,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         }
       });
 
-      // Close modals when clicking on background overlay
+      // Close modals when clicking on background overlay & init profile
       document.addEventListener("DOMContentLoaded", () => {
+        updateLearnerProfileUI();
         document.querySelectorAll(".modal-overlay").forEach(modal => {
           modal.addEventListener("click", (e) => {
             if (e.target === modal) {
