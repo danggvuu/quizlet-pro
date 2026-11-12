@@ -5577,6 +5577,23 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         document.getElementById('preview-count').innerText = parsedImportCards.length;
       }
 
+      function reindexCardRows() {
+        const rows = document.querySelectorAll('#create-cards-list .card-row');
+        rows.forEach((row, idx) => {
+          const numSpan = row.querySelector('.card-row-header span');
+          if (numSpan) numSpan.textContent = idx + 1;
+        });
+        createCardCounter = rows.length;
+      }
+
+      function removeCardRow(btn) {
+        const row = btn.closest('.card-row');
+        if (row) {
+          row.remove();
+          reindexCardRows();
+        }
+      }
+
       function applyImportToRows() {
         if (parsedImportCards.length === 0) return;
 
@@ -5587,11 +5604,16 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         rows.forEach(r => {
           if (r.querySelector('.term-input').value.trim() || r.querySelector('.def-input').value.trim()) isEmpty = false;
         });
-        if (isEmpty) list.innerHTML = ''; // clear all empty default rows
+        if (isEmpty) {
+          list.innerHTML = ''; // clear all empty default rows
+          createCardCounter = 0;
+        }
 
         parsedImportCards.forEach(c => {
           addCardRow(c.term, c.def);
         });
+
+        reindexCardRows();
 
         document.getElementById('import-box-ui').style.display = 'none';
         document.getElementById('import-raw-text').value = '';
@@ -5599,15 +5621,16 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       function addCardRow(term = '', definition = '') {
-        createCardCounter++;
         const list = document.getElementById('create-cards-list');
+        const count = list.querySelectorAll('.card-row').length + 1;
+        createCardCounter = count;
         const div = document.createElement('div');
         div.className = 'card-row';
-        div.id = `card-row-${createCardCounter}`;
+        div.id = `card-row-${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
         div.innerHTML = `
         <div class="card-row-header">
-          <span>${createCardCounter}</span>
-          <button class="btn-icon" style="width:28px; height:28px; font-size:12px;" onclick="document.getElementById('${div.id}').remove()" title="Xóa thẻ">🗑️</button>
+          <span>${count}</span>
+          <button class="btn-icon" style="width:28px; height:28px; font-size:12px;" onclick="removeCardRow(this)" title="Xóa thẻ">🗑️</button>
         </div>
         <div class="card-row-inputs">
           <div class="card-row-input-group">
