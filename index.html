@@ -4900,7 +4900,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           currentCorrectChoice = correctChoice;
           bottomHtml = `
           <div class="write-area">
-            <input type="text" id="write-user-input" class="write-input-box" placeholder="Gõ câu trả lời bằng tiếng ${isPromptTerm ? 'Việt' : 'Anh'}..." autocomplete="off" autofocus />
+            <input type="text" id="write-user-input" class="write-input-box" placeholder="Nhập câu trả lời chính xác..." autocomplete="off" autofocus />
             <div class="write-action-bar">
               <button class="btn-skip" onclick="handleWriteSkip()">Tôi không biết (Bỏ qua)</button>
               <button class="btn-submit-write" onclick="handleWriteSubmit()">Trả lời (Enter) ↵</button>
@@ -4924,7 +4924,6 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
           <div class="prompt-area">
             <div class="prompt-content">
-              <div class="prompt-hint">${isPromptTerm ? "Định nghĩa tương ứng là gì?" : "Thuật ngữ tiếng Anh tương ứng là gì?"}</div>
               <div class="prompt-text">${escapeHtml(promptText)}</div>
             </div>
             ${imageHtml}
