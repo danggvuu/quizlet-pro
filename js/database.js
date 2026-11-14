@@ -82,18 +82,23 @@ const Database = {
         
         // Cần xoá tiến độ đi kèm (tìm index bằng setId)
         const db = await dbPromise;
-        const transaction = db.transaction(STORE_PROGRESS, 'readwrite');
-        const store = transaction.objectStore(STORE_PROGRESS);
-        const index = store.index('setId');
-        const request = index.openCursor(IDBKeyRange.only(setId));
-        
-        request.onsuccess = (event) => {
-            const cursor = event.target.result;
-            if (cursor) {
-                cursor.delete();
-                cursor.continue();
-            }
-        };
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(STORE_PROGRESS, 'readwrite');
+            const store = transaction.objectStore(STORE_PROGRESS);
+            const index = store.index('setId');
+            const request = index.openCursor(IDBKeyRange.only(setId));
+            
+            request.onsuccess = (event) => {
+                const cursor = event.target.result;
+                if (cursor) {
+                    cursor.delete();
+                    cursor.continue();
+                } else {
+                    resolve();
+                }
+            };
+            request.onerror = () => reject(request.error);
+        });
     },
 
     // Xoá toàn bộ tiến độ học của một bộ thẻ (reset học lại từ đầu)
@@ -269,7 +274,7 @@ const Database = {
         });
 
         const unseen = totalCards - mastered - learning;
-        return { mastered, learning, unseen, starred, total };
+        return { mastered, learning, unseen, starred, total: totalCards };
     }
 };
 
