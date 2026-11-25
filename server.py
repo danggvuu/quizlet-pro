@@ -8,6 +8,9 @@ import urllib.parse
 import urllib.request
 import subprocess
 import time
+import threading
+import uuid
+import tempfile
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -31,28 +34,106 @@ else:
     DATA_DIR = BASE_DIR / "data" / "sets"
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-PORT = 8888
+PORT = int(os.environ.get("PORT", "8888"))
+HOST = os.environ.get("QUIZLET_HOST", "127.0.0.1")
+MAX_BODY_BYTES = 5 * 1024 * 1024
+SET_ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,120}$")
+MANIFEST_LOCK = threading.Lock()
+
+
+def atomic_write_json(path, value):
+    """Publish a complete JSON file, never a partially written one."""
+    path = Path(path)
+    with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
+                                     suffix=".tmp", delete=False) as stream:
+        temporary = Path(stream.name)
+        try:
+            json.dump(value, stream, ensure_ascii=False, indent=2)
+        except Exception:
+            temporary.unlink(missing_ok=True)
+            raise
+    try:
+        os.replace(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def fetch_studiable_items(requests, set_id, cookies, headers):
+    """Follow Quizlet's cursor and reject incomplete/repeated pages."""
+    items = []
+    seen_ids = set()
+    seen_tokens = set()
+    token = None
+    while True:
+        params = {
+            "filters[studiableContainerId]": set_id,
+            "filters[studiableContainerType]": 1,
+            "perPage": 100,
+        }
+        if token:
+            params["pagingToken"] = token
+        url = "https://quizlet.com/webapi/3.4/studiable-item-documents?" + urllib.parse.urlencode(params)
+        response = requests.get(url, cookies=cookies, headers=headers, impersonate="chrome120", timeout=12)
+        if response.status_code != 200:
+            raise ValueError(f"Không tải đủ bộ thẻ (HTTP {response.status_code}). Hãy xác minh trên Quizlet hoặc nhập thủ công.")
+        responses = response.json().get("responses") or []
+        if not responses:
+            raise ValueError("Quizlet trả về dữ liệu không hợp lệ.")
+        result = responses[0]
+        page = result.get("models", {}).get("studiableItem", [])
+        for item in page:
+            identity = str(item.get("id"))
+            if item.get("id") is None or identity in seen_ids:
+                raise ValueError("Quizlet trả về trang thẻ lặp hoặc thiếu ID; bản cũ được giữ nguyên.")
+            seen_ids.add(identity)
+            items.append(item)
+        paging = result.get("paging", {})
+        total = paging.get("total")
+        if total is not None and len(items) >= int(total):
+            return items
+        next_token = paging.get("token")
+        if not next_token:
+            if total is not None and len(items) < int(total):
+                raise ValueError("Quizlet thiếu trang dữ liệu; bản cũ được giữ nguyên.")
+            return items
+        if not page or next_token in seen_tokens:
+            raise ValueError("Phân trang Quizlet không tiến triển; bản cũ được giữ nguyên.")
+        seen_tokens.add(next_token)
+        token = next_token
 
 def extract_set_id(url_or_text):
     m = re.search(r"(\d{6,})", str(url_or_text))
     return m.group(1) if m else None
 
+
+def extract_quizlet_cookies(cookie_jar):
+    """Only forward cookies that the Quizlet apex host would receive."""
+    return {
+        cookie.name: cookie.value
+        for cookie in cookie_jar
+        if cookie.domain.lstrip(".").lower() == "quizlet.com"
+    }
+
 def update_manifest(set_id, title, count):
+    if IS_VERCEL:
+        return
     try:
         manifest_path = BASE_DIR / "data" / "sets.json"
-        sets_list = []
-        if manifest_path.exists():
-            with open(manifest_path, "r", encoding="utf-8") as f:
-                sets_list = json.load(f)
-        sets_list = [s for s in sets_list if str(s.get("id")) != str(set_id)]
-        sets_list.append({"id": str(set_id), "title": title, "numTerms": count})
-        with open(manifest_path, "w", encoding="utf-8") as f:
-            json.dump(sets_list, f, ensure_ascii=False, indent=2)
+        with MANIFEST_LOCK:
+            sets_list = []
+            if manifest_path.exists():
+                with open(manifest_path, "r", encoding="utf-8") as f:
+                    sets_list = json.load(f)
+            sets_list = [s for s in sets_list if str(s.get("id")) != str(set_id)]
+            sets_list.append({"id": str(set_id), "title": title, "numTerms": count})
+            atomic_write_json(manifest_path, sets_list)
     except Exception as e:
         print("update_manifest error:", e)
 
 def scrape_quizlet(set_id, raw_url=None):
-    url = raw_url if (raw_url and "quizlet.com" in raw_url) else f"https://quizlet.com/{set_id}/"
+    if not re.fullmatch(r"\d{6,}", str(set_id)):
+        raise ValueError("ID Quizlet không hợp lệ.")
+    url = f"https://quizlet.com/{set_id}/"
 
     # 1. Thử mở Chrome trên máy local Mac nếu có
     if not IS_VERCEL:
@@ -67,7 +148,7 @@ def scrape_quizlet(set_id, raw_url=None):
     try:
         from yt_dlp.cookies import extract_cookies_from_browser
         jar = extract_cookies_from_browser("chrome")
-        cookies = {c.name: c.value for c in jar if "quizlet" in c.domain}
+        cookies = extract_quizlet_cookies(jar)
     except Exception as e:
         print("Note extracting cookies:", e)
 
@@ -104,30 +185,7 @@ def scrape_quizlet(set_id, raw_url=None):
         print("Warning page metadata:", e)
 
     # 4. Tải items qua API
-    all_items = []
-    page = 1
-    while True:
-        api_url = f"https://quizlet.com/webapi/3.4/studiable-item-documents?filters%5BstudiableContainerId%5D={set_id}&filters%5BstudiableContainerType%5D=1&page={page}&perPage=100"
-        r_api = requests.get(api_url, cookies=cookies, headers=headers, impersonate="chrome120", timeout=12)
-        if r_api.status_code != 200:
-            if page == 1:
-                if IS_VERCEL:
-                    raise Exception(f"Lỗi Cloudflare (Mã: {r_api.status_code}). Trên bản Vercel online, Cloudflare chặn máy chủ đám mây. Vui lòng bấm nút ➕ Nhập thủ công (Copy-Paste) hoặc chạy app trên máy tính bằng file Chay_Quizlet_Pro.command để cào tự động nhé!")
-                raise Exception(f"Cloudflare yêu cầu xác minh (Mã: {r_api.status_code}). Hãy nhìn sang tab Chrome vừa mở, tick vào ô xác minh rồi bấm lại nhé!")
-            break
-
-        data = r_api.json()
-        resp = data.get("responses", [{}])[0]
-        items = resp.get("models", {}).get("studiableItem", [])
-        if not items:
-            break
-        all_items.extend(items)
-
-        paging = resp.get("paging", {})
-        total = paging.get("total", len(all_items))
-        if len(all_items) >= total or len(items) == 0:
-            break
-        page += 1
+    all_items = fetch_studiable_items(requests, set_id, cookies, headers)
 
     if not all_items:
         raise Exception("Không tìm thấy thẻ nào trong bộ đề này.")
@@ -164,11 +222,7 @@ def scrape_quizlet(set_id, raw_url=None):
     }
 
     save_path = DATA_DIR / f"{set_id}.json"
-    try:
-        with open(save_path, "w", encoding="utf-8") as f:
-            json.dump(set_obj, f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        print("Save to disk error:", e)
+    atomic_write_json(save_path, set_obj)
 
     update_manifest(set_id, title, len(cards))
 
@@ -182,11 +236,42 @@ class handler(http.server.SimpleHTTPRequestHandler):
             super().__init__(*args, **kwargs)
 
     def do_OPTIONS(self):
-        self.send_response(200)
-        self.send_header("Access-Control-Allow-Origin", "*")
+        if not self.valid_write_origin():
+            self.send_json({"status": "error", "message": "Nguồn yêu cầu không được phép."}, 403)
+            return
+        self.send_response(204)
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
+
+    def valid_write_origin(self):
+        host = self.headers.get("Host", "")
+        try:
+            hostname = urllib.parse.urlparse("//" + host).hostname
+        except ValueError:
+            return False
+        allowed = {"localhost", "127.0.0.1", "::1"}
+        allowed.update(filter(None, os.environ.get("QUIZLET_ALLOWED_HOSTS", "").split(",")))
+        if HOST not in ("0.0.0.0", "::"):
+            allowed.add(HOST)
+        if hostname not in allowed or self.headers.get("Sec-Fetch-Site") == "cross-site":
+            return False
+        origin = self.headers.get("Origin")
+        return origin is None or origin == f"http://{host}"
+
+    def send_head(self):
+        # SimpleHTTPRequestHandler otherwise exposes source, .git and .venv.
+        path = urllib.parse.unquote(urllib.parse.urlparse(self.path).path)
+        target = Path(self.translate_path(self.path)).resolve()
+        allowed = (
+            path in ("/", "/index.html", "/sw.js", "/data/sets.json")
+            or re.fullmatch(r"/js/[A-Za-z0-9_-]+\.js", path)
+            or re.fullmatch(r"/data/sets/[A-Za-z0-9_-]+\.json", path)
+        )
+        if not allowed or not target.is_relative_to(BASE_DIR):
+            self.send_error(404)
+            return None
+        return super().send_head()
 
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
@@ -199,6 +284,9 @@ class handler(http.server.SimpleHTTPRequestHandler):
             return
         elif parsed.path == "/api/sets":
             self.handle_list_sets()
+            return
+        elif parsed.path == "/api/health":
+            self.send_json({"app": "quizlet-pro", "status": "ok"})
             return
         elif parsed.path.startswith("/api/sets/"):
             set_id = parsed.path.replace("/api/sets/", "").strip()
@@ -214,14 +302,38 @@ class handler(http.server.SimpleHTTPRequestHandler):
         parsed = urllib.parse.urlparse(self.path)
         try:
             content_length = int(self.headers.get("Content-Length", 0))
-            body = self.rfile.read(content_length).decode("utf-8") if content_length > 0 else "{}"
-        except Exception:
-            body = "{}"
+            if content_length < 0 or content_length > MAX_BODY_BYTES:
+                self.send_json({"status": "error", "message": "Dữ liệu gửi lên quá lớn."}, 413)
+                return
+            body = self.rfile.read(content_length) if content_length > 0 else b"{}"
+        except (ValueError, UnicodeError):
+            self.send_json({"status": "error", "message": "Dữ liệu JSON không hợp lệ."}, 400)
+            return
+        if not self.valid_write_origin():
+            self.send_json({"status": "error", "message": "Nguồn yêu cầu không được phép."}, 403)
+            return
+        if self.headers.get_content_type() != "application/json":
+            self.send_json({"status": "error", "message": "Yêu cầu Content-Type: application/json."}, 415)
+            return
+        try:
+            payload = json.loads(body.decode("utf-8"))
+            if not isinstance(payload, dict):
+                raise ValueError("JSON phải là object.")
+        except (ValueError, UnicodeError):
+            self.send_json({"status": "error", "message": "Dữ liệu JSON không hợp lệ."}, 400)
+            return
 
         if parsed.path == "/api/scrape":
             try:
-                payload = json.loads(body)
-                url = payload.get("url", "").strip()
+                url = payload.get("url", "")
+                if not isinstance(url, str):
+                    self.send_json({"status": "error", "message": "URL phải là văn bản."}, 400)
+                    return
+                url = url.strip()
+                parsed_url = urllib.parse.urlparse(url)
+                if parsed_url.scheme not in ("http", "https") or parsed_url.hostname not in ("quizlet.com", "www.quizlet.com"):
+                    self.send_json({"status": "error", "message": "Chỉ hỗ trợ đường link quizlet.com hợp lệ."}, 400)
+                    return
                 set_id = extract_set_id(url)
                 if not set_id:
                     self.send_json({"status": "error", "message": "Không tìm thấy ID bộ thẻ trong đường link bạn nhập!"}, 400)
@@ -234,13 +346,48 @@ class handler(http.server.SimpleHTTPRequestHandler):
             return
         elif parsed.path == "/api/manual-import":
             try:
-                payload = json.loads(body)
-                title = payload.get("title", "Bộ thẻ tự tạo").strip() or "Bộ thẻ tự tạo"
+                title = payload.get("title", "Bộ thẻ tự tạo")
                 cards = payload.get("cards", [])
-                if not cards:
+                if not isinstance(title, str) or not isinstance(cards, list) or not cards:
                     self.send_json({"status": "error", "message": "Danh sách thẻ trống!"}, 400)
                     return
-                set_id = payload.get("id") or f"custom_{int(time.time())}"
+                title = title.strip() or "Bộ thẻ tự tạo"
+                requested_id = str(payload.get("id") or "")
+                if requested_id and not SET_ID_RE.fullmatch(requested_id):
+                    self.send_json({"status": "error", "message": "ID bộ thẻ không hợp lệ."}, 400)
+                    return
+                set_id = requested_id if SET_ID_RE.fullmatch(requested_id) else f"custom_{uuid.uuid4().hex}"
+                normalized_cards = []
+                seen_ids = set()
+                for index, card in enumerate(cards):
+                    if not isinstance(card, dict) or not isinstance(card.get("term"), str) or not isinstance(card.get("definition"), str):
+                        self.send_json({"status": "error", "message": f"Thẻ {index + 1} không hợp lệ."}, 400)
+                        return
+                    term = card["term"].strip()
+                    definition = card["definition"].strip()
+                    if not term and not definition:
+                        self.send_json({"status": "error", "message": f"Thẻ {index + 1} đang trống."}, 400)
+                        return
+                    if not term or not definition:
+                        self.send_json({"status": "error", "message": f"Thẻ {index + 1} cần đủ hai mặt."}, 400)
+                        return
+                    card_id = card.get("id")
+                    if not isinstance(card_id, (str, int)) or isinstance(card_id, bool):
+                        card_id = uuid.uuid4().hex
+                    if str(card_id) in seen_ids:
+                        self.send_json({"status": "error", "message": "ID thẻ trùng nhau."}, 400)
+                        return
+                    seen_ids.add(str(card_id))
+                    normalized_cards.append({
+                        "id": card_id,
+                        "term": term,
+                        "definition": definition,
+                        "image": card.get("image", "") if isinstance(card.get("image", ""), str) else ""
+                    })
+                cards = normalized_cards
+                if not cards:
+                    self.send_json({"status": "error", "message": "Không có thẻ hợp lệ."}, 400)
+                    return
                 set_obj = {
                     "id": set_id,
                     "title": title,
@@ -249,11 +396,7 @@ class handler(http.server.SimpleHTTPRequestHandler):
                     "cards": cards
                 }
                 save_path = DATA_DIR / f"{set_id}.json"
-                try:
-                    with open(save_path, "w", encoding="utf-8") as f:
-                        json.dump(set_obj, f, ensure_ascii=False, indent=2)
-                except Exception:
-                    pass
+                atomic_write_json(save_path, set_obj)
                 update_manifest(set_id, title, len(cards))
                 self.send_json({"status": "ok", "set": set_obj})
             except Exception as e:
@@ -320,6 +463,9 @@ class handler(http.server.SimpleHTTPRequestHandler):
         self.send_json({"sets": sets_list})
 
     def handle_get_set(self, set_id):
+        if not SET_ID_RE.fullmatch(set_id):
+            self.send_json({"status": "error", "message": "ID bộ thẻ không hợp lệ."}, 400)
+            return
         save_path = DATA_DIR / f"{set_id}.json"
         if not save_path.exists():
             save_path = BASE_DIR / "data" / "sets" / f"{set_id}.json"
@@ -333,7 +479,6 @@ class handler(http.server.SimpleHTTPRequestHandler):
     def send_json(self, data, code=200):
         self.send_response(code)
         self.send_header("Content-type", "application/json; charset=utf-8")
-        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
         self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
 
@@ -342,7 +487,10 @@ QuizletAppHandler = handler
 app = handler
 
 if __name__ == "__main__":
-    socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("", PORT), handler) as httpd:
+    class ThreadingServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+        daemon_threads = True
+        allow_reuse_address = True
+
+    with ThreadingServer((HOST, PORT), handler) as httpd:
         print(f"Server Quizlet Pro đang chạy tại: http://localhost:{PORT}")
         httpd.serve_forever()

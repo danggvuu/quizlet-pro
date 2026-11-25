@@ -4,10 +4,11 @@
  */
 
 const DB_NAME = 'QuizletProDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 const STORE_SETS = 'sets';
 const STORE_PROGRESS = 'progress';
+const progressKey = (setId, cardId) => JSON.stringify([String(setId), String(cardId)]);
 
 // ==========================================
 // 1. KHỞI TẠO & WRAPPER INDEXEDDB
@@ -27,11 +28,44 @@ const dbPromise = new Promise((resolve, reject) => {
         if (!db.objectStoreNames.contains(STORE_PROGRESS)) {
             const progressStore = db.createObjectStore(STORE_PROGRESS, { keyPath: 'id' });
             progressStore.createIndex('setId', 'setId', { unique: false });
+        } else if (event.oldVersion < 2) {
+            const store = request.transaction.objectStore(STORE_PROGRESS);
+            const all = store.getAll();
+            all.onsuccess = () => {
+                store.clear();
+                all.result.forEach(p => {
+                    p.setId = String(p.setId);
+                    p.id = progressKey(p.setId, p.cardId);
+                    store.put(p);
+                });
+            };
+        }
+        if (event.oldVersion < 2) {
+            const sets = request.transaction.objectStore(STORE_SETS);
+            const all = sets.getAll();
+            all.onsuccess = () => {
+                // Retain invalid legacy records for export/repair in the UI.
+                const merged = new Map();
+                all.result.forEach(set => {
+                    const id = String(set.id);
+                    if (!merged.has(id) || (set.updatedAt || 0) > (merged.get(id).updatedAt || 0)) merged.set(id, { ...set, id });
+                });
+                sets.clear();
+                merged.forEach(set => sets.put(set));
+            };
         }
     };
 
-    request.onsuccess = (event) => resolve(event.target.result);
+    request.onsuccess = (event) => {
+        const db = event.target.result;
+        db.onversionchange = () => db.close();
+        resolve(db);
+    };
     request.onerror = (event) => reject('Lỗi khởi tạo IndexedDB: ' + event.target.error);
+    request.onblocked = () => {
+        const message = 'Đóng các tab Quizlet Pro cũ rồi tải lại để nâng cấp bộ nhớ.';
+        if (typeof showToast === 'function') showToast(message, 15000);
+    };
 });
 
 // Hàm tiện ích: Thực thi giao dịch
@@ -50,6 +84,27 @@ async function tx(storeName, mode, callback) {
 
         transaction.oncomplete = () => resolve(result);
         transaction.onerror = () => reject(transaction.error);
+        transaction.onabort = () => reject(transaction.error || new Error('Giao dịch bị hủy.'));
+    });
+}
+
+async function mutateProgress(setId, cardId, update) {
+    const db = await dbPromise;
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(STORE_PROGRESS, 'readwrite');
+        const store = transaction.objectStore(STORE_PROGRESS);
+        const id = progressKey(setId, cardId);
+        let result;
+        const request = store.get(id);
+        request.onsuccess = () => {
+            result = update(request.result || {
+                id, setId: String(setId), cardId, box: 0, isStarred: false, nextReview: 0, interval: 0
+            });
+            store.put(result);
+        };
+        transaction.oncomplete = () => resolve(result);
+        transaction.onerror = () => reject(transaction.error);
+        transaction.onabort = () => reject(transaction.error || new Error('Giao dịch bị hủy.'));
     });
 }
 
@@ -59,9 +114,9 @@ async function tx(storeName, mode, callback) {
 
 const Database = {
     // Lưu một bộ thẻ mới hoặc cập nhật bộ thẻ cũ
-    async saveSet(setObj) {
-        if (!setObj.id) setObj.id = 'set_' + Date.now();
-        setObj.updatedAt = Date.now();
+    async saveSet(setObj, { preserveTimestamp = false } = {}) {
+        setObj = StudyUtils.normalizeSet(setObj);
+        if (!preserveTimestamp) setObj.updatedAt = Date.now();
         await tx(STORE_SETS, 'readwrite', store => store.put(setObj));
         return setObj.id;
     },
@@ -73,17 +128,16 @@ const Database = {
 
     // Lấy chi tiết 1 bộ thẻ theo ID
     async getSetById(setId) {
-        return await tx(STORE_SETS, 'readonly', store => store.get(setId));
+        return await tx(STORE_SETS, 'readonly', store => store.get(String(setId)));
     },
 
     // Xoá bộ thẻ và toàn bộ tiến độ đi kèm
     async deleteSet(setId) {
-        await tx(STORE_SETS, 'readwrite', store => store.delete(setId));
-        
-        // Cần xoá tiến độ đi kèm (tìm index bằng setId)
+        setId = String(setId);
         const db = await dbPromise;
         return new Promise((resolve, reject) => {
-            const transaction = db.transaction(STORE_PROGRESS, 'readwrite');
+            const transaction = db.transaction([STORE_SETS, STORE_PROGRESS], 'readwrite');
+            transaction.objectStore(STORE_SETS).delete(setId);
             const store = transaction.objectStore(STORE_PROGRESS);
             const index = store.index('setId');
             const request = index.openCursor(IDBKeyRange.only(setId));
@@ -93,16 +147,18 @@ const Database = {
                 if (cursor) {
                     cursor.delete();
                     cursor.continue();
-                } else {
-                    resolve();
                 }
             };
             request.onerror = () => reject(request.error);
+            transaction.oncomplete = resolve;
+            transaction.onerror = () => reject(transaction.error);
+            transaction.onabort = () => reject(transaction.error || new Error('Giao dịch bị hủy.'));
         });
     },
 
     // Xoá toàn bộ tiến độ học của một bộ thẻ (reset học lại từ đầu)
     async clearProgress(setId) {
+        setId = String(setId);
         const db = await dbPromise;
         return new Promise((resolve, reject) => {
             const transaction = db.transaction(STORE_PROGRESS, 'readwrite');
@@ -114,11 +170,12 @@ const Database = {
                 if (cursor) {
                     cursor.delete();
                     cursor.continue();
-                } else {
-                    resolve();
                 }
             };
             request.onerror = () => reject(request.error);
+            transaction.oncomplete = resolve;
+            transaction.onerror = () => reject(transaction.error);
+            transaction.onabort = () => reject(transaction.error || new Error('Giao dịch bị hủy.'));
         });
     },
 
@@ -128,6 +185,7 @@ const Database = {
     
     // Lấy tiến độ của toàn bộ thẻ trong 1 bộ
     async getProgress(setId) {
+        setId = String(setId);
         const db = await dbPromise;
         return new Promise((resolve, reject) => {
             const transaction = db.transaction(STORE_PROGRESS, 'readonly');
@@ -139,124 +197,89 @@ const Database = {
         });
     },
 
+    // Ghi lại toàn bộ tiến độ trong một giao dịch duy nhất.
+    // Tránh tạo hàng trăm transaction liên tiếp khi người học chuyển thẻ.
+    async saveProgress(setId, progressItems) {
+        setId = String(setId);
+        const db = await dbPromise;
+        const items = Array.isArray(progressItems) ? progressItems : [];
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(STORE_PROGRESS, 'readwrite');
+            const store = transaction.objectStore(STORE_PROGRESS);
+            const liveIds = new Set(items.map(item => String(item.cardId)));
+            const cursorRequest = store.index('setId').openCursor(IDBKeyRange.only(setId));
+            cursorRequest.onsuccess = () => {
+                const cursor = cursorRequest.result;
+                if (!cursor) return;
+                if (!liveIds.has(String(cursor.value.cardId))) cursor.delete();
+                cursor.continue();
+            };
+            items.forEach(item => {
+                if (!item || item.cardId === undefined) return;
+                const progress = {
+                    ...item,
+                    id: this._getProgressId(setId, item.cardId),
+                    setId,
+                    cardId: item.cardId,
+                    box: Number.isInteger(item.box) ? Math.max(0, Math.min(3, item.box)) : 0,
+                    isStarred: !!item.isStarred,
+                    nextReview: Number.isFinite(item.nextReview) ? item.nextReview : 0
+                };
+                store.put(progress);
+            });
+            transaction.oncomplete = resolve;
+            transaction.onerror = () => reject(transaction.error);
+            transaction.onabort = () => reject(transaction.error || new Error('Giao dịch IndexedDB bị hủy.'));
+        });
+    },
+
     // Lấy ID gộp của tiến độ thẻ
     _getProgressId(setId, cardId) {
-        return `${setId}_${cardId}`;
+        return progressKey(setId, cardId);
     },
 
     // Thiết lập trực tiếp hộp ghi nhớ chính xác (0: Chưa học, 1: Khó, 2: Đang học, 3: Đã thuộc)
     async setCardBox(setId, cardId, box, isStarred = null) {
-        const progId = this._getProgressId(setId, cardId);
-        let prog = await tx(STORE_PROGRESS, 'readonly', store => store.get(progId));
-        if (!prog) {
-            prog = {
-                id: progId,
-                setId: setId,
-                cardId: cardId,
-                box: box,
-                isStarred: isStarred !== null ? isStarred : false,
-                nextReview: 0
-            };
-        } else {
-            prog.box = box;
-            if (isStarred !== null) {
-                prog.isStarred = isStarred;
-            }
-        }
-        await tx(STORE_PROGRESS, 'readwrite', store => store.put(prog));
-        return prog;
+        return mutateProgress(setId, cardId, progress => {
+            progress.box = Math.max(0, Math.min(3, Number(box) || 0));
+            if (isStarred !== null) progress.isStarred = !!isStarred;
+            return progress;
+        });
     },
 
     // Cập nhật tiến độ của 1 thẻ sau khi trả lời
     // isCorrect: true (Đúng), false (Sai)
     async updateCardProgress(setId, cardId, isCorrect, isStarred = null) {
-        const progId = this._getProgressId(setId, cardId);
-        let prog = await tx(STORE_PROGRESS, 'readonly', store => store.get(progId));
-
-        if (!prog) {
-            prog = {
-                id: progId,
-                setId: setId,
-                cardId: cardId,
-                box: 0,           // 0: Unseen, 1: Khó, 2: Đang học, 3: Đã biết
-                isStarred: false,
-                nextReview: 0
-            };
-        }
-
-        if (isStarred !== null) {
-            prog.isStarred = isStarred;
-        }
-
-        // --- THUẬT TOÁN SRS CỐT LÕI ---
-        const now = Date.now();
-        if (isCorrect === false) {
-            // Sai -> Rớt thẳng về Hộp 1 (Khó), ôn lại ngay lập tức (sau 0 phút)
-            prog.box = 1;
-            prog.nextReview = now; 
-        } else if (isCorrect === true) {
-            // Đúng -> Thăng cấp
-            if (prog.box === 0 || prog.box === 1) {
-                // Đang từ Chưa học/Khó -> Lên Đang học (Hộp 2), ôn lại sau 5 phút
-                prog.box = 2;
-                prog.nextReview = now + 5 * 60 * 1000;
-            } else if (prog.box === 2) {
-                // Đang từ Đang học -> Lên Đã biết (Hộp 3 - Mastered), coi như xong session này
-                prog.box = 3;
-                // Nếu học lâu dài có thể set ngày mai: now + 24 * 60 * 60 * 1000
-                prog.nextReview = now + 24 * 60 * 60 * 1000;
+        return mutateProgress(setId, cardId, progress => {
+            if (isStarred !== null) progress.isStarred = !!isStarred;
+            if (typeof isCorrect === 'boolean') {
+                const next = StudyUtils.gradeCard({
+                    mastery: progress.box === 3 ? 2 : progress.box ? 1 : 0,
+                    interval: progress.interval || 0
+                }, isCorrect);
+                progress.box = !isCorrect ? 1 : next.mastery === 2 ? 3 : 2;
+                progress.nextReview = next.nextReview;
+                progress.interval = next.interval;
             }
-        }
-        
-        await tx(STORE_PROGRESS, 'readwrite', store => store.put(prog));
-        return prog;
+            return progress;
+        });
     },
 
     // Thuật toán chọn thẻ cần học tiếp theo
     async getNextCardsForLearn(setId, allCardsInSet, limit = 10) {
         const progresses = await this.getProgress(setId);
-        const progMap = new Map();
-        progresses.forEach(p => progMap.set(p.cardId, p));
-
-        const now = Date.now();
-        let box1 = []; // Khó (Sai)
-        let box0 = []; // Chưa học
-        let box2 = []; // Đang học (Đã đến giờ review)
-        let box3 = []; // Đã biết (Không lấy vào session hiện tại trừ khi học lại từ đầu)
-
-        allCardsInSet.forEach(card => {
-            const p = progMap.get(card.id);
-            if (!p) {
-                box0.push(card);
-            } else if (p.box === 1) {
-                box1.push(card);
-            } else if (p.box === 2 && now >= p.nextReview) {
-                box2.push(card);
-            } else if (p.box === 3) {
-                box3.push(card);
-            }
+        const map = new Map(progresses.map(p => [String(p.cardId), p]));
+        const cards = allCardsInSet.map(card => {
+            const progress = map.get(String(card.id));
+            return { ...card, mastery: progress?.box === 3 ? 2 : progress?.box ? 1 : 0,
+                nextReview: progress?.nextReview || 0 };
         });
-
-        // Xáo trộn mảng
-        const shuffle = arr => arr.sort(() => Math.random() - 0.5);
-
-        // Thứ tự ưu tiên: Khó (Box 1) -> Đã đến giờ (Box 2) -> Chưa học (Box 0)
-        let sessionCards = [];
-        sessionCards = sessionCards.concat(shuffle(box1));
-        sessionCards = sessionCards.concat(shuffle(box2));
-        
-        // Nếu thiếu thẻ, bốc thêm từ Chưa học
-        if (sessionCards.length < limit && box0.length > 0) {
-            const need = limit - sessionCards.length;
-            sessionCards = sessionCards.concat(shuffle(box0).slice(0, need));
-        }
-
         return {
-            sessionCards: sessionCards.slice(0, limit),
+            sessionCards: StudyUtils.reviewQueue(cards).slice(0, limit),
             stats: {
-                mastered: box3.length,
-                learning: box1.length + box2.length,
-                unseen: box0.length,
+                mastered: cards.filter(c => c.mastery === 2).length,
+                learning: cards.filter(c => c.mastery === 1).length,
+                unseen: cards.filter(c => c.mastery === 0).length,
                 total: allCardsInSet.length
             }
         };

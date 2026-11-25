@@ -179,6 +179,30 @@
       cursor: not-allowed;
       pointer-events: none;
     }
+    [hidden] { display: none !important; }
+
+    :focus-visible { outline: 3px solid var(--border-focus); outline-offset: 3px; }
+    .summary-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin: 24px 0; }
+    .sum-stat-card { background: var(--bg); padding: 16px; border-radius: var(--radius); }
+    .sum-num { font-size: 24px; font-weight: 800; }
+    .sum-label { font-size: 12px; color: var(--text-muted); }
+    .card-row-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
+    .card-row-input-group { flex: 1; min-width: 0; }
+    .card-row-label { font-size: 12px; color: var(--text-muted); }
+    .term-item { display: flex; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .t-word, .t-def { flex: 1; min-width: 0; }
+    .test-filter-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .test-tab-btn { padding: 8px 12px; border-radius: var(--radius-sm); color: var(--text-muted); }
+    .test-tab-btn.active { color: var(--primary); background: var(--primary-light); }
+    @media (max-width: 768px) {
+      .terms-overview-header { flex-direction: column; align-items: stretch; gap: 12px; }
+      .term-row { flex-wrap: wrap; }
+      .fc-nav, .fc-shortcuts-dock { flex-wrap: wrap; }
+      #toast-msg { bottom: 80px !important; left: 14px; right: 14px !important; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
 
     .btn-primary {
       background: var(--primary);
@@ -1192,6 +1216,8 @@
       flex: 1;
       width: 100%;
       padding: 12px 0;
+      min-height: 0;
+      overflow: auto;
     }
 
     .fc-text {
@@ -2640,13 +2666,18 @@
 
       .set-selector-group {
         width: 100%;
-        justify-content: space-between;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        min-width: 0;
       }
 
       .set-select {
-        flex: 1;
-        max-width: none;
+        flex: 1 1 180px;
+        min-width: 0;
+        max-width: 100%;
       }
+      .set-selector-group .btn-icon { flex: 0 0 36px; }
+      .set-selector-group > span { display: none; }
 
       .mode-pills {
         width: 100%;
@@ -3200,149 +3231,7 @@
     }
 
   </style>
-  <!-- FIREBASE SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-    import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
-
-    // 🔴 ÔNG DÁN FIREBASE CONFIG CỦA ÔNG VÀO ĐÂY NHÉ:
-    const firebaseConfig = {
-      apiKey: "AIzaSyDQrqe_dx7jQAitQ9gmrcnY6_TNl2frON0",
-      authDomain: "bhjbhj-c8bdd.firebaseapp.com",
-      projectId: "bhjbhj-c8bdd",
-      storageBucket: "bhjbhj-c8bdd.firebasestorage.app",
-      messagingSenderId: "863761099968",
-      appId: "1:863761099968:web:841abf121b6ceb18441125",
-      measurementId: "G-QWZRQ35NG1"
-    };
-
-    let db;
-    try {
-      if (firebaseConfig.apiKey !== "CHUA_CO_KEY") {
-        const app = initializeApp(firebaseConfig);
-        db = getFirestore(app);
-        window.FirebaseDB = db;
-        console.log("Firebase Connected!");
-      }
-    } catch (e) { console.error("Firebase init error:", e); }
-
-    function updateCloudSyncUI(status, message = "") {
-      const badge = document.getElementById("cloud-status-badge");
-      const text = document.getElementById("cloud-status-text");
-      const icon = document.getElementById("cloud-status-icon");
-      if (!badge || !text) return;
-
-      if (status === "connected") {
-        badge.className = "cloud-status-pill online";
-        if (icon) icon.innerText = "☁️";
-        text.innerText = "Đã đồng bộ";
-        badge.title = "Dữ liệu đang được đồng bộ tự động giữa các thiết bị qua Firebase.";
-      } else if (status === "locked") {
-        badge.className = "cloud-status-pill offline";
-        if (icon) icon.innerText = "⚠️";
-        text.innerText = "Chưa mở quyền";
-        badge.title = message || "Firebase đang khóa quyền ghi/đọc (Lỗi 403). Bấm vào để xem cách mở quyền.";
-      } else {
-        badge.className = "cloud-status-pill offline";
-        if (icon) icon.innerText = "📡";
-        text.innerText = "Lưu trên máy";
-        badge.title = "Đang hoạt động ngoại tuyến, lưu trong bộ nhớ máy này.";
-      }
-    }
-    window.updateCloudSyncUI = updateCloudSyncUI;
-
-    window.showCloudStatusHelp = function() {
-      alert(
-        "☁️ TRẠNG THÁI ĐỒNG BỘ CLOUD GIỮA CÁC THIẾT BỊ:\n\n" +
-        "1. Tại sao máy bạn bè không tự thấy bài học (như Lesson 15)?\n" +
-        "-> Hiện tại Firebase Firestore (bhjbhj-c8bdd) đang bị hết hạn quy tắc bảo mật 30 ngày (Lỗi 403 Permission Denied). Do đó dữ liệu mới chỉ lưu trong máy riêng của từng người.\n\n" +
-        "2. Cách để 2 máy tự động thấy bài của nhau:\n" +
-        "-> Vào: https://console.firebase.google.com/project/bhjbhj-c8bdd/firestore/rules\n" +
-        "-> Đổi thành: allow read, write: if true;\n" +
-        "-> Bấm Publish. Ngay lập tức các máy sẽ tự động đồng bộ!\n\n" +
-        "3. Cách chia sẻ ngay lập tức không cần chờ Firebase:\n" +
-        "-> Người tạo bộ thẻ bấm nút '📤' trên thanh công cụ để tải file JSON hoặc sao chép mã, rồi gửi qua Zalo/Messenger cho bạn bè nhập vào học ngay!"
-      );
-    };
-
-    // Cloud Database Wrapper với Timeout an toàn (Không bao giờ làm nghẽn trang)
-    window.CloudDB = {
-      async saveSet(setObj) {
-        if (!window.FirebaseDB) return false;
-        try {
-          // Chỉ đồng bộ nội dung học phần (term, definition, image), TUYỆT ĐỐI KHÔNG gửi tiến độ cá nhân (mastery, box, starred) lên Cloud.
-          // Đảm bảo máy của bạn và máy của bạn bè hoàn toàn độc lập 100% về tiến độ học!
-          const cleanCards = (setObj.cards || []).map(c => ({
-            id: c.id,
-            term: c.term || "",
-            definition: c.definition || "",
-            image: c.image || ""
-          }));
-          const cleanSet = {
-            id: String(setObj.id),
-            title: setObj.title || "Học phần không tên",
-            description: setObj.description || "",
-            numTerms: cleanCards.length,
-            cards: cleanCards,
-            isCustom: true,
-            updatedAt: Date.now()
-          };
-          const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 8000));
-          await Promise.race([
-            setDoc(doc(window.FirebaseDB, "quizlet_sets", String(cleanSet.id)), cleanSet),
-            timeout
-          ]);
-          updateCloudSyncUI("connected");
-          return true;
-        } catch (e) {
-          console.warn("CloudDB saveSet timeout/error:", e);
-          updateCloudSyncUI("locked");
-          return false;
-        }
-      },
-      async getAllSets() {
-        if (!window.FirebaseDB) return [];
-        try {
-          const timeout = new Promise((resolve) => setTimeout(() => resolve([]), 12000));
-          const fetchPromise = (async () => {
-            const querySnapshot = await getDocs(collection(window.FirebaseDB, "quizlet_sets"));
-            const sets = [];
-            querySnapshot.forEach((doc) => {
-              sets.push(doc.data());
-            });
-            updateCloudSyncUI("connected");
-            return sets;
-          })();
-          return await Promise.race([fetchPromise, timeout]);
-        } catch (e) {
-          console.warn("CloudDB getAllSets timeout/error:", e);
-          updateCloudSyncUI("locked");
-          return [];
-        }
-      },
-      async deleteSet(setId) {
-        if (!window.FirebaseDB) return false;
-        try {
-          const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 6000));
-          await Promise.race([
-            deleteDoc(doc(window.FirebaseDB, "quizlet_sets", String(setId))),
-            timeout
-          ]);
-          return true;
-        } catch (e) { console.warn("CloudDB deleteSet timeout/error:", e); return false; }
-      }
-    };
-
-    // Auto-trigger load once CloudDB is connected
-    if (typeof window.loadSetsList === "function") {
-      window.loadSetsList();
-    } else {
-      window.addEventListener("DOMContentLoaded", () => {
-        if (typeof window.loadSetsList === "function") window.loadSetsList();
-      });
-    }
-    window.dispatchEvent(new CustomEvent("cloud-db-ready"));
-  </script>
+  <script src="js/cloud.js" defer></script>
 
 </head>
 
@@ -3732,12 +3621,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
             dấu trang 1 cái là tự động bóc tách toàn bộ thẻ học & ảnh sang đây:
           </p>
           <div style="text-align: center; margin: 16px 0;">
-            <a href="javascript:(function(){try{if(window.location.hostname.indexOf('quizlet.com')===-1){alert('💡 Bạn đang bấm nút này trên trang Quizlet Pro!
-
-👉 Cách dùng đúng:
-1. KÉO nút này thả lên thanh Dấu trang (Bookmarks bar).
-2. Mở trang bộ thẻ trên Quizlet.com.
-3. Bấm vào nút dấu trang đó là tự động cào 100% sang đây!');return;}var t=(document.querySelector('h1')?document.querySelector('h1').innerText.trim():'')||document.title.replace(/\s*\|\s*Quizlet.*/i,'').trim();var c=[];var n=document.getElementById('__NEXT_DATA__');if(n){try{var d=JSON.parse(n.textContent);var p=JSON.parse(d.props.pageProps.dehydratedReduxStateKey||'{}');if(p.setPage&&p.setPage.set&&p.setPage.set.title)t=p.setPage.set.title;var items=(p.studyModesCommon&&p.studyModesCommon.studiableData)?p.studyModesCommon.studiableData.studiableItems:[];items.forEach(function(it,i){var w='',df='',im='';(it.cardSides||[]).forEach(function(s){if(s.label==='word')w=(s.media&&s.media[0])?s.media[0].plainText||'':'';else if(s.label==='definition'){df=(s.media&&s.media[0])?s.media[0].plainText||'':'';var m=(s.media||[]).find(function(x){return x.type===2;});if(m&&m.url)im=m.url;}});if(w||df)c.push({id:i+1,term:w,definition:df,image:im});});}catch(e){}}if(c.length===0){var r=document.querySelectorAll('.SetPageTerms-term,.SetPageTerm-content,[data-testid=&quot;UIRow&quot;],.SetPageTermsList-term');r.forEach(function(el,i){var wEl=el.querySelector('.SetPageTerm-wordText,[data-testid=&quot;term-word&quot;],.TermText,.SetPageTerm-smallSide');var dEl=el.querySelector('.SetPageTerm-definitionText,[data-testid=&quot;term-definition&quot;],.SetPageTerm-largeSide');var imEl=el.querySelector('img.SetPageTerm-image,.SetPageTerm-imageWrap img,img');if(wEl||dEl){c.push({id:i+1,term:wEl?wEl.innerText.trim():'',definition:dEl?dEl.innerText.trim():'',image:(imEl&&imEl.src&&imEl.src.indexOf('quizlet.com')!==-1)?imEl.src:''});}});}if(c.length===0){alert('⚠️ Không tìm thấy thẻ! Hãy mở đúng trang bộ thẻ Quizlet.');return;}var payload={id:'quizlet_'+Date.now(),title:t||'Bộ thẻ Quizlet',numTerms:c.length,cards:c};var str=encodeURIComponent(JSON.stringify(payload));window.open('https://quizlet-pro-eight.vercel.app/#data='+str,'_blank');}catch(err){alert('Lỗi xuất thẻ: '+err.message);}})();"
+            <a href="#" data-quizlet-export
               style="display: inline-block; background: #8b5cf6; color: white; padding: 10px 22px; border-radius: 20px; font-weight: 800; text-decoration: none; cursor: move; box-shadow: 0 4px 14px rgba(139,92,246,0.35); font-size: 13.5px;"
               title="Kéo nút này vào thanh Bookmarks">
               ⚡ Cào sang Quizlet Pro (Kéo vào Bookmark)
@@ -3940,7 +3824,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
               Quizlet Pro!
             </p>
             <div style="text-align: center; margin: 8px 0;">
-              <a href="javascript:(function(){try{if(window.location.hostname.indexOf('quizlet.com')===-1){alert('💡 Bạn đang bấm nút này trên trang Quizlet Pro!\n\n👉 Cách dùng đúng:\n1. Hãy dùng chuột KÉO nút này thả lên thanh Dấu trang (Bookmarks bar) của trình duyệt.\n2. Mở trang bộ thẻ trên Quizlet.com.\n3. Khi đang ở Quizlet, bấm vào nút dấu trang đó là tự động cào 100% sang đây!');return;}var t=(document.querySelector('h1')?document.querySelector('h1').innerText.trim():'')||document.title.replace(/\s*\|\s*Quizlet.*/i,'').trim();var c=[];var n=document.getElementById('__NEXT_DATA__');if(n){try{var d=JSON.parse(n.textContent);var p=JSON.parse(d.props.pageProps.dehydratedReduxStateKey||'{}');if(p.setPage&&p.setPage.set&&p.setPage.set.title)t=p.setPage.set.title;var items=(p.studyModesCommon&&p.studyModesCommon.studiableData)?p.studyModesCommon.studiableData.studiableItems:[];items.forEach(function(it,i){var w='',df='',im='';(it.cardSides||[]).forEach(function(s){if(s.label==='word')w=(s.media&&s.media[0])?s.media[0].plainText||'':'';else if(s.label==='definition'){df=(s.media&&s.media[0])?s.media[0].plainText||'':'';var m=(s.media||[]).find(function(x){return x.type===2;});if(m&&m.url)im=m.url;}});if(w||df)c.push({id:i+1,term:w,definition:df,image:im});});}catch(e){}}if(c.length===0){var r=document.querySelectorAll('.SetPageTerms-term,.SetPageTerm-content,[data-testid=&quot;UIRow&quot;],.SetPageTermsList-term');r.forEach(function(el,i){var wEl=el.querySelector('.SetPageTerm-wordText,[data-testid=&quot;term-word&quot;],.TermText,.SetPageTerm-smallSide');var dEl=el.querySelector('.SetPageTerm-definitionText,[data-testid=&quot;term-definition&quot;],.SetPageTerm-largeSide');var imEl=el.querySelector('img.SetPageTerm-image,.SetPageTerm-imageWrap img,img');if(wEl||dEl){c.push({id:i+1,term:wEl?wEl.innerText.trim():'',definition:dEl?dEl.innerText.trim():'',image:(imEl&&imEl.src&&imEl.src.indexOf('quizlet.com')!==-1)?imEl.src:''});}});}if(c.length===0){alert('⚠️ Không tìm thấy thẻ! Hãy mở đúng trang bộ thẻ Quizlet.');return;}var payload={id:'quizlet_'+Date.now(),title:t||'Bộ thẻ Quizlet',numTerms:c.length,cards:c};var str=encodeURIComponent(JSON.stringify(payload));window.open('https://quizlet-pro-eight.vercel.app/#data='+str,'_blank');}catch(err){alert('Lỗi xuất thẻ: '+err.message);}})();"
+              <a href="#" data-quizlet-export
                 id="bookmarklet-link"
                 style="display: inline-block; background: #8b5cf6; color: white; padding: 10px 20px; border-radius: 20px; font-weight: 700; text-decoration: none; cursor: move; box-shadow: 0 4px 14px rgba(139,92,246,0.35); font-size: 14px;"
                 title="Kéo nút này thả vào thanh Dấu trang (Bookmarks bar)">
@@ -3964,7 +3848,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       <img id="lightbox-img" class="lightbox-img" src="" alt="Ảnh phóng to" />
     </div>
 
+    <script src="js/study-utils.js"></script>
     <script src="js/database.js"></script>
+    <script src="js/session.js"></script>
     <script>
       // GLOBAL STATE
       let currentSet = null;
@@ -3992,6 +3878,10 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       let settings = loadSavedSettings();
+      let setLoading = false;
+      let pendingAnswer = null;
+      let preAnswerProgress = null;
+      let studyPhase = 'question';
 
       // HỒ SƠ NGƯỜI HỌC TRÊN THIẾT BỊ NÀY (TIẾN ĐỘ & TÀI KHOẢN HOÀN TOÀN TÁCH BIỆT THEO MÁY)
       function getLearnerName() {
@@ -4030,20 +3920,40 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       let fcFlipped = false;
       let currentRoundOptions = [];
       let currentCorrectChoice = "";
+      let studyGeneration = 0;
+      let setLoadGeneration = 0;
+      const studyTimers = new Set();
+
+      function scheduleStudy(callback, delay) {
+        const generation = studyGeneration;
+        const timer = setTimeout(() => {
+          studyTimers.delete(timer);
+          if (generation === studyGeneration) callback();
+        }, delay);
+        studyTimers.add(timer);
+        return timer;
+      }
+
+      function cancelStudyActivity() {
+        studyGeneration++;
+        studyTimers.forEach(clearTimeout);
+        studyTimers.clear();
+        stopFlashcardAutoplay();
+        if (matchState.timerInterval) clearInterval(matchState.timerInterval);
+        matchState.timerInterval = null;
+        if (currentTtsAudio) {
+          currentTtsAudio.onended = null;
+          currentTtsAudio.onerror = null;
+          currentTtsAudio.pause();
+          currentTtsAudio = null;
+        }
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        isWaitingNext = false;
+      }
 
       // LƯU PHIÊN HỌC HIỆN TẠI (F5 RELOAD TRẢ VỀ ĐÚNG BỘ THẺ & VỊ TRÍ ĐANG HỌC)
       function saveActiveSession() {
-        if (!currentSet) return;
-        try {
-          const sess = {
-            setId: String(currentSet.id),
-            mode: currentMode || "learn",
-            fcIndex: fcIndex || 0,
-            cardIndex: currentCardIndex || 0,
-            timestamp: Date.now()
-          };
-          localStorage.setItem("qp_active_session", JSON.stringify(sess));
-        } catch (e) { }
+        if (!setLoading && currentSet && window.SessionState) SessionState.save();
       }
 
       function clearActiveSession() {
@@ -4250,8 +4160,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
         let hasFallenBack = false;
         const fallbackToSpeechSynth = () => {
-          if (hasFallenBack) return;
+          if (hasFallenBack || currentTtsAudio !== audio) return;
           hasFallenBack = true;
+          audio.pause();
           currentTtsAudio = null;
           speakWithSpeechSynthesis(clean, detectedLang);
         };
@@ -4267,7 +4178,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         audio.onplay = () => clearTimeout(timeout);
         audio.onended = () => {
           clearTimeout(timeout);
-          currentTtsAudio = null;
+          if (currentTtsAudio === audio) currentTtsAudio = null;
         };
 
         audio.src = googleUrl;
@@ -4311,13 +4222,13 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       function speakCurrentFlashcard() {
-        const activePool = settings.starredOnly ? cardsState.filter(c => c.starred) : cardsState;
+        const activePool = getActiveFlashcardsPool();
         const card = activePool[fcIndex];
         if (card && card.term) speakText(card.term);
       }
 
       function speakCardById(cardId) {
-        const card = cardsState.find(c => c.id === cardId);
+        const card = cardsState.find(c => String(c.id) === String(cardId));
         if (card && card.term) speakText(card.term);
       }
 
@@ -4327,18 +4238,10 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       function toggleCurrentFlashcardStar() {
-        const activePool = settings.starredOnly ? cardsState.filter(c => c.starred) : cardsState;
+        const activePool = getActiveFlashcardsPool();
         const card = activePool[fcIndex];
         if (card) {
           toggleStar(card.id);
-          const btn = document.getElementById("fc-star-btn");
-          if (btn) {
-            btn.innerHTML = card.starred ? "★" : "☆";
-            btn.style.color = card.starred ? "#f59e0b" : "";
-            btn.style.borderColor = card.starred ? "#f59e0b" : "";
-            btn.classList.toggle("starred", card.starred);
-            btn.classList.toggle("active", card.starred);
-          }
         }
       }
 
@@ -4349,13 +4252,21 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           return raw ? JSON.parse(raw) : [];
         } catch (e) { return []; }
       }
-      async function saveCustomSet(setObj) {
+      async function saveCustomSet(setObj, { base = null } = {}) {
+        Object.assign(setObj, StudyUtils.requireCompleteCards(StudyUtils.normalizeSet(setObj)));
         setObj.isCustom = true;
-        if (!setObj.cards) setObj.cards = [];
-        setObj.numTerms = setObj.cards.length;
+        const previous = await Database.getSetById(setObj.id);
+        const account = window.CloudDB?.accountId || null;
+        setObj.cloudAccount = account || previous?.cloudAccount || null;
+        const origin = base || previous;
+        setObj.cloudRevision = origin?.cloudAccount === setObj.cloudAccount ? origin?.cloudRevision || null : null;
+        setObj.dirty = true;
+        setObj.localRevision = crypto.randomUUID();
+        setObj.updatedAt = Date.now();
 
         // Save locally first
         await window.Database.saveSet(setObj);
+        localStorage.setItem('qp_deleted_set_ids', JSON.stringify(getDeletedSetIds().filter(id => id !== setObj.id)));
 
         try {
           const sets = getStoredCustomSets().filter(s => String(s.id) !== String(setObj.id));
@@ -4364,9 +4275,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         } catch (e) { }
 
         // Sync to Cloud if Firebase is ready
-        if (window.CloudDB && window.FirebaseDB) {
-          await window.CloudDB.saveSet(setObj);
-        }
+        if (window.syncCloudSets) syncCloudSets();
       }
 
       async function migrateLocalStorageToIndexedDB() {
@@ -4374,7 +4283,13 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         const oldSets = getStoredCustomSets();
         if (oldSets && oldSets.length > 0) {
           for (const set of oldSets) {
-            await saveCustomSet(set);
+            if (getDeletedSetIds().includes(String(set.id))) continue;
+            try {
+              await Database.saveSet(set, { preserveTimestamp: true });
+            } catch (error) {
+              console.warn("Giữ lại dữ liệu cũ không hợp lệ trong bản dự phòng:", error);
+              continue;
+            }
             // Also migrate progress if exists
             try {
               const progRaw = localStorage.getItem(`qp_progress_${set.id}`);
@@ -4382,9 +4297,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
                 const map = JSON.parse(progRaw);
                 for (const [cardId, p] of Object.entries(map)) {
                   let box = 0;
-                  if (p.mastery === 1) box = 1;
+                  if (p.mastery === 1) box = 2;
                   if (p.mastery === 2) box = 3;
-                  await window.Database.updateCardProgress(set.id, cardId, p.mastery > 0, p.starred);
+                  await window.Database.setCardBox(set.id, cardId, p.box ?? box, p.isStarred ?? !!p.starred);
                 }
               }
             } catch (e) { }
@@ -4401,11 +4316,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       function closeAllModals() {
-        const modals = ["settings-modal", "list-modal", "manual-modal", "cloud-guide-modal", "lightbox-modal"];
-        modals.forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.style.display = "none";
-        });
+        document.querySelectorAll('.modal-overlay').forEach(el => el.style.display = 'none');
       }
 
       // 1-CLICK CLIPBOARD IMPORT (QUIZLET EXPORT & BOOKMARKLET PARSER)
@@ -4425,7 +4336,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
             alert("Bộ nhớ tạm đang trống hoặc chưa cấp quyền. Hãy sao chép nội dung rồi nhấn dán (Cmd+V hoặc Ctrl+V) vào ô bên dưới nhé!");
             return;
           }
-          parseAndImportText(text);
+          await parseAndImportText(text);
         } catch (err) {
           console.warn("Clipboard read error:", err);
           toggleManualModal();
@@ -4447,32 +4358,24 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
               closeAllModals();
               await loadSetsList(obj.id);
               showToast(`🎉 Đã nhập thành công: "${obj.title}" (${obj.cards.length} thuật ngữ & ảnh)!`, 4000);
-              return;
+                return true;
             }
-          } catch (e) { }
+            throw new Error('JSON phải chứa một danh sách cards không rỗng.');
+          } catch (e) {
+            showToast(`Không thể nhập bộ thẻ: ${e.message}`);
+            return false;
+          }
         }
 
-        // 2. Parse text from Quizlet Export (Tab, 2+ spaces, " - ", " – ", "=", ":")
-        const lines = text.split("\n");
-        const cards = [];
-        lines.forEach((line, idx) => {
-          const l = line.trim();
-          if (!l) return;
-          // Phân cách bằng Tab, 2+ khoảng trắng, gạch nối, dấu bằng hoặc dấu hai chấm
-          let parts = l.split(/\t|\s{2,}| - | – | = |:\s+/);
-          if (parts.length >= 2) {
-            cards.push({ id: Date.now() + idx, term: parts[0].trim(), definition: parts.slice(1).join(" - ").trim(), image: "" });
-          } else if (l.includes(",")) {
-            let cparts = l.split(",");
-            if (cparts.length >= 2) {
-              cards.push({ id: Date.now() + idx, term: cparts[0].trim(), definition: cparts.slice(1).join(", ").trim(), image: "" });
-            }
-          }
-        });
+        const { cards, invalidLines } = StudyUtils.parseText(text);
+        if (invalidLines.length) {
+          showToast(`Chưa nhập: dòng ${invalidLines.join(', ')} thiếu thuật ngữ/định nghĩa hoặc dấu phân cách. Hãy sửa rồi nhập lại.`, 8000);
+          return false;
+        }
 
         if (cards.length === 0) {
           alert("Không nhận diện được danh sách thẻ học. Vui lòng kiểm tra lại nội dung dán!");
-          return;
+          return false;
         }
 
         let title = defaultTitle;
@@ -4492,6 +4395,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         closeAllModals();
         await loadSetsList(newSet.id);
         showToast(`🎉 Đã tạo thành công: "${title}" (${cards.length} thuật ngữ)!`, 4000);
+        return true;
       }
 
       // CHECK HASH IMPORT FROM BOOKMARKLET
@@ -4515,7 +4419,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       // XUẤT BỘ THẺ (TẢI FILE JSON & COPY TEXT ĐỂ CHIA SẺ VỚI BẠN BÈ)
-      function exportCurrentSet() {
+      async function exportCurrentSet() {
         if (!currentSet) return;
         const exportObj = {
           id: currentSet.id,
@@ -4545,11 +4449,12 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         } catch (e) { }
 
         // 2. Đồng thời copy JSON vào clipboard để dán chia sẻ qua tin nhắn
+        let copied = false;
         try {
-          navigator.clipboard.writeText(jsonStr);
+          await navigator.clipboard.writeText(jsonStr);
+          copied = true;
         } catch (e) { }
-
-        showToast(`📁 Đã tải file "${currentSet.title}.json" và sao chép mã! Bạn có thể gửi file này cho bạn bè dán vào học ngay.`, 4000);
+        showToast(`📁 Đã xuất "${currentSet.title}".json${copied ? ' và sao chép mã' : ''}. Có thể nhập lại bằng nút Chọn file JSON.`, 4000);
       }
 
       // QUẢN LÝ DANH SÁCH BỘ THẺ ĐÃ BỊ XÓA (Vĩnh viễn không hiển thị lại)
@@ -4576,7 +4481,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         if (!setId) return;
         const idStr = String(setId);
         const setDisplayName = title || (currentSet && currentSet.title) || "bộ thẻ này";
-        if (!confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn bộ thẻ "${setDisplayName}" không?`)) {
+        if (!confirm(`Xóa bộ thẻ "${setDisplayName}" khỏi thiết bị này? Bản cloud và thiết bị khác được giữ lại.`)) {
           return;
         }
 
@@ -4590,7 +4495,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
         const select = document.getElementById("set-select");
         if (select) {
-          const opt = select.querySelector(`option[value="${idStr}"]`);
+          const opt = [...select.options].find(option => option.value === idStr);
           if (opt) opt.remove();
         }
 
@@ -4600,21 +4505,15 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           showDashboard();
         }
 
-        showToast(`🗑️ Đã xóa vĩnh viễn bộ thẻ "${setDisplayName}"!`, 2500);
+        showToast(`🗑️ Đã xóa "${setDisplayName}" khỏi thiết bị này. Có thể nhập lại file JSON để khôi phục.`, 4000);
 
         // 2. CHẠY NGẦM DỌN DẸP BỘ NHỚ (IndexedDB, CloudDB, localStorage)
         try {
           if (window.Database && window.Database.deleteSet) {
-            window.Database.deleteSet(idStr);
-            if (!isNaN(idStr)) window.Database.deleteSet(Number(idStr));
+            await window.Database.deleteSet(idStr);
+            if (!isNaN(idStr)) await window.Database.deleteSet(Number(idStr));
           }
         } catch (e) { console.warn("Lỗi xóa IndexedDB:", e); }
-
-        try {
-          if (window.CloudDB && window.FirebaseDB) {
-            window.CloudDB.deleteSet(idStr);
-          }
-        } catch (e) { console.warn("Lỗi xóa CloudDB:", e); }
 
         try {
           const sets = getStoredCustomSets().filter(s => String(s.id) !== idStr);
@@ -4663,18 +4562,16 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           return;
         }
         try {
-          if (window.Database && window.Database.clearProgress) {
-            await window.Database.clearProgress(currentSet.id);
-          }
-          localStorage.removeItem(getStorageKey(currentSet.id));
-
           if (cardsState) {
             cardsState.forEach(c => {
               c.mastery = 0;
               c.incorrectCount = 0;
+              c.nextReview = 0;
+              c.interval = 0;
             });
           }
-
+          await saveProgressToStorage();
+          clearActiveSession();
           updateProgressUI();
           startModeView();
           showToast("🔄 Đã đặt lại toàn bộ tiến độ! Học lại từ đầu.", 3000);
@@ -4695,163 +4592,83 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         { id: "927731825", title: "READING PART 5 6 TEST 8", numTerms: 44 },
         { id: "927731839", title: "READING PART 5 6 TEST 9", numTerms: 51 },
         { id: "927731856", title: "READING PART 5 TEST 10", numTerms: 40 },
-        { id: "1024619363", title: "READING - PART 7 - TEST 1", numTerms: 200 },
-        { id: "1007017985", title: "READING PART 7 - TEST 02", numTerms: 200 },
+        { id: "1024619363", title: "READING - PART 7 - TEST 1", numTerms: 100 },
+        { id: "1007017985", title: "READING PART 7 - TEST 02", numTerms: 100 },
         { id: "1008990116", title: "READING PART 7 - TEST 3", numTerms: 96 },
-        { id: "1010710706", title: "READING PART 7 - TEST 4", numTerms: 200 },
-        { id: "1012039369", title: "READING PART 7 - TEST 5", numTerms: 200 },
-        { id: "1013575766", title: "READING PART 7 - TEST 06", numTerms: 300 },
-        { id: "1015913274", title: "READING PART 7 - TEST 07", numTerms: 300 },
-        { id: "1020661698", title: "READING PART 7 - TEST 08", numTerms: 200 },
-        { id: "1022004296", title: "READING PART 7 - TEST 9", numTerms: 300 },
-        { id: "1023641138", title: "READING PART 7 - TEST 10", numTerms: 200 }
+        { id: "1010710706", title: "READING PART 7 - TEST 4", numTerms: 100 },
+        { id: "1012039369", title: "READING PART 7 - TEST 5", numTerms: 100 },
+        { id: "1013575766", title: "READING PART 7 - TEST 06", numTerms: 100 },
+        { id: "1015913274", title: "READING PART 7 - TEST 07", numTerms: 100 },
+        { id: "1020661698", title: "READING PART 7 - TEST 08", numTerms: 100 },
+        { id: "1022004296", title: "READING PART 7 - TEST 9", numTerms: 100 },
+        { id: "1023641138", title: "READING PART 7 - TEST 10", numTerms: 100 }
       ];
 
       // LOAD SETS LIST (SIÊU TỐC: RENDER 0MS TỪ BỘ NHỚ -> ĐỒNG BỘ NỀN)
-      async function loadSetsList(selectedId = null) {
-        window.loadSetsList = loadSetsList;
-        const select = document.getElementById("set-select");
-        select.innerHTML = "";
-
-        const deletedIds = new Set(getDeletedSetIds());
-
-        // 1. Danh sách đề mẫu mặc định
-        const staticSets = STATIC_SETS_FALLBACK
-          .filter(s => !deletedIds.has(String(s.id)))
-          .map(s => ({ ...s }));
-
-        // Map lưu trữ bộ thẻ do người dùng tạo (Ưu tiên bộ mới nhất lên đầu tiên)
-        const customSetsMap = new Map();
-        let allSets = [...staticSets];
-
-        const rebuildAllSets = () => {
-          // Sắp xếp các bộ thẻ tự tạo: Bộ nào tạo sau / cập nhật sau thì lên đầu bảng
-          const sortedCustom = Array.from(customSetsMap.values()).reverse();
-          allSets = [...sortedCustom, ...staticSets];
-        };
-
-        // 2. Custom sets from Local DB (IndexedDB - Siêu nhanh 5ms)
-        let dbSets = [];
-        try {
-          if (window.Database && typeof window.Database.getAllSets === "function") {
-            const rawSets = (await window.Database.getAllSets()) || [];
-            dbSets = rawSets.filter(s => !deletedIds.has(String(s.id)));
-          }
-        } catch (e) {
-          console.warn("Lỗi đọc Local DB:", e);
+      let listGeneration = 0;
+      async function loadSetsList(selectedId = null, { skipCloud = false, resume = null } = {}) {
+        const generation = ++listGeneration;
+        const sets = new Map(STATIC_SETS_FALLBACK.map(s => [String(s.id), { ...s }]));
+        let local = [];
+        try { local = await Database.getAllSets(); }
+        catch (error) {
+          local = getStoredCustomSets();
+          showToast('Không đọc được IndexedDB; đang dùng bản dự phòng trên máy.');
         }
-
-        const mergeCustomSets = (setsToMerge) => {
-          (setsToMerge || [])
-            .filter(s => !deletedIds.has(String(s.id)))
-            .forEach(s => {
-              customSetsMap.set(String(s.id), {
-                id: s.id,
-                title: s.title,
-                numTerms: s.cards ? s.cards.length : (s.numTerms || 0),
-                isCustom: true
-              });
-            });
-          rebuildAllSets();
-        };
-
-        mergeCustomSets(dbSets);
-
-        // 3. If local backend exists, query it too
-        if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+        for (const raw of local) {
           try {
-            const res = await fetch("/api/sets");
-            if (res.ok) {
-              const data = await res.json();
-              if (data && Array.isArray(data.sets)) {
-                data.sets.forEach(s => {
-                  if (!allSets.some(item => String(item.id) === String(s.id))) {
-                    allSets.push(s);
-                  }
-                });
-              }
-            }
-          } catch (e) { }
-        }
-
-        // HÀM RENDER GIAO DIỆN TỨC THÌ
-        const renderSetsUI = () => {
-          const prevVal = select.value;
-          select.innerHTML = "";
-          allSets.forEach(s => {
-            const opt = document.createElement("option");
-            opt.value = s.id;
-            opt.textContent = `${s.title} (${s.numTerms} thẻ)`;
-            select.appendChild(opt);
-          });
-
-          renderDashboard(allSets);
-
-          if (selectedId) {
-            select.value = selectedId;
-            updateDeleteButtonVisibility();
-            loadSetData(select.value);
-            document.getElementById('dashboard-view').style.display = 'none';
-            document.getElementById('study-view').style.display = 'flex';
-          } else {
-            if (prevVal && allSets.some(item => String(item.id) === String(prevVal))) {
-              select.value = prevVal;
-            } else if (allSets.length > 0) {
-              select.value = allSets[0].id;
-            }
-            updateDeleteButtonVisibility();
-            if (document.getElementById('study-view').style.display !== 'flex') {
-              showDashboard();
-            }
+            const set = StudyUtils.normalizeSet(raw);
+            sets.set(set.id, { ...set, numTerms: set.cards.length, isCustom: set.isCustom !== false });
+          } catch (error) {
+            sets.set(String(raw.id), { id: String(raw.id), title: String(raw.title || 'Bộ thẻ cần sửa'),
+              numTerms: 0, invalid: true, error: error.message, isCustom: true });
           }
+        }
+        if (generation !== listGeneration) return;
+        const render = () => {
+          const deleted = new Set(getDeletedSetIds());
+          const all = [...sets.values()].filter(s => !deleted.has(String(s.id)))
+            .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+          const select = document.getElementById('set-select');
+          const prev = selectedId || select.value || currentSet?.id;
+          select.replaceChildren(...all.map(set => {
+            const option = document.createElement('option');
+            option.value = set.id;
+            option.textContent = `${set.title} (${set.invalid ? 'Cần sửa' : set.numTerms + ' thẻ'})`;
+            return option;
+          }));
+          if (all.some(set => String(set.id) === String(prev))) select.value = prev;
+          renderDashboard(all);
+          updateDeleteButtonVisibility();
         };
-
-        // RENDER TỨC THÌ TRONG 10MS TỪ BỘ NHỚ CỤC BỘ (Không phải chờ mạng)
-        renderSetsUI();
-
-        // 4. ĐỒNG BỘ CLOUD DATABASE BẤT ĐỒNG BỘ CHẠY NGẦM (Không bao giờ làm nghẽn trang)
-        if (window.CloudDB && window.FirebaseDB) {
+        render();
+        if (selectedId && !getDeletedSetIds().includes(String(selectedId))) {
+          document.getElementById('dashboard-view').style.display = 'none';
+          document.getElementById('create-set-view').style.display = 'none';
+          document.getElementById('study-view').style.display = 'flex';
+          document.getElementById('set-select').value = selectedId;
+          await loadSetData(selectedId, resume);
+        }
+        // Refresh the catalog in the background; never block the first render.
+        if (!skipCloud) {
           (async () => {
             try {
-              // Timeout 12s cho mạng di động 4G / Wi-Fi tải toàn bộ dữ liệu Cloud
-              const fetchCloudWithTimeout = new Promise((resolve) => {
-                const timer = setTimeout(() => resolve([]), 12000);
-                window.CloudDB.getAllSets().then(res => {
-                  clearTimeout(timer);
-                  resolve(res || []);
-                }).catch(() => {
-                  clearTimeout(timer);
-                  resolve([]);
-                });
-              });
-
-              const rawCloudSets = await fetchCloudWithTimeout;
-              const cloudSets = rawCloudSets.filter(cs => !deletedIds.has(String(cs.id)));
-              let hasNewCloudSets = false;
-
-              cloudSets.forEach(cs => {
-                if (!dbSets.some(ls => String(ls.id) === String(cs.id))) {
-                  dbSets.push(cs);
-                  window.Database.saveSet(cs);
-                  hasNewCloudSets = true;
-                }
-              });
-
-              if (hasNewCloudSets) {
-                mergeCustomSets(cloudSets);
-                renderSetsUI();
-              }
-
-              // Auto-sync ngầm: Đẩy bộ thẻ local còn thiếu lên Cloud
-              for (const ls of dbSets) {
-                if (ls.isCustom && !cloudSets.some(cs => String(cs.id) === String(ls.id))) {
-                  await window.CloudDB.saveSet(ls);
+              const localServer = ['localhost', '127.0.0.1'].includes(location.hostname);
+              const response = await fetch(localServer ? '/api/sets' : '/data/sets.json',
+                { signal: AbortSignal.timeout(5000) });
+              if (!response.ok) return;
+              const data = await response.json();
+              const catalog = Array.isArray(data) ? data : data.sets;
+              if (generation !== listGeneration || !Array.isArray(catalog)) return;
+              for (const set of catalog) {
+                if (!local.some(s => String(s.id) === String(set.id))) {
+                  sets.set(String(set.id), { ...set, numTerms: Number(set.numTerms) || 0 });
                 }
               }
-            } catch (e) {
-              console.warn("Cloud sync ngầm gặp lỗi (đã tự bỏ qua):", e);
-            }
+              render();
+            } catch (error) { /* The bundled catalog remains usable offline. */ }
           })();
+          if (window.syncCloudSets) syncCloudSets();
         }
       }
 
@@ -4861,14 +4678,25 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         const btnEdit = document.getElementById("btn-edit-set");
         const btnReset = document.getElementById("btn-reset-prog");
 
-        if (btnDel) btnDel.style.display = "inline-flex";
-        if (btnExport) btnExport.style.display = "inline-flex";
-        if (btnEdit) btnEdit.style.display = "inline-flex";
-        if (btnReset) btnReset.style.display = "inline-flex";
+        [btnDel, btnExport, btnEdit, btnReset].forEach(button => {
+          if (!button) return;
+          button.style.display = "inline-flex";
+          button.disabled = setLoading || !currentSet;
+        });
       }
 
       // LOAD SPECIFIC SET (DIRECT STATIC CDN & LOCALSTORAGE)
-      async function loadSetData(setId) {
+      async function loadSetData(setId, resume = null) {
+        const requestId = ++setLoadGeneration;
+        cancelStudyActivity();
+        setLoading = true;
+        currentSet = null;
+        cardsState = [];
+        currentRoundQueue = [];
+        updateDeleteButtonVisibility();
+        updateProgressUI();
+        document.getElementById('set-terms-overview').replaceChildren();
+        document.getElementById('app').innerHTML = '<div class="summary-box" role="status">Đang tải học phần…</div>';
         try {
           let setObj = null;
 
@@ -4890,53 +4718,70 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           if (!setObj) {
             // 2. Load static json from Vercel Edge CDN
             try {
-              const res = await fetch(`/data/sets/${setId}.json`);
+              const res = await fetch(`/data/sets/${encodeURIComponent(setId)}.json`, { signal: AbortSignal.timeout(10000) });
               if (res.ok) setObj = await res.json();
             } catch (e) { }
 
             // 3. Try local backend
             if (!setObj && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
               try {
-                const res = await fetch(`/api/sets/${setId}`);
+                const res = await fetch(`/api/sets/${encodeURIComponent(setId)}`, { signal: AbortSignal.timeout(10000) });
                 if (res.ok) setObj = await res.json();
               } catch (e) { }
             }
           }
 
           if (!setObj) {
-            console.error("Không thể tải bộ thẻ:", setId);
-            return;
+            throw new Error("Không tìm thấy bộ thẻ hoặc kết nối bị gián đoạn.");
           }
 
+          const sourceCount = setObj.cards?.length || 0;
+          setObj = StudyUtils.normalizeSet(setObj);
+          setObj.duplicateCount = sourceCount - setObj.cards.length;
+          const savedProgress = await loadProgressFromStorage(setId);
+          if (requestId !== setLoadGeneration) return;
           currentSet = setObj;
+          setLoading = false;
+          window._shuffledPool = null;
           updateDeleteButtonVisibility();
           const totalCount = setObj.cards ? setObj.cards.length : (setObj.numTerms || 0);
           document.getElementById("list-modal-title").innerText = `📋 ${setObj.title} (${totalCount} thẻ)`;
 
-          const savedProgress = await loadProgressFromStorage(setId);
           cardsState = (setObj.cards || []).map((c, idx) => {
-            const sv = savedProgress[c.id || idx] || {};
+            const sv = savedProgress[c.id ?? idx] || {};
             let m = 0;
             if (sv.box === 3) m = 2; // Đã thuộc (Mastered)
             else if (sv.box === 1 || sv.box === 2) m = 1; // Đang học (Learning)
             else m = 0; // Chưa học (Unseen)
 
             return {
-              id: c.id || idx,
+              id: c.id ?? idx,
               term: c.term || "",
               definition: c.definition || "",
               image: c.image || "",
               mastery: m,
               starred: !!sv.isStarred,
-              incorrectCount: 0
+              incorrectCount: sv.incorrectCount || 0,
+              nextReview: sv.nextReview ?? (m === 2 ? Date.now() + 86400000 : 0),
+              interval: sv.interval || 0
             };
           });
 
           updateProgressUI();
-          startModeView();
+          if (!resume || !SessionState.restore(resume)) startModeView();
+          else renderSetTermsOverview();
           saveActiveSession();
         } catch (e) {
           console.error("Lỗi trong loadSetData:", e);
+          if (requestId !== setLoadGeneration) return;
+          setLoading = false;
+          currentSet = null;
+          updateDeleteButtonVisibility();
+          document.getElementById('app').innerHTML = `<div class="summary-box" role="alert">
+            <h2>Không thể mở học phần</h2><p>${escapeHtml(e.message)}</p>
+            <button class="btn-primary" data-set-id="${escapeHtml(setId)}" onclick="loadSetData(this.dataset.setId)">Thử lại</button>
+            <button class="btn-cancel" onclick="showDashboard()">Về thư viện</button></div>`;
+          showToast(`Không thể tải học phần: ${e.message}`);
         }
       }
 
@@ -4957,7 +4802,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       // STORAGE HELPERS (DELEGATED TO DB & LOCALSTORAGE BACKUP)
       function getStorageKey(setId) { return `qp_progress_${setId}`; }
       async function loadProgressFromStorage(setId) {
-        let map = {};
+        let map = Object.create(null);
         try {
           if (window.Database && window.Database.getProgress) {
             const progs = await window.Database.getProgress(setId);
@@ -4965,31 +4810,38 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           }
         } catch (e) { console.warn("Lỗi đọc progress:", e); }
 
-        if (Object.keys(map).length === 0) {
-          try {
-            const raw = localStorage.getItem(getStorageKey(setId));
-            if (raw) map = JSON.parse(raw);
-          } catch (e) { }
-        }
+        try {
+          const backup = JSON.parse(localStorage.getItem(getStorageKey(setId)) || '{}');
+          for (const [id, progress] of Object.entries(backup || {})) {
+            if (!map[id] || (progress.updatedAt || 0) > (map[id].updatedAt || 0)) map[id] = progress;
+          }
+        } catch (e) { }
+        Object.values(map).forEach(progress => {
+          if (progress.box === undefined) {
+            progress.box = progress.mastery === 2 ? 3 : progress.mastery === 1 ? 2 : 0;
+            progress.isStarred = !!progress.starred;
+          }
+        });
         return map;
       }
 
       function saveProgressToStorage() {
         if (!currentSet || !cardsState) return;
-        const backupMap = {};
+        const backupMap = Object.create(null);
+        const updatedAt = Date.now();
         cardsState.forEach(c => {
           let box = 0; // 0: Chưa học
           if (c.mastery === 1) box = 2; // Đang học
           if (c.mastery === 2) box = 3; // Đã thuộc
-          backupMap[c.id] = { box: box, isStarred: !!c.starred, cardId: c.id, setId: currentSet.id };
-          if (window.Database && window.Database.setCardBox) {
-            window.Database.setCardBox(currentSet.id, c.id, box, c.starred);
-          }
+          backupMap[c.id] = { box: box, isStarred: !!c.starred, cardId: c.id, setId: currentSet.id,
+            nextReview: c.nextReview || 0, interval: c.interval || 0, incorrectCount: c.incorrectCount || 0, updatedAt };
         });
         try {
           localStorage.setItem(getStorageKey(currentSet.id), JSON.stringify(backupMap));
         } catch (e) { }
         saveActiveSession();
+        return Database.saveProgress(currentSet.id, Object.values(backupMap))
+          .catch(error => showToast('Tiến độ được giữ trong bản dự phòng; chưa ghi được IndexedDB.'));
       }
 
       // SCRAPE TRIGGER (SMART ONLINE GUIDANCE & LOCAL CHROME SCRAPER)
@@ -5005,6 +4857,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         // On Vercel online: Open guide modal
         const isOnline = window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1";
         if (isOnline) {
+          closeQuickImportModal();
           toggleCloudModal();
           return;
         }
@@ -5028,6 +4881,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
           if (data.status === "ok") {
             urlInput.value = "";
+            closeAllModals();
             await loadSetsList(data.set.id);
             showToast(`🎉 Đã cào thành công: "${data.set.title}" (${data.set.numTerms} từ & ảnh)!`, 4000);
           } else {
@@ -5046,12 +4900,14 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         if (!toast) {
           toast = document.createElement("div");
           toast.id = "toast-msg";
+          toast.setAttribute("role", "status");
           toast.style.cssText = "position: fixed; bottom: 24px; right: 24px; background: var(--card-bg); color: var(--text); border: 2px solid var(--primary); padding: 14px 20px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.25); z-index: 1000; font-weight: 700; font-size: 14px; max-width: 420px; animation: fadeIn 0.3s ease;";
           document.body.appendChild(toast);
         }
         toast.innerText = msg;
         toast.style.display = "block";
-        setTimeout(() => { if (toast) toast.style.display = "none"; }, duration);
+        clearTimeout(window.toastTimer);
+        window.toastTimer = setTimeout(() => { toast.style.display = "none"; }, duration);
       }
 
       // MANUAL IMPORT MODAL SUBMIT
@@ -5060,13 +4916,20 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         const text = document.getElementById("manual-text").value.trim();
         if (!text) { alert("Vui lòng dán nội dung thẻ học!"); return; }
 
-        await parseAndImportText(text, title);
-        document.getElementById("manual-title").value = "";
-        document.getElementById("manual-text").value = "";
+        if (await parseAndImportText(text, title)) {
+          document.getElementById("manual-title").value = "";
+          document.getElementById("manual-text").value = "";
+        }
       }
 
       // MODE SWITCHING
       function switchMode(mode) {
+        if (!currentSet || setLoading) return;
+        cancelStudyActivity();
+        document.getElementById('dashboard-view').style.display = 'none';
+        document.getElementById('create-set-view').style.display = 'none';
+        document.getElementById('study-view').style.display = 'flex';
+        syncMobileNav(mode === 'flashcards' ? 'flashcards' : 'study');
         window.scrollTo({ top: 0, behavior: 'instant' });
         if (typeof stopFlashcardAutoplay === 'function') {
           stopFlashcardAutoplay();
@@ -5090,6 +4953,10 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       function startModeView() {
+        cancelStudyActivity();
+        pendingAnswer = null;
+        studyPhase = 'question';
+        if (!currentSet || setLoading) return;
         if (currentMode === "learn" || currentMode === "write" || currentMode === "choice") {
           prepareNextRound();
         } else if (currentMode === "flashcards") {
@@ -5125,20 +4992,37 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       // PREPARE NEXT ROUND (FOR LEARN, WRITE, CHOICE)
-      function prepareNextRound() {
-        const activePool = settings.starredOnly ? cardsState.filter(c => c.starred) : cardsState;
-        let candidates = activePool.filter(c => c.mastery < 2);
+      function getStudyPool() {
+        return (settings.starredOnly ? cardsState.filter(c => c.starred) : cardsState)
+          .filter(c => c.term.trim() && c.definition.trim());
+      }
+
+      function prepareNextRound(reviewEarly = false) {
+        const activePool = getStudyPool();
+        let candidates = currentMode === 'learn' && !reviewEarly
+          ? StudyUtils.reviewQueue(activePool)
+          : activePool.filter(c => reviewEarly || c.mastery < 2);
 
         if (candidates.length === 0 && activePool.length > 0) {
-          renderAllMasteredView();
+          if (currentMode === 'learn') {
+            const next = Math.min(...activePool.map(c => c.nextReview || Date.now()));
+            studyPhase = 'waiting';
+            document.getElementById('app').innerHTML = `<div class="summary-box">
+              <h2>Đã xong các thẻ đến hạn!</h2>
+              <p>Lần ôn tiếp theo: ${escapeHtml(new Date(next).toLocaleString('vi-VN'))}</p>
+              <button class="btn-primary" onclick="prepareNextRound(true)">Ôn sớm ngay bây giờ</button>
+              <button class="btn-cancel" onclick="switchMode('flashcards')">Xem thẻ nhớ</button></div>`;
+            saveActiveSession();
+          } else renderAllMasteredView();
           return;
         }
         if (activePool.length === 0) {
           document.getElementById("app").innerHTML = `
           <div class="summary-box">
             <div style="font-size: 48px; margin-bottom: 12px;">★</div>
-            <div class="summary-title">Chưa có thẻ nào được gắn sao</div>
-            <div class="summary-subtitle">Hãy bấm biểu tượng ngôi sao trên các thẻ bạn muốn học riêng, hoặc tắt tùy chọn "Chỉ học thẻ gắn sao" trong cài đặt.</div>
+            <div class="summary-title">Không có thẻ đủ hai mặt để học</div>
+            <div class="summary-subtitle">Sửa các thẻ thiếu nội dung hoặc tắt bộ lọc gắn sao trong cài đặt.</div>
+            <button class="btn-primary" onclick="openEditCurrentSet()">Sửa học phần</button>
           </div>
         `;
           return;
@@ -5155,14 +5039,24 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
       // RENDER QUESTION CARD
       function renderCurrentCard() {
+        studyGeneration++;
+        studyTimers.forEach(clearTimeout);
+        studyTimers.clear();
         window.scrollTo({ top: 0, behavior: 'instant' });
         isWaitingNext = false;
+        studyPhase = 'question';
+        pendingAnswer = null;
+        preAnswerProgress = null;
         if (currentCardIndex >= currentRoundQueue.length) {
+          studyPhase = 'summary';
           renderRoundSummaryView();
+          saveActiveSession();
           return;
         }
 
         const card = currentRoundQueue[currentCardIndex];
+        preAnswerProgress = { mastery: card.mastery, nextReview: card.nextReview,
+          interval: card.interval, incorrectCount: card.incorrectCount };
         const app = document.getElementById("app");
 
         const isPromptTerm = settings.answerWith === "definition";
@@ -5193,10 +5087,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
         let bottomHtml = "";
         if (qType === "choice") {
-          const pool = cardsState.filter(c => c.id !== card.id);
-          const shuffledPool = [...pool].sort(() => Math.random() - 0.5);
-          const distractors = shuffledPool.slice(0, 3).map(c => isPromptTerm ? c.definition : c.term);
-          const options = [correctChoice, ...distractors].sort(() => Math.random() - 0.5);
+          const options = StudyUtils.choiceOptions(cardsState, correctChoice, isPromptTerm ? 'definition' : 'term');
 
           currentRoundOptions = options;
           currentCorrectChoice = correctChoice;
@@ -5205,7 +5096,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           <div class="options-grid">
             ${options.map((opt, idx) => `
               <button class="option-btn" onclick="handleChoice(${idx})">
-                <span class="opt-key">${idx + 1}</span>
+                <span class="option-key">${idx + 1}</span>
                 <span class="opt-text rich-text-container">${formatRichContent(opt)}</span>
               </button>
             `).join("")}
@@ -5217,7 +5108,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           currentCorrectChoice = correctChoice;
           bottomHtml = `
           <div class="write-area">
-            <input type="text" id="write-user-input" class="write-input-box" placeholder="Nhập câu trả lời chính xác..." autocomplete="off" autofocus />
+            <input type="text" id="write-user-input" class="write-input-box" placeholder="Nhập câu trả lời chính xác..." autocomplete="off" oninput="saveActiveSession()" autofocus />
             <div class="write-action-bar">
               <button class="btn-skip" onclick="handleWriteSkip()">Tôi không biết (Bỏ qua)</button>
               <button class="btn-submit-write" onclick="handleWriteSubmit()">Trả lời (Enter) ↵</button>
@@ -5252,7 +5143,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       `;
 
         if (qType === "write") {
-          setTimeout(() => {
+          scheduleStudy(() => {
             const inp = document.getElementById("write-user-input");
             if (inp) {
               inp.focus();
@@ -5267,11 +5158,12 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         if (settings.autoSound && isPromptTerm) {
           speakCurrentCard();
         }
+        saveActiveSession();
       }
 
       // MULTIPLE CHOICE HANDLER (XANH ĐÚNG, ĐỎ SAI RÕ RÀNG)
       function handleChoice(btnIndex) {
-        if (isWaitingNext) return;
+        if (isWaitingNext || setLoading || !currentRoundQueue[currentCardIndex] || currentRoundOptions[btnIndex] === undefined) return;
         isWaitingNext = true;
 
         const chosen = currentRoundOptions[btnIndex];
@@ -5284,8 +5176,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         if (chosen === correct) {
           playBeep(true);
           if (buttons[btnIndex]) buttons[btnIndex].classList.add("correct");
+          studyPhase = 'advance';
           upgradeCardMastery(card);
-          setTimeout(() => {
+          scheduleStudy(() => {
             currentCardIndex++;
             renderCurrentCard();
           }, 800);
@@ -5296,8 +5189,10 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           buttons.forEach((b, i) => {
             if (currentRoundOptions[i] === correct) b.classList.add("correct");
           });
+          studyPhase = 'feedback';
+          pendingAnswer = { userVal: chosen, correctVal: correct, requireRetype: false };
           demoteCardMastery(card);
-          setTimeout(() => {
+          scheduleStudy(() => {
             renderFeedback(card, chosen, correct, false);
           }, 1100);
         }
@@ -5326,8 +5221,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           playBeep(true);
           inp.style.borderColor = "var(--success)";
           inp.style.backgroundColor = "var(--success-light)";
+          studyPhase = 'advance';
           upgradeCardMastery(card);
-          setTimeout(() => {
+          scheduleStudy(() => {
             currentCardIndex++;
             renderCurrentCard();
           }, 750);
@@ -5335,8 +5231,10 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           playBeep(false);
           inp.style.borderColor = "var(--error)";
           inp.style.backgroundColor = "var(--error-light)";
+          studyPhase = 'feedback';
+          pendingAnswer = { userVal: val, correctVal: correct, requireRetype: true };
           demoteCardMastery(card);
-          setTimeout(() => {
+          scheduleStudy(() => {
             renderFeedback(card, val, correct, true);
           }, 600);
         }
@@ -5349,17 +5247,20 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         if (card) {
           // Bỏ qua hẳn: Đặt lại chưa thuộc nhưng KHÔNG lặp lại thẻ này trong vòng học hiện tại nữa
           card.mastery = 0;
+          card.nextReview = 0;
+          card.interval = 0;
           for (let i = currentRoundQueue.length - 1; i > currentCardIndex; i--) {
             if (currentRoundQueue[i].id === card.id) {
               currentRoundQueue.splice(i, 1);
             }
           }
+          studyPhase = 'advance';
           saveProgressToStorage();
           updateProgressUI();
         }
         playBeep(false);
         showToast(`⏭️ Đã bỏ qua: "${card ? (card.term || card.definition) : ''}"`, 1200);
-        setTimeout(() => {
+        scheduleStudy(() => {
           isWaitingNext = false;
           currentCardIndex++;
           renderCurrentCard();
@@ -5367,60 +5268,28 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       function checkFuzzyMatch(input, target) {
-        if (!input || !target) return false;
-
-        // NFKC chuẩn hóa ký tự full-width sang half-width (Fix lỗi Windows IME gõ ｎ, Ｎ, khoảng trắng toàn giác...)
-        const clean = (s) => (s || "").normalize("NFKC").toLowerCase()
-          .replace(/[\.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")
-          .replace(/\s+/g, " ")
-          .trim();
-
-        const s1 = clean(input);
-        const s2 = clean(target);
-        if (s1 === s2) return true;
-
-        // Chuẩn hóa tiếng Nhật: Ký tự ん <-> n (Romaji / Hiragana)
-        const japNorm = (s) => s.replace(/ん/g, "n").replace(/\s*n$/i, "n").trim();
-        if (japNorm(s1) === japNorm(s2)) return true;
-
-        // Bỏ qua ký hiệu ngữ pháp tiếng Nhật như "ひとつめのn" vs "ひとつめの" (n tượng trưng cho Danh từ / Noun)
-        const stripGrammarPlaceholder = (s) => s.replace(/\s*n$/i, "").trim();
-        if (stripGrammarPlaceholder(s1) && stripGrammarPlaceholder(s1) === stripGrammarPlaceholder(s2)) return true;
-
-        // Kiểm tra từ đồng nghĩa có phân cách bằng =, /, ;, ,
-        if (target.includes("=") || target.includes("/") || target.includes(";") || target.includes(",")) {
-          const parts = target.split(/[=/;,]/).map(p => clean(p));
-          if (parts.some(p => p && (p === s1 || s1.includes(p) || japNorm(p) === japNorm(s1) || stripGrammarPlaceholder(p) === stripGrammarPlaceholder(s1)))) {
-            return true;
-          }
-        }
-        return false;
+        return StudyUtils.answersMatch(input, target);
       }
 
       function upgradeCardMastery(card) {
-        if (card.mastery === 0) card.mastery = 1;
-        else if (card.mastery === 1) card.mastery = 2;
-        if (window.Database && window.Database.setCardBox && currentSet) {
-          const box = card.mastery === 2 ? 3 : 2;
-          window.Database.setCardBox(currentSet.id, card.id, box, card.starred);
-        }
+        Object.assign(card, StudyUtils.gradeCard(card, true));
         saveProgressToStorage();
         updateProgressUI();
       }
 
       function demoteCardMastery(card) {
-        card.mastery = 1;
+        Object.assign(card, StudyUtils.gradeCard(card, false));
         card.incorrectCount = (card.incorrectCount || 0) + 1;
         currentRoundQueue.push(card); // Repeat in this round
-        if (window.Database && window.Database.setCardBox && currentSet) {
-          window.Database.setCardBox(currentSet.id, card.id, 1, card.starred);
-        }
         saveProgressToStorage();
         updateProgressUI();
       }
 
       // FEEDBACK FOR INCORRECT ANSWERS
       function renderFeedback(card, userVal, correctVal, requireRetype) {
+        studyPhase = 'feedback';
+        pendingAnswer = { userVal, correctVal, requireRetype };
+        saveActiveSession();
         const isPromptTerm = settings.answerWith === "definition";
         const promptText = isPromptTerm ? card.term : card.definition;
         const app = document.getElementById("app");
@@ -5468,14 +5337,15 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         isWaitingNext = true;
 
         if (requireRetype) {
-          setTimeout(() => {
+          scheduleStudy(() => {
             const rInp = document.getElementById("retype-input");
             if (rInp) {
               rInp.focus();
               rInp.addEventListener("input", () => {
                 if (checkFuzzyMatch(rInp.value, correctVal)) {
                   rInp.style.borderColor = "var(--success)";
-                  setTimeout(() => nextCardAfterFeedback(false), 400);
+                  rInp.disabled = true;
+                  scheduleStudy(() => nextCardAfterFeedback(false), 400);
                 }
               });
               rInp.addEventListener("keydown", (e) => {
@@ -5488,6 +5358,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       function nextCardAfterFeedback(skipRepeat = false) {
+        if (!document.getElementById("btn-next-wrong")) return;
         if (skipRepeat) {
           const card = currentRoundQueue[currentCardIndex];
           if (card) {
@@ -5505,9 +5376,12 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
       function overrideAsCorrect() {
         const card = currentRoundQueue[currentCardIndex];
+        if (!card || !document.getElementById('btn-next-wrong')) return;
         // remove from queue
         const popIdx = currentRoundQueue.lastIndexOf(card);
         if (popIdx > currentCardIndex) currentRoundQueue.splice(popIdx, 1);
+        if (preAnswerProgress) Object.assign(card, preAnswerProgress);
+        studyPhase = 'advance';
         upgradeCardMastery(card);
         nextCardAfterFeedback();
       }
@@ -5596,8 +5470,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       function getActiveFlashcardsPool() {
         let pool = settings.starredOnly ? cardsState.filter(c => c.starred) : cardsState;
         if (fcIsShuffled) {
-          if (!window._shuffledPool || window._shuffledPool.length !== pool.length) {
-            window._shuffledPool = [...pool].sort(() => Math.random() - 0.5);
+          if (!window._shuffledPool || window._shuffledPool.length !== pool.length ||
+              window._shuffledPool.some(card => !pool.includes(card))) {
+            window._shuffledPool = StudyUtils.shuffle(pool);
           }
           return window._shuffledPool;
         }
@@ -5612,6 +5487,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         fcFlipped = false;
         showToast(fcIsShuffled ? "🔀 Đã bật trộn ngẫu nhiên thẻ" : "↩️ Đã trở về thứ tự thẻ ban đầu", 1500);
         renderFlashcardView();
+        saveActiveSession();
       }
 
       function toggleFlashcardAutoplay() {
@@ -5670,7 +5546,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           <div class="summary-box">
             <div class="summary-title">Không có thẻ nào phù hợp</div>
             <p style="color: var(--text-muted); margin-bottom: 20px;">Bạn đang bật chế độ chỉ học thẻ gắn sao nhưng chưa có thẻ nào được đánh dấu.</p>
-            <button class="btn-primary" onclick="settings.starredOnly=false; applySettings();">Học toàn bộ thẻ</button>
+            <button class="btn-primary" onclick="settings.starredOnly=false; localStorage.setItem('qp_settings',JSON.stringify(settings)); startModeView();">Học toàn bộ thẻ</button>
           </div>`;
           return;
         }
@@ -5696,7 +5572,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
                 </div>
                 <div class="fc-content">
                   <div class="fc-text rich-text-container">${formatRichContent(frontText)}</div>
-                  ${card.image ? `
+                  ${settings.showImages && card.image ? `
                     <div class="fc-image-wrap">
                       <img src="${escapeHtml(card.image)}" alt="Minh họa" />
                     </div>` : ''}
@@ -5773,9 +5649,11 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         fcFlipped = !fcFlipped;
         const el = document.getElementById("fc-inner");
         if (el) el.classList.toggle("flipped", fcFlipped);
+        saveActiveSession();
       }
       function navFc(dir) {
         const activePool = getActiveFlashcardsPool();
+        if (!activePool.length) return;
         fcIndex = (fcIndex + dir + activePool.length) % activePool.length;
         fcFlipped = false;
         renderFlashcardView();
@@ -5784,12 +5662,17 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
       // STAR TOGGLE
       function toggleStar(cardId) {
-        const card = cardsState.find(c => c.id === cardId);
+        const card = cardsState.find(c => String(c.id) === String(cardId));
         if (card) {
           card.starred = !card.starred;
           saveProgressToStorage();
-          const btns = document.querySelectorAll(".star-btn");
-          btns.forEach(btn => btn.classList.toggle("starred", card.starred));
+          if (currentMode === 'flashcards') renderFlashcardView();
+          else {
+            const active = currentRoundQueue[currentCardIndex];
+            const btn = document.querySelector(".card-actions .star-btn");
+            if (btn && active) btn.classList.toggle("starred", active.starred);
+          }
+          updateProgressUI();
         }
       }
 
@@ -5848,7 +5731,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
             </div>
           </div>
           <div class="t-def rich-text-container">${formatRichContent(c.definition)}</div>
-          <button style="background:none;border:none;cursor:pointer;font-size:16px;" onclick="speakCardById(${c.id})">🔊</button>
+          <button style="background:none;border:none;cursor:pointer;font-size:16px;" data-card-id="${escapeHtml(c.id)}" onclick="speakCardById(this.dataset.cardId)">🔊</button>
         </div>
       `).join("");
       }
@@ -5885,22 +5768,14 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           localStorage.setItem("qp_settings", JSON.stringify(settings));
         } catch (e) { }
 
-        toggleSettingsModal();
+        document.getElementById("settings-modal").style.display = "none";
         startModeView();
         showToast("⚙️ Đã lưu cài đặt và hồ sơ học tập!", 2000);
       }
 
-      function resetCurrentSetProgress() {
-        if (!currentSet) return;
-        if (confirm(`Bạn có chắc chắn muốn xóa tiến độ của bộ thẻ "${currentSet.title}"?`)) {
-          cardsState.forEach(c => { c.mastery = 0; c.incorrectCount = 0; });
-          saveProgressToStorage();
-          updateProgressUI();
-          if (document.getElementById("settings-modal").style.display === "flex") {
-            toggleSettingsModal();
-          }
-          startModeView();
-        }
+      async function resetCurrentSetProgress() {
+        document.getElementById('settings-modal').style.display = 'none';
+        await resetSetProgress();
       }
 
       // LIGHTBOX FOR IMAGES
@@ -5958,6 +5833,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         }
 
         if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT" || e.target.isContentEditable) return;
+        if (e.metaKey || e.ctrlKey || e.altKey || e.repeat || e.target.closest('button, a')) return;
+        if (document.getElementById('study-view').style.display === 'none' ||
+            [...document.querySelectorAll('.modal-overlay')].some(m => m.style.display === 'flex')) return;
 
         if (e.key === "s" || e.key === "S") {
           if (currentMode === "flashcards") {
@@ -6075,6 +5953,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
       // CONFETTI EFFECT
       function triggerConfetti() {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         const canvas = document.getElementById("confetti-canvas");
         const ctx = canvas.getContext("2d");
         canvas.width = window.innerWidth;
@@ -6121,43 +6000,25 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       // INIT (KHÔI PHỤC TIẾN ĐỘ & VỊ TRÍ HỌC DỞ KHI F5 / LOAD LẠI TRANG)
-      (async () => {
-        if (window.Database) {
-          await migrateLocalStorageToIndexedDB();
-        }
-        await checkUrlHashImport();
-
-        // 1. Khôi phục phiên học đang dở nếu có (Không bị reset về màn hình trắng hay đoạn lung tung)
-        let resumeSetId = null;
-        let resumeMode = null;
-        let resumeFcIndex = 0;
+      document.addEventListener('DOMContentLoaded', async () => {
         try {
-          const rawSess = localStorage.getItem("qp_active_session");
-          if (rawSess) {
-            const sess = JSON.parse(rawSess);
-            if (sess && sess.setId) {
-              resumeSetId = sess.setId;
-              resumeMode = sess.mode || "learn";
-              resumeFcIndex = sess.fcIndex || 0;
-            }
+          try { await migrateLocalStorageToIndexedDB(); }
+          catch (error) { showToast('Không chuyển được toàn bộ dữ liệu cũ; bản dự phòng được giữ lại.'); }
+          const importing = location.hash.startsWith('#data=');
+          if (importing) await checkUrlHashImport();
+          if (!importing || !currentSet) {
+            const resume = SessionState.read();
+            await loadSetsList(resume?.setId || null, { resume });
           }
-        } catch (e) { }
-
-        await loadSetsList(resumeSetId);
-
-        // 2. Chuyển vào đúng chế độ và vị trí thẻ đang học
-        if (resumeSetId && resumeMode) {
-          currentMode = resumeMode;
-          document.querySelectorAll(".mode-pill").forEach(p => p.classList.remove("active"));
-          const pill = document.getElementById(`mode-${resumeMode}`);
-          if (pill) pill.classList.add("active");
-
-          if (resumeMode === "flashcards" && typeof resumeFcIndex === "number") {
-            fcIndex = resumeFcIndex;
-            renderFlashcardView();
-          }
+          if (window.restoreEditorDraft) restoreEditorDraft();
+          window.appReady = true;
+          if (window.syncCloudSets) syncCloudSets();
+        } catch (error) {
+          document.getElementById('dashboard-view').innerHTML = `<div class="summary-box" role="alert">
+            <h2>Chưa khởi động được ứng dụng</h2><p>${escapeHtml(error.message)}</p>
+            <button class="btn-primary" onclick="location.reload()">Thử lại</button></div>`;
         }
-      })();
+      });
 
 
       // ==========================================
@@ -6168,6 +6029,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       let currentEditingSetId = null;
 
       function showCreateSetView() {
+        if (window.saveEditorDraft) saveEditorDraft();
+        setLoadGeneration++;
+        cancelStudyActivity();
         window.scrollTo({ top: 0, behavior: 'instant' });
         currentEditingSetId = null;
         document.getElementById('dashboard-view').style.display = 'none';
@@ -6190,10 +6054,14 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
         // Add 5 default empty rows
         for (let i = 0; i < 5; i++) addCardRow();
+        if (window.restoreDraftFor) restoreDraftFor('new');
       }
 
       function openEditCurrentSet() {
         if (!currentSet) return;
+        if (window.saveEditorDraft) saveEditorDraft();
+        setLoadGeneration++;
+        cancelStudyActivity();
         window.scrollTo({ top: 0, behavior: 'instant' });
         currentEditingSetId = currentSet.id;
 
@@ -6210,17 +6078,19 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         if (btnBottom) btnBottom.textContent = '💾 Lưu thay đổi';
 
         document.getElementById('create-title').value = currentSet.title || '';
+        document.getElementById('create-desc').value = currentSet.description || '';
         document.getElementById('create-cards-list').innerHTML = '';
         createCardCounter = 0;
 
         const cards = (currentSet.cards && currentSet.cards.length > 0) ? currentSet.cards : (cardsState || []);
         if (cards.length > 0) {
           cards.forEach(c => {
-            addCardRow(c.term || '', c.definition || '');
+            addCardRow(c.term || '', c.definition || '', c);
           });
         } else {
           for (let i = 0; i < 3; i++) addCardRow();
         }
+        if (window.restoreDraftFor) restoreDraftFor(String(currentEditingSetId));
       }
 
 
@@ -6257,7 +6127,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           const def = parts.slice(1).join(termSep).trim();
           if (term || def) {
             parsedImportCards.push({ term, def });
-            html += `<div class="preview-item"><div class="preview-term">${term}</div><div class="preview-def">${def}</div></div>`;
+            html += `<div class="preview-item"><div class="preview-term">${escapeHtml(term)}</div><div class="preview-def">${escapeHtml(def)}</div></div>`;
           }
         });
 
@@ -6279,6 +6149,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         if (row) {
           row.remove();
           reindexCardRows();
+          if (window.saveEditorDraft) saveEditorDraft();
         }
       }
 
@@ -6308,12 +6179,13 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         updateImportPreview();
       }
 
-      function addCardRow(term = '', definition = '') {
+      function addCardRow(term = '', definition = '', original = null) {
         const list = document.getElementById('create-cards-list');
         const count = list.querySelectorAll('.card-row').length + 1;
         createCardCounter = count;
         const div = document.createElement('div');
         div.className = 'card-row';
+        div.originalCard = original;
         div.id = `card-row-${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
         div.innerHTML = `
         <div class="card-row-header">
@@ -6336,6 +6208,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       async function saveCreatedSet() {
+        if (window.savingEditor) return;
         const title = document.getElementById('create-title').value.trim() || 'Học phần không tên';
         const rows = document.querySelectorAll('.card-row');
         const cards = [];
@@ -6344,7 +6217,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           const term = row.querySelector('.term-input').value.trim();
           const def = row.querySelector('.def-input').value.trim();
           if (term || def) {
-            cards.push({ id: Date.now() + idx, term: term, definition: def, image: "" });
+            cards.push({ id: row.originalCard?.id ?? row.dataset.draftId ?? crypto.randomUUID(), term: term, definition: def, image: row.originalCard?.image || "" });
           }
         });
 
@@ -6355,28 +6228,42 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
         const isEdit = !!currentEditingSetId;
         const targetId = isEdit ? currentEditingSetId : ("set_" + Date.now());
+        const draftKey = isEdit ? String(currentEditingSetId) : 'new';
 
         const setObj = {
           id: targetId,
           title: title,
+          description: document.getElementById('create-desc').value.trim(),
           numTerms: cards.length,
           cards: cards,
           isCustom: true
         };
 
-        await window.Database.saveSet(setObj);
-        if (window.CloudDB && window.FirebaseDB) {
-          await window.CloudDB.saveSet(setObj);
+        window.savingEditor = true;
+        document.querySelectorAll('#btn-save-set-top, #btn-save-set-bottom').forEach(b => b.disabled = true);
+        try {
+          await saveCustomSet(setObj, { base: isEdit ? currentSet : null });
+        } catch (error) {
+          showToast(`Không lưu được học phần: ${error.message}`);
+          return;
+        } finally {
+          window.savingEditor = false;
+          document.querySelectorAll('#btn-save-set-top, #btn-save-set-bottom').forEach(b => b.disabled = false);
         }
 
         showToast(`🎉 ${isEdit ? 'Đã cập nhật' : 'Đã tạo'} học phần: "${title}" (${cards.length} thẻ)!`, 4000);
 
         currentEditingSetId = null;
         document.getElementById('create-set-view').style.display = 'none';
+        if (window.clearEditorDraft) clearEditorDraft(draftKey);
         await loadSetsList(targetId);
       }
 
       function showDashboard() {
+        if (window.saveEditorDraft) saveEditorDraft();
+        localStorage.removeItem('qp_active_draft');
+        setLoadGeneration++;
+        cancelStudyActivity();
         window.scrollTo({ top: 0, behavior: 'instant' });
         clearActiveSession();
         if (typeof matchState !== 'undefined' && matchState && matchState.timerInterval) {
@@ -6414,8 +6301,8 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       function renderDashboard(sets) {
-        window.scrollTo({ top: 0, behavior: 'instant' });
-        syncMobileNav('home');
+        window.allDashboardSets = sets || [];
+        if (document.getElementById('dashboard-view').style.display !== 'none') syncMobileNav('home');
         const view = document.getElementById('dashboard-view');
         if (!sets || sets.length === 0) {
           view.innerHTML = `
@@ -6431,6 +6318,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
             </div>
           </div>
         `;
+          if (window.renderDraftBanner) renderDraftBanner();
           return;
         }
 
@@ -6450,32 +6338,32 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         </div>
 
         <div class="hero-jump-card">
-          <div class="hero-jump-left">
+          <div class="hero-jump-left" data-set-id="${escapeHtml(firstSet.id)}">
             <div class="hero-set-badge">HỌC PHẦN GẦN NHẤT</div>
             <h3 class="hero-set-title" title="${escapeHtml(firstSet.title)}">${escapeHtml(displayHeroTitle)}</h3>
             <p class="hero-set-meta">${firstSet.numTerms} thuật ngữ ${firstSet.isCustom ? '· Tạo bởi bạn' : '· Hệ thống'}</p>
             
             <div class="hero-actions">
-              <button class="btn-hero-action primary" onclick="launchSetMode('${firstSet.id}', 'learn')">
+              <button class="btn-hero-action primary" onclick="launchSetMode(this.closest('[data-set-id]').dataset.setId, 'learn')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
                 <span>Học SRS</span>
               </button>
-              <button class="btn-hero-action" onclick="launchSetMode('${firstSet.id}', 'flashcards')">
+              <button class="btn-hero-action" onclick="launchSetMode(this.closest('[data-set-id]').dataset.setId, 'flashcards')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="15" height="15" rx="3"/><path d="M7 3h11a3 3 0 0 1 3 3v11"/></svg>
                 <span>Thẻ nhớ</span>
               </button>
-              <button class="btn-hero-action" onclick="launchSetMode('${firstSet.id}', 'test')">
+              <button class="btn-hero-action" onclick="launchSetMode(this.closest('[data-set-id]').dataset.setId, 'test')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 <span>Kiểm tra</span>
               </button>
-              <button class="btn-hero-action" onclick="launchSetMode('${firstSet.id}', 'match')">
+              <button class="btn-hero-action" onclick="launchSetMode(this.closest('[data-set-id]').dataset.setId, 'match')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                 <span>Ghép thẻ</span>
               </button>
             </div>
           </div>
           <div class="hero-jump-right">
-            <button class="btn-icon btn-icon-danger" onclick="event.stopPropagation(); deleteSet('${firstSet.id}', '${(displayHeroTitle || '').replace(/'/g, "\'")}');" title="Xóa bộ thẻ này">
+            <button class="btn-icon btn-icon-danger" data-set-id="${escapeHtml(firstSet.id)}" data-title="${escapeHtml(displayHeroTitle)}" onclick="event.stopPropagation(); deleteSet(this.dataset.setId, this.dataset.title);" title="Xóa bộ thẻ này">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             </button>
           </div>
@@ -6501,6 +6389,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       `;
 
         view.innerHTML = html;
+        if (window.renderDraftBanner) renderDraftBanner();
       }
 
       function renderSetsGrid(sets) {
@@ -6517,12 +6406,19 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         }
         return sets.map(s => {
           const displayTitle = formatSetTitle(s.title);
+          if (s.invalid) return `<div class="set-card-modern" data-set-id="${escapeHtml(s.id)}">
+            <h4>${escapeHtml(displayTitle)}</h4><p role="status">${escapeHtml(s.error || 'Bộ thẻ cần sửa')}</p>
+            <div class="set-card-footer">
+              <button class="btn-card-quick" onclick="repairStoredSet(this.closest('[data-set-id]').dataset.setId)">Sửa</button>
+              <button class="btn-card-quick" onclick="exportStoredSet(this.closest('[data-set-id]').dataset.setId)">Xuất bản gốc</button>
+              <button class="btn-card-quick" onclick="deleteSet(this.closest('[data-set-id]').dataset.setId)">Xóa</button>
+            </div></div>`;
           return `
-        <div class="set-card-modern" onclick="launchSetMode('${s.id}', 'learn')">
+        <div class="set-card-modern" data-set-id="${escapeHtml(s.id)}" onclick="launchSetMode(this.dataset.setId, 'learn')">
           <div class="set-card-top">
             <span class="set-card-terms-count">${s.numTerms} thẻ</span>
             <div class="set-card-actions-hover" onclick="event.stopPropagation()">
-              <button class="btn-icon btn-icon-danger" style="width: 28px; height: 28px;" onclick="deleteSet('${s.id}', '${(displayTitle || '').replace(/'/g, "\'")}');" title="Xóa học phần">
+              <button class="btn-icon btn-icon-danger" style="width: 28px; height: 28px;" data-title="${escapeHtml(displayTitle)}" onclick="deleteSet(this.closest('[data-set-id]').dataset.setId, this.dataset.title);" title="Xóa học phần">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
               </button>
             </div>
@@ -6534,9 +6430,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
             </div>
           </div>
           <div class="set-card-footer">
-            <button class="btn-card-quick" onclick="event.stopPropagation(); launchSetMode('${s.id}', 'flashcards')">Thẻ nhớ</button>
-            <button class="btn-card-quick" onclick="event.stopPropagation(); launchSetMode('${s.id}', 'test')">Kiểm tra</button>
-            <button class="btn-card-quick" onclick="event.stopPropagation(); launchSetMode('${s.id}', 'match')">Ghép thẻ</button>
+            <button class="btn-card-quick" onclick="event.stopPropagation(); launchSetMode(this.closest('[data-set-id]').dataset.setId, 'flashcards')">Thẻ nhớ</button>
+            <button class="btn-card-quick" onclick="event.stopPropagation(); launchSetMode(this.closest('[data-set-id]').dataset.setId, 'test')">Kiểm tra</button>
+            <button class="btn-card-quick" onclick="event.stopPropagation(); launchSetMode(this.closest('[data-set-id]').dataset.setId, 'match')">Ghép thẻ</button>
           </div>
         </div>
       `;
@@ -6577,8 +6473,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       };
 
       function startMatchMode() {
+        cancelStudyActivity();
         window.scrollTo({ top: 0, behavior: 'instant' });
-        const activePool = settings.starredOnly ? cardsState.filter(c => c.starred) : cardsState;
+        const activePool = getStudyPool();
         if (activePool.length < 2) {
           document.getElementById("app").innerHTML = `
           <div class="summary-box">
@@ -6705,7 +6602,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
               isNewRecord = true;
             }
 
-            setTimeout(() => {
+            scheduleStudy(() => {
               renderMatchWinScreen(finalTime, isNewRecord);
             }, 600);
           }
@@ -6723,7 +6620,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           if (timerBox) timerBox.appendChild(penaltyEl);
           setTimeout(() => penaltyEl.remove(), 900);
 
-          setTimeout(() => {
+          scheduleStudy(() => {
             firstEl.classList.remove("selected", "wrong");
             el.classList.remove("selected", "wrong");
             matchState.selectedTile = null;
@@ -6769,7 +6666,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
       function startTestMode() {
         window.scrollTo({ top: 0, behavior: 'instant' });
-        const activePool = settings.starredOnly ? cardsState.filter(c => c.starred) : cardsState;
+        const activePool = getStudyPool();
         if (activePool.length < 2) {
           document.getElementById("app").innerHTML = `
           <div class="summary-box">
@@ -6790,9 +6687,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         testCards.forEach((card, idx) => {
           const typeRoll = Math.random();
           if (typeRoll < 0.5 || activePool.length < 3) {
-            const otherPool = activePool.filter(c => c.id !== card.id).sort(() => Math.random() - 0.5);
-            const distractors = otherPool.slice(0, 3).map(d => d.definition);
-            const options = [card.definition, ...distractors].sort(() => Math.random() - 0.5);
+              const options = StudyUtils.choiceOptions(activePool, card.definition, 'definition');
             testState.questions.push({
               id: idx + 1,
               cardId: card.id,
@@ -6803,10 +6698,10 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
               image: card.image
             });
           } else if (typeRoll < 0.8) {
-            const isTrue = Math.random() > 0.5;
+            const wrongCandidates = activePool.filter(c => StudyUtils.normalizeAnswer(c.definition) !== StudyUtils.normalizeAnswer(card.definition));
+            const isTrue = !wrongCandidates.length || Math.random() > 0.5;
             let displayedDef = card.definition;
             if (!isTrue) {
-              const wrongCandidates = activePool.filter(c => c.id !== card.id);
               const wrongCard = wrongCandidates.length > 0
                 ? wrongCandidates[Math.floor(Math.random() * wrongCandidates.length)]
                 : card;
@@ -6835,6 +6730,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         });
 
         renderTestQuestions();
+        saveActiveSession();
       }
 
       function renderTestQuestions() {
@@ -6855,7 +6751,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
                 <div class="test-q-num">CÂU HỎI ${idx + 1} / ${testState.questions.length} &bull; ${q.type === 'choice' ? 'TRẮC NGHIỆM' : q.type === 'tf' ? 'ĐÚNG / SAI' : 'TỰ LUẬN'}</div>
                 <div class="test-q-prompt rich-text-container">
                   ${formatRichContent(q.prompt)}
-                  ${q.image ? `<img src="${q.image}" style="max-height: 100px; border-radius: 8px; margin-top: 10px; display: block;" />` : ''}
+                  ${settings.showImages && q.image ? `<img src="${escapeHtml(q.image)}" alt="Minh họa" style="max-height: 100px; border-radius: 8px; margin-top: 10px; display: block;" />` : ''}
                 </div>
 
                 ${q.type === 'choice' ? `
@@ -6894,7 +6790,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
                   <div style="margin-top: 14px;">
                     <input type="text" class="test-written-input" placeholder="Nhập câu trả lời chính xác..." 
                            value="${escapeHtml(testState.userAnswers[q.id] || '')}"
-                           oninput="testState.userAnswers[${q.id}] = this.value" />
+                           oninput="testState.userAnswers[${q.id}] = this.value; saveActiveSession();" />
                   </div>
                 ` : ''}
               </div>
@@ -6915,6 +6811,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         if (!q || !q.options || q.options[oIdx] === undefined) return;
         const val = q.options[oIdx];
         testState.userAnswers[qId] = val;
+        saveActiveSession();
         const cardEl = document.getElementById(`test_q_${qId}`);
         if (!cardEl) return;
         const btns = cardEl.querySelectorAll(".test-opt-btn");
@@ -6926,6 +6823,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
       function selectTestAnswer(qId, val) {
         testState.userAnswers[qId] = val;
+        saveActiveSession();
         const cardEl = document.getElementById(`test_q_${qId}`);
         if (!cardEl) return;
         const tfBtns = cardEl.querySelectorAll(".test-tf-btn");
@@ -6939,6 +6837,8 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       function submitTest() {
+        if (testState.isSubmitted || !testState.questions.length) return;
+        testState.isSubmitted = true;
         let correctCount = 0;
         testState.questions.forEach(q => {
           const userAns = (testState.userAnswers[q.id] || "").trim();
@@ -6961,6 +6861,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         if (scorePercent >= 80) triggerConfetti();
 
         renderTestResults(correctCount, total, scorePercent);
+        saveActiveSession();
       }
 
       function renderTestResults(correctCount, total, scorePercent) {
@@ -7049,11 +6950,16 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         cardsState.forEach(c => {
           if (missedCardIds.includes(c.id)) {
             c.mastery = 1;
+            c.nextReview = Date.now();
+            c.interval = 0;
             c.incorrectCount = (c.incorrectCount || 0) + 1;
           }
         });
         saveProgressToStorage();
         switchMode('learn');
+        currentRoundQueue = cardsState.filter(c => missedCardIds.includes(c.id));
+        currentCardIndex = 0;
+        renderCurrentCard();
         showToast(`🎯 Đang chuẩn bị ôn luyện ${missedCardIds.length} câu làm sai trong chế độ Học SRS...`, 3000);
       }
 
@@ -7070,6 +6976,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         container.style.display = "block";
         container.innerHTML = `
         <div class="terms-overview-card">
+          ${currentSet?.duplicateCount ? `<p role="status" style="color:var(--warning);margin-bottom:12px">Bản nguồn có ${currentSet.duplicateCount} dòng lặp đã được bỏ khi học. Chưa xác minh bộ thẻ đã đầy đủ; hãy tải lại từ nguồn nếu cần.</p>` : ''}
+          ${currentSet?.sourceWarning ? `<p role="status" style="color:var(--warning);margin-bottom:12px">${escapeHtml(currentSet.sourceWarning)}</p>` : ''}
+          ${cardsState.some(c => !c.term.trim() || !c.definition.trim()) ? `<p role="status" style="color:var(--warning);margin-bottom:12px">Một số thẻ thiếu nội dung, chỉ xem được ở Thẻ nhớ. <button class="btn-cancel" onclick="openEditCurrentSet()">Sửa thẻ</button></p>` : ''}
           <div class="terms-overview-header">
             <div>
               <h3 style="font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 4px;">
@@ -7093,16 +7002,16 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         <div class="term-row">
           <div class="term-col-word">
             <span class="term-word-text rich-text-container">${formatRichContent(c.term)}</span>
-            ${c.image ? `<img src="${c.image}" class="term-img-thumb" onclick="openLightbox(this.src)" />` : ''}
+            ${c.image ? `<img src="${escapeHtml(c.image)}" alt="Minh họa" loading="lazy" class="term-img-thumb" onclick="openLightbox(this.src)" />` : ''}
           </div>
           <div class="term-col-def">
             <span class="rich-text-container">${formatRichContent(c.definition)}</span>
           </div>
           <div class="term-col-actions">
-            <button class="btn-icon-sub ${c.starred ? 'starred' : ''}" onclick="toggleStar(${c.id}); renderSetTermsOverview();" title="Gắn sao">
+            <button class="btn-icon-sub ${c.starred ? 'starred' : ''}" data-card-id="${escapeHtml(c.id)}" onclick="toggleStar(this.dataset.cardId); renderSetTermsOverview();" title="Gắn sao">
               ★
             </button>
-            <button class="btn-icon-sub" onclick="speakCardById(${c.id})" title="Phát âm">
+            <button class="btn-icon-sub" data-card-id="${escapeHtml(c.id)}" onclick="speakCardById(this.dataset.cardId)" title="Phát âm">
               🔊
             </button>
           </div>
@@ -7118,6 +7027,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
     </script>
+  </div>
 
   <!-- 📱 MOBILE BOTTOM NAVIGATION DOCK -->
   <nav class="mobile-bottom-bar" id="mobile-bottom-bar" aria-label="Điều hướng di động">
@@ -7161,6 +7071,22 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
     </button>
   </nav>
 
+  <div id="cloud-account-modal" class="modal-overlay" style="display:none">
+    <div class="modal-content">
+      <div class="modal-header">Đồng bộ học phần <button class="btn-icon" onclick="closeAllModals()" aria-label="Đóng">✕</button></div>
+      <p id="cloud-account-info"></p>
+      <p style="margin:12px 0;color:var(--text-muted)">Khi có xung đột, bản trên máy được giữ nguyên. Có thể lưu thành bản sao để đồng bộ cả hai phiên bản. Xóa học phần chỉ xóa trên thiết bị này.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:10px">
+        <button id="cloud-login" class="btn-primary" onclick="cloudLogin()">Đăng nhập Google</button>
+        <button id="cloud-logout" class="btn-cancel" onclick="cloudLogout()" hidden>Đăng xuất</button>
+        <button class="btn-cancel" onclick="syncCloudSets()">Đồng bộ lại</button>
+        <button class="btn-cancel" onclick="copyCurrentSet()">Lưu bộ đang mở thành bản sao</button>
+      </div>
+    </div>
+  </div>
+  <script src="js/navigation.js"></script>
+  <script src="js/editor.js"></script>
+  <script src="js/bookmarklet.js"></script>
 </body>
 
 </html>

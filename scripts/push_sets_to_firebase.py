@@ -11,6 +11,8 @@ import json
 import glob
 import urllib.request
 import urllib.error
+import urllib.parse
+import re
 
 PROJECT_ID = "bhjbhj-c8bdd"
 COLLECTION = "quizlet_sets"
@@ -35,8 +37,21 @@ def json_value_to_firestore(val):
     return {"stringValue": str(val)}
 
 def upload_set_to_firestore(set_data):
-    doc_id = str(set_data.get("id"))
-    url = f"https://firestore.googleapis.com/v1/projects/{PROJECT_ID}/databases/(default)/documents/{COLLECTION}?documentId={doc_id}"
+    token = os.environ.get("FIREBASE_ACCESS_TOKEN")
+    if not token:
+        raise ValueError("Thiếu FIREBASE_ACCESS_TOKEN.")
+    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
+    doc_id = set_data.get("id")
+    if not isinstance(doc_id, (str, int)) or isinstance(doc_id, bool):
+        raise ValueError("ID bộ thẻ Firestore không hợp lệ.")
+    doc_id = str(doc_id)
+    if not re.fullmatch(r"[A-Za-z0-9_-]{1,120}", doc_id):
+        raise ValueError("ID bộ thẻ Firestore không hợp lệ.")
+    encoded_doc_id = urllib.parse.quote(doc_id, safe="")
+    url = (
+        f"https://firestore.googleapis.com/v1/projects/{PROJECT_ID}/databases/(default)"
+        f"/documents/{COLLECTION}?{urllib.parse.urlencode({'documentId': doc_id})}"
+    )
     
     # Firestore REST expects fields map
     fields = {k: json_value_to_firestore(v) for k, v in set_data.items()}
@@ -45,7 +60,7 @@ def upload_set_to_firestore(set_data):
     req = urllib.request.Request(
         url,
         data=payload,
-        headers={"Content-Type": "application/json"},
+        headers=headers,
         method="POST"
     )
     
@@ -54,11 +69,14 @@ def upload_set_to_firestore(set_data):
             return resp.status in (200, 201)
     except urllib.error.HTTPError as e:
         if e.code == 409: # Document already exists, use PATCH
-            patch_url = f"https://firestore.googleapis.com/v1/projects/{PROJECT_ID}/databases/(default)/documents/{COLLECTION}/{doc_id}"
+            patch_url = (
+                f"https://firestore.googleapis.com/v1/projects/{PROJECT_ID}/databases/(default)"
+                f"/documents/{COLLECTION}/{encoded_doc_id}"
+            )
             patch_req = urllib.request.Request(
                 patch_url,
                 data=payload,
-                headers={"Content-Type": "application/json"},
+                headers=headers,
                 method="PATCH"
             )
             with urllib.request.urlopen(patch_req, timeout=10) as patch_resp:
@@ -66,6 +84,11 @@ def upload_set_to_firestore(set_data):
         raise e
 
 def main():
+    token = os.environ.get("FIREBASE_ACCESS_TOKEN")
+    if not token:
+        print("Cần FIREBASE_ACCESS_TOKEN của tài khoản quản trị có quyền Firestore.")
+        print("Ví dụ lấy access token bằng gcloud auth print-access-token, rồi đặt vào biến môi trường.")
+        sys.exit(1)
     json_files = glob.glob(os.path.join(SETS_DIR, "*.json"))
     if not json_files:
         print(f"❌ Không tìm thấy file JSON nào trong {SETS_DIR}")
@@ -75,6 +98,7 @@ def main():
 
     success_count = 0
     permission_error = False
+    failure_count = 0
 
     for i, file_path in enumerate(json_files, 1):
         filename = os.path.basename(file_path)
@@ -86,34 +110,31 @@ def main():
             num_terms = len(data.get("cards", []))
             print(f"[{i}/{len(json_files)}] Đang đẩy: {title} ({num_terms} thẻ)...", end=" ")
             
-            upload_set_to_firestore(data)
+            if not upload_set_to_firestore(data):
+                failure_count += 1
+                print("❌ Firestore không xác nhận thao tác thành công.")
+                continue
             print("✅ Thành công")
             success_count += 1
         except urllib.error.HTTPError as e:
+            failure_count += 1
             if e.code == 403:
-                print("❌ Lỗi 403: Firebase Rules bị khóa!")
+                print("❌ Lỗi 403: token hoặc quyền IAM không cho phép ghi Firestore.")
                 permission_error = True
                 break
             else:
                 print(f"❌ Lỗi HTTP {e.code}: {e.read().decode('utf-8')[:150]}")
         except Exception as e:
+            failure_count += 1
             print(f"❌ Lỗi: {e}")
 
     if permission_error:
-        print("\n⚠️ CHÚ Ý: Firebase Firestore đang chặn quyền ghi (PERMISSION_DENIED)!")
-        print("Để đẩy thành công, ông chỉ cần làm 2 bước đơn giản:")
-        print("1. Vào: https://console.firebase.google.com/project/bhjbhj-c8bdd/firestore/rules")
-        print("2. Đổi rules thành:")
-        print("   service cloud.firestore {")
-        print("     match /databases/{database}/documents {")
-        print("       match /{document=**} {")
-        print("         allow read, write: if true;")
-        print("       }")
-        print("     }")
-        print("   }")
-        print("3. Bấm 'Publish' rồi chạy lại lệnh: python3 scripts/push_sets_to_firebase.py\n")
+        print("Tài khoản quản trị chưa có quyền ghi. Kiểm tra IAM và token; giữ thư viện chung ở chế độ chỉ đọc với client.")
+        sys.exit(1)
     else:
         print(f"\n🎉 Hoàn thành! Đã đẩy thành công {success_count}/{len(json_files)} bộ đề lên Firestore!")
+        if failure_count:
+            sys.exit(1)
 
 if __name__ == "__main__":
     main()

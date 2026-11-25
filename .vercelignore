@@ -4,3 +4,7 @@ Chay_Quizlet_Pro.command
 .venv
 venv
 __pycache__
+tests
+scripts
+REVIEW.md
+firestore.rules

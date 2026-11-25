@@ -1,24 +1,43 @@
 #!/bin/bash
+set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$DIR"
+PORT="${PORT:-8888}"
+URL="http://127.0.0.1:$PORT"
 
-echo "🚀 Đang khởi động Quizlet Pro siêu tốc..."
+ready() {
+  curl --fail --silent --max-time 1 "$URL/api/health" 2>/dev/null | grep -q '"app": "quizlet-pro"'
+}
 
-# Sử dụng virtualenv đã tạo sẵn để chạy tức thì trong 0.05 giây (không tải lại thư viện)
-if [ -f "$DIR/.venv/bin/python3" ]; then
-  "$DIR/.venv/bin/python3" server.py &
-elif command -v uv &>/dev/null; then
-  uv run --with curl-cffi python3 server.py &
-else
-  python3 server.py &
+if ! ready; then
+  echo "Đang khởi động Quizlet Pro..."
+  if [ -x "$DIR/.venv/bin/python3" ]; then
+    "$DIR/.venv/bin/python3" server.py &
+  elif command -v uv >/dev/null 2>&1; then
+    uv run --with curl-cffi --with yt-dlp python3 server.py &
+  else
+    python3 server.py &
+  fi
+  SERVER_PID=$!
+  for ((i=0; i<120; i++)); do
+    if ready; then break; fi
+    if ! kill -0 "$SERVER_PID" 2>/dev/null; then
+      echo "Server đã dừng. Kiểm tra lỗi bên trên (ví dụ cổng $PORT đang được dùng)." >&2
+      exit 1
+    fi
+    sleep 0.5
+  done
+  if ! ready; then
+    echo "Server chưa sẵn sàng. Xem lỗi bên trên hoặc mở $URL khi khởi động xong." >&2
+    exit 1
+  fi
 fi
 
-# Chờ server mở cổng 8888 xong là bật trình duyệt ngay lập tức (không chờ thừa)
-for i in {1..40}; do
-  if curl -s -I "http://localhost:8888" &>/dev/null; then
-    break
-  fi
-  sleep 0.05
-done
-
-open "http://localhost:8888"
+echo "Quizlet Pro: $URL"
+if command -v open >/dev/null 2>&1; then
+  open "$URL"
+elif command -v xdg-open >/dev/null 2>&1; then
+  xdg-open "$URL"
+else
+  echo "Mở địa chỉ trên trong trình duyệt."
+fi

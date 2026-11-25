@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Legacy shared library: publishing is an administrator operation.
+    match /quizlet_sets/{setId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /users/{uid}/quizlet_sets/{setId} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.id == setId
+        && request.resource.data.title is string
+        && request.resource.data.cards is list
+        && request.resource.data.revision is string;
+    }
+  }
+}

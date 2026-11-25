@@ -4,6 +4,7 @@ import time
 from pathlib import Path
 from yt_dlp.cookies import extract_cookies_from_browser
 from curl_cffi import requests
+from server import atomic_write_json, extract_quizlet_cookies, fetch_studiable_items
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data" / "sets"
@@ -39,7 +40,7 @@ def main():
     
     # 1. Extract cookies from Chrome
     jar = extract_cookies_from_browser("chrome")
-    cookies = {c.name: c.value for c in jar if "quizlet" in c.domain}
+    cookies = extract_quizlet_cookies(jar)
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept": "application/json",
@@ -70,12 +71,14 @@ def main():
             try:
                 with open(save_path, "r", encoding="utf-8") as f:
                     cached = json.load(f)
-                    if len(cached.get("cards", [])) >= expected_terms and expected_terms > 0:
+                    cached_ids = {str(c.get("id")) for c in cached.get("cards", [])}
+                    if len(cached_ids) == len(cached.get("cards", [])) == expected_terms and expected_terms > 0:
                         print(f"[{idx}/20] ✓ Đã đủ 100%: {title} ({len(cached['cards'])}/{expected_terms} thẻ)")
                         manifest_entries.append({
                             "id": str(set_id),
                             "title": title,
-                            "numTerms": len(cached["cards"])
+                            "numTerms": len(cached["cards"]),
+                            **({"sourceWarning": cached["sourceWarning"]} if cached.get("sourceWarning") else {})
                         })
                         continue
             except Exception:
@@ -84,31 +87,20 @@ def main():
         print(f"[{idx}/20] ⏳ Đang cào full {expected_terms} thẻ của: {title}...")
 
         # Fetch items across pages using pagingToken
-        all_items = []
-        paging_token = None
-        while True:
-            api_url = f"https://quizlet.com/webapi/3.4/studiable-item-documents?filters%5BstudiableContainerId%5D={set_id}&filters%5BstudiableContainerType%5D=1&perPage=100"
-            if paging_token:
-                api_url += f"&pagingToken={paging_token}"
-
-            try:
-                r_api = requests.get(api_url, cookies=cookies, headers=headers, impersonate="chrome120", timeout=12)
-                if r_api.status_code != 200:
-                    break
-                data = r_api.json()
-                resp = data.get("responses", [{}])[0]
-                items = resp.get("models", {}).get("studiableItem", [])
-                if not items:
-                    break
-                all_items.extend(items)
-                paging = resp.get("paging", {})
-                total = paging.get("total", len(all_items))
-                paging_token = paging.get("token")
-                if len(all_items) >= total or not paging_token:
-                    break
-            except Exception as e:
-                print(f"  Lỗi token {paging_token}:", e)
-                break
+        try:
+            all_items = fetch_studiable_items(requests, set_id, cookies, headers)
+            if not all_items or (expected_terms and len(all_items) < expected_terms):
+                raise ValueError("Bộ thẻ chưa đầy đủ.")
+        except Exception as e:
+            print(f"  Không ghi đè bộ thẻ cũ: {e}")
+            if save_path.exists():
+                cached = json.loads(save_path.read_text(encoding="utf-8"))
+                manifest_entries.append({
+                    "id": str(set_id), "title": cached.get("title", fallback_title),
+                    "numTerms": len(cached.get("cards", [])),
+                    **({"sourceWarning": cached["sourceWarning"]} if cached.get("sourceWarning") else {})
+                })
+            continue
 
         # Parse terms, definitions, images
         cards = []
@@ -144,8 +136,7 @@ def main():
             "cards": cards
         }
 
-        with open(save_path, "w", encoding="utf-8") as f:
-            json.dump(set_obj, f, ensure_ascii=False, indent=2)
+        atomic_write_json(save_path, set_obj)
 
         print(f"  🎉 Hoàn thành: {title} | {len(cards)} thuật ngữ | {images_count} ảnh")
         manifest_entries.append({
@@ -157,8 +148,10 @@ def main():
 
     # Save to data/sets.json
     manifest_path = BASE_DIR / "data" / "sets.json"
-    with open(manifest_path, "w", encoding="utf-8") as f:
-        json.dump(manifest_entries, f, ensure_ascii=False, indent=2)
+    existing = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else []
+    refreshed_ids = {entry["id"] for entry in manifest_entries}
+    manifest_entries.extend(entry for entry in existing if str(entry["id"]) not in refreshed_ids)
+    atomic_write_json(manifest_path, manifest_entries)
 
     total_all_cards = sum(e["numTerms"] for e in manifest_entries)
     print(f"\n✓ ĐÃ CÀO XONG TOÀN BỘ {len(manifest_entries)} BỘ ĐỀ! TỔNG CỘNG: {total_all_cards} TỪ VỰNG & ẢNH!")
