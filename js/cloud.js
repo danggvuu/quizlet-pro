@@ -15,8 +15,8 @@ function showCloudStatusHelp() {
     const modal = document.getElementById('cloud-account-modal');
     const signedIn = !!window.CloudDB?.accountId;
     document.getElementById('cloud-account-info').textContent = signedIn
-        ? 'Bộ thẻ cá nhân đồng bộ theo tài khoản Google. Tiến độ học vẫn lưu riêng trên máy này.'
-        : 'Bộ thẻ đang được lưu trên máy. Đăng nhập Google để đồng bộ nội dung giữa các thiết bị của bạn.';
+        ? 'Bộ thẻ cá nhân đồng bộ theo tài khoản Google. Tiến độ học và bản nháp vẫn lưu riêng trên trình duyệt này.'
+        : 'Bộ thẻ chỉ lưu trên trình duyệt tại địa chỉ hiện tại. Link Preview Vercel khác không dùng chung dữ liệu; hãy dùng link Production cố định hoặc đăng nhập Google để đồng bộ học phần.';
     document.getElementById('cloud-login').hidden = signedIn;
     document.getElementById('cloud-logout').hidden = !signedIn;
     modal.style.display = 'flex';
