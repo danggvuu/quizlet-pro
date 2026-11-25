@@ -249,6 +249,37 @@ class BrowserRegressions(unittest.TestCase):
         self.page.wait_for_function("currentSet?.id==='audit_a'")
         self.assertEqual(self.page.evaluate("cardsState.length"),5)
 
+    def test_create_editor_fields_are_clear_on_desktop_and_mobile(self):
+        self.page.evaluate("showCreateSetView()")
+        for width, expected_columns in [(1280, 2), (390, 1)]:
+            self.page.set_viewport_size({"width": width, "height": 900})
+            layout = self.page.evaluate("""() => {
+                const row = document.querySelector('#create-cards-list .card-row');
+                const fields = [...row.querySelectorAll('.card-row-input')];
+                return {
+                    columns: getComputedStyle(row.querySelector('.card-row-inputs')).gridTemplateColumns.split(' ').length,
+                    fields: fields.map(field => {
+                        const label = row.querySelector(`label[for="${field.id}"]`);
+                        const labelBox = label.getBoundingClientRect();
+                        const fieldBox = field.getBoundingClientRect();
+                        return {
+                            placeholder: field.placeholder,
+                            height: fieldBox.height,
+                            right: fieldBox.right,
+                            labelBottom: labelBox.bottom,
+                            fieldTop: fieldBox.top
+                        };
+                    })
+                };
+            }""")
+            self.assertEqual(layout["columns"], expected_columns)
+            self.assertEqual([field["placeholder"] for field in layout["fields"]],
+                             ["Nhập thuật ngữ...", "Nhập định nghĩa..."])
+            for field in layout["fields"]:
+                self.assertGreaterEqual(field["height"], 72)
+                self.assertLessEqual(field["right"], width)
+                self.assertLessEqual(field["labelBottom"], field["fieldTop"])
+
     def test_srs_uses_due_dates(self):
         self.seed()
         self.page.evaluate("""()=>{

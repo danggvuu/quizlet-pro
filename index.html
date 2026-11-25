@@ -2380,13 +2380,50 @@
       margin: 0 auto;
       padding: 30px 20px 80px;
       width: 100%;
+      min-width: 0;
     }
 
     .create-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .create-header-actions {
+      display: flex;
+      flex-shrink: 0;
+      gap: 12px;
+    }
+
+    #create-title,
+    #create-desc {
+      display: block;
+      min-width: 0;
+      margin-bottom: 16px !important;
+    }
+
+    .create-set-container > .import-btn-inline {
+      align-self: flex-start;
+      max-width: 100%;
+      margin: 0 0 16px;
+    }
+
+    .create-set-container > .import-box {
+      margin: 0 0 16px;
+    }
+
+    #create-cards-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .create-footer-actions {
+      margin-top: 16px;
     }
 
     .q-input {
@@ -2509,53 +2546,70 @@
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
       padding: 18px 20px;
-      margin-bottom: 14px;
       box-shadow: var(--shadow-xs);
     }
 
-    .card-row-top {
+    .card-row-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
       font-size: 12px;
       font-weight: 700;
       color: var(--text-muted);
     }
 
     .card-row-inputs {
-      display: flex;
-      gap: 20px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
     }
 
-    .card-row-col {
-      flex: 1;
+    .card-row-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .card-row-label {
+      display: block;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.4;
     }
 
     .card-row-input {
+      display: block;
       width: 100%;
-      border: none;
-      border-bottom: 1.5px solid var(--border);
-      background: transparent;
-      padding: 8px 0;
-      font-size: 15px;
-      font-weight: 600;
+      max-width: 100%;
+      min-width: 0;
+      min-height: 72px;
+      box-sizing: border-box;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      padding: 12px 14px;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.5;
       color: var(--text);
       outline: none;
       transition: var(--transition-fast);
+      resize: none;
+      overflow: hidden;
+      overflow-wrap: anywhere;
     }
 
     .card-row-input:focus {
-      border-bottom-color: var(--primary);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
     }
 
-    .card-row-lbl {
-      font-size: 10.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-muted);
-      margin-top: 4px;
+    .card-row-input::placeholder {
+      color: var(--text-subtle);
+      opacity: 1;
     }
 
     .add-card-btn {
@@ -2568,7 +2622,8 @@
       font-weight: 700;
       color: var(--primary);
       cursor: pointer;
-      margin: 20px 0;
+      margin: 16px 0 0;
+      max-width: 100%;
       transition: var(--transition-fast);
     }
 
@@ -2721,8 +2776,26 @@
       }
 
       .card-row-inputs {
-        flex-direction: column;
-        gap: 14px;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+      }
+
+      .card-row {
+        padding: 16px;
+      }
+
+      .create-header {
+        align-items: flex-start;
+      }
+
+      .create-header-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+
+      .create-set-container {
+        padding-right: 16px;
+        padding-left: 16px;
       }
 
       /* MOBILE BOTTOM NAVIGATION DOCK */
@@ -3393,7 +3466,7 @@
   <div id="create-set-view" class="create-set-container" style="display: none;">
     <div class="create-header">
       <h2 class="section-title" id="create-view-heading" style="margin:0;">Tạo học phần mới</h2>
-      <div style="display:flex; gap:12px;">
+      <div class="create-header-actions">
         <button class="btn-cancel" onclick="showDashboard()">Hủy</button>
         <button class="btn-primary" id="btn-save-set-top" style="width: auto; padding: 12px 32px;"
           onclick="saveCreatedSet()">Tạo</button>
@@ -3402,11 +3475,11 @@
 
     <input type="text" id="create-title" class="q-input"
       placeholder="Nhập tiêu đề, ví dụ: Sinh học - Chương 22: Tiến hóa"
-      style="font-size: 20px; font-weight: 800; border: none; border-bottom: 2px solid var(--text); border-radius: 0; padding: 10px 0; margin-bottom: 30px; box-shadow: none;">
+      style="font-size: 20px; font-weight: 800; border: none; border-bottom: 2px solid var(--text); border-radius: 0; padding: 10px 0; box-shadow: none;">
 
 
     <input type="text" id="create-desc" class="q-input" placeholder="Thêm mô tả..."
-      style="font-size: 16px; border: none; border-bottom: 2px solid var(--border); border-radius: 0; padding: 10px 0; margin-bottom: 20px; box-shadow: none;">
+      style="font-size: 16px; border: none; border-bottom: 2px solid var(--border); border-radius: 0; padding: 10px 0; box-shadow: none;">
 
     <button class="import-btn-inline" onclick="document.getElementById('import-box-ui').style.display='block'">+ Nhập từ
       Word, Excel, Google Docs, v.v.</button>
@@ -3460,7 +3533,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
     <div id="create-cards-list"></div>
 
     <button class="add-card-btn" onclick="addCardRow()">+ Thêm thẻ</button>
-    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+    <div class="create-footer-actions" style="display: flex; justify-content: flex-end; gap: 12px;">
       <button class="btn-cancel" onclick="showDashboard()">Hủy</button>
       <button class="btn-primary" id="btn-save-set-bottom" style="width: auto; padding: 16px 48px; font-size: 18px;"
         onclick="saveCreatedSet()">Tạo</button>
@@ -6194,16 +6267,19 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         </div>
         <div class="card-row-inputs">
           <div class="card-row-input-group">
-            <textarea class="card-row-input term-input" rows="1" placeholder="Thuật ngữ / Khái niệm / Câu hỏi (Hỗ trợ code, công thức, đa dòng)" oninput="this.style.height='';this.style.height=this.scrollHeight+'px'">${escapeHtml(term)}</textarea>
-            <span class="card-row-label">Thuật ngữ / Khái niệm / Câu hỏi</span>
+            <label class="card-row-label" for="${div.id}-term">Thuật ngữ</label>
+            <textarea id="${div.id}-term" class="card-row-input term-input" rows="2" aria-label="Thuật ngữ" placeholder="Nhập thuật ngữ..." oninput="this.style.height='auto';this.style.height=Math.max(this.scrollHeight,72)+'px'">${escapeHtml(term)}</textarea>
           </div>
           <div class="card-row-input-group">
-            <textarea class="card-row-input def-input" rows="1" placeholder="Định nghĩa / Giải thích / Đáp án (Hỗ trợ code, công thức, đa dòng)" oninput="this.style.height='';this.style.height=this.scrollHeight+'px'">${escapeHtml(definition)}</textarea>
-            <span class="card-row-label">Định nghĩa / Giải thích / Đáp án</span>
+            <label class="card-row-label" for="${div.id}-definition">Định nghĩa</label>
+            <textarea id="${div.id}-definition" class="card-row-input def-input" rows="2" aria-label="Định nghĩa" placeholder="Nhập định nghĩa..." oninput="this.style.height='auto';this.style.height=Math.max(this.scrollHeight,72)+'px'">${escapeHtml(definition)}</textarea>
           </div>
         </div>
       `;
         list.appendChild(div);
+        div.querySelectorAll('.card-row-input').forEach(field => {
+          field.style.height = `${Math.max(field.scrollHeight, 72)}px`;
+        });
         return div;
       }
 
