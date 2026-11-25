@@ -91,6 +91,20 @@ class BrowserRegressions(unittest.TestCase):
         self.assertEqual(self.page.evaluate("currentSet.title"), "Updated remotely")
         self.assertTrue(self.page.evaluate("cardsState[0].starred"))
 
+    def test_created_set_waits_for_authenticated_cloud_persistence(self):
+        self.page.evaluate("""async()=>{
+            window.cloudSaveCalls=[];
+            window.CloudDB={accountId:'test-user',getAllSets:async()=>[],
+                saveSet:async set=>{cloudSaveCalls.push(set.id);return set.localRevision}};
+            await saveCustomSet({id:'cloud_created',title:'Cloud created',cards:[
+                {id:'one',term:'hello',definition:'xin chào'}]});
+        }""")
+        self.assertEqual(self.page.evaluate("cloudSaveCalls"), ["cloud_created"])
+        saved = self.page.evaluate("Database.getSetById('cloud_created')")
+        self.assertFalse(saved["dirty"])
+        self.assertEqual(saved["cloudAccount"], "test-user")
+        self.assertEqual(saved["cloudRevision"], saved["localRevision"])
+
     def test_cloud_conflict_keeps_local_changes(self):
         self.seed()
         self.page.evaluate("""async()=> {
@@ -211,6 +225,23 @@ class BrowserRegressions(unittest.TestCase):
         self.page.locator("#write-user-input").fill("not the answer")
         self.page.locator(".btn-submit-write").click()
         self.page.wait_for_function("currentCardIndex===1", timeout=8000)
+
+    def test_test_mode_moves_to_next_question_and_focuses_written_input(self):
+        self.seed()
+        self.page.evaluate("switchMode('test')")
+        self.page.evaluate("""() => {
+            testState = {isSubmitted:false,userAnswers:{},questions:[
+                {id:1,cardId:'0',type:'choice',prompt:'one',correct:'first',options:['first','other'],image:''},
+                {id:2,cardId:'1',type:'choice',prompt:'two',correct:'second',options:['second','other'],image:''},
+                {id:3,cardId:'2',type:'written',prompt:'three',correct:'third',image:''}
+            ]};
+            renderTestQuestions();
+        }""")
+        self.page.evaluate("selectTestOption(1, 0)")
+        self.page.wait_for_function("scrollY > 0")
+        self.assertTrue(self.page.evaluate("document.getElementById('test_q_2').getBoundingClientRect().top < innerHeight"))
+        self.page.evaluate("selectTestOption(2, 0)")
+        self.page.wait_for_function("document.activeElement.matches('.test-written-input')")
 
     def test_partial_cards_rejected_on_import_but_legacy_can_be_viewed(self):
         partial = {"id":"partial","title":"Partial","cards":[{"id":"p","term":"question","definition":""}]}

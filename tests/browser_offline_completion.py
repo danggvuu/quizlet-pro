@@ -23,7 +23,8 @@ class QuietHandler(server.handler):
 class OfflineBrowserTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
-        self.root = Path(self.temp.name)
+        # Resolve macOS /var -> /private/var so containment checks use canonical paths.
+        self.root = Path(self.temp.name).resolve()
         source = Path(server.__file__).parent
         for name in ['index.html', 'sw.js']:
             shutil.copyfile(source / name, self.root / name)

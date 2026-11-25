@@ -94,6 +94,20 @@ class BrowserEditorFlows(unittest.TestCase):
         self.assertNotIn("new", self.drafts())
         self.assertIsNone(self.page.evaluate("localStorage.getItem('qp_active_draft')"))
 
+    def test_create_set_persists_in_indexeddb_after_reload(self):
+        self.create()
+        self.page.locator("#create-title").fill("Saved set")
+        self.page.locator(".term-input").first.fill("hello")
+        self.page.locator(".def-input").first.fill("xin chào")
+        self.page.locator("#btn-save-set-top").click()
+        self.page.wait_for_function("currentSet?.title === 'Saved set'")
+        set_id = self.page.evaluate("currentSet.id")
+        saved = self.page.evaluate("id => Database.getSetById(id)", set_id)
+        self.assertEqual(saved["cards"][0]["term"], "hello")
+        self.page.reload()
+        self.page.wait_for_function("window.appReady === true")
+        self.assertEqual(self.page.evaluate("id => Database.getSetById(id).then(s=>s.title)", set_id), "Saved set")
+
     def test_draft_discard_and_active_key(self):
         self.create()
         self.page.locator("#create-title").fill("Disposable")

@@ -5,11 +5,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>Quizlet Pro - Học Miễn Phí (Learn & Write Mode)</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-
     :root {
       /* Brand Accents - Linear/Notion/Quizlet modern indigo */
       --primary: #4f46e5;
@@ -24,26 +23,26 @@
       --bg-subtle: #f1f5f9;
       --card-bg: #ffffff;
       --card-hover: #ffffff;
-      
+
       --text: #0f172a;
       --text-muted: #64748b;
       --text-subtle: #94a3b8;
-      
+
       --border: #e2e8f0;
       --border-darker: #cbd5e1;
       --border-focus: #6366f1;
-      
+
       /* Semantics */
       --success: #10b981;
       --success-hover: #059669;
       --success-light: #ecfdf5;
       --success-border: #a7f3d0;
-      
+
       --error: #ef4444;
       --error-hover: #dc2626;
       --error-light: #fef2f2;
       --error-border: #fecaca;
-      
+
       --warning: #f59e0b;
       --warning-light: #fffbeb;
       --warning-border: #fde68a;
@@ -120,7 +119,9 @@
     }
 
     /* GLOBAL RESET & BASE */
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
@@ -152,7 +153,12 @@
     }
 
     /* TYPOGRAPHY HELPERS */
-    h1, h2, h3, h4, h5, h6 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
       color: var(--text);
       font-weight: 700;
       line-height: 1.25;
@@ -179,29 +185,119 @@
       cursor: not-allowed;
       pointer-events: none;
     }
-    [hidden] { display: none !important; }
 
-    :focus-visible { outline: 3px solid var(--border-focus); outline-offset: 3px; }
-    .summary-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin: 24px 0; }
-    .sum-stat-card { background: var(--bg); padding: 16px; border-radius: var(--radius); }
-    .sum-num { font-size: 24px; font-weight: 800; }
-    .sum-label { font-size: 12px; color: var(--text-muted); }
-    .card-row-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
-    .card-row-input-group { flex: 1; min-width: 0; }
-    .card-row-label { font-size: 12px; color: var(--text-muted); }
-    .term-item { display: flex; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border); }
-    .t-word, .t-def { flex: 1; min-width: 0; }
-    .test-filter-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-    .test-tab-btn { padding: 8px 12px; border-radius: var(--radius-sm); color: var(--text-muted); }
-    .test-tab-btn.active { color: var(--primary); background: var(--primary-light); }
-    @media (max-width: 768px) {
-      .terms-overview-header { flex-direction: column; align-items: stretch; gap: 12px; }
-      .term-row { flex-wrap: wrap; }
-      .fc-nav, .fc-shortcuts-dock { flex-wrap: wrap; }
-      #toast-msg { bottom: 80px !important; left: 14px; right: 14px !important; }
+    [hidden] {
+      display: none !important;
     }
+
+    :focus-visible {
+      outline: 3px solid var(--border-focus);
+      outline-offset: 3px;
+    }
+
+    .summary-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .sum-stat-card {
+      background: var(--bg);
+      padding: 16px;
+      border-radius: var(--radius);
+    }
+
+    .sum-num {
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .sum-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .card-row-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .card-row-input-group {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .card-row-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .term-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .t-word,
+    .t-def {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .test-filter-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .test-tab-btn {
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+    }
+
+    .test-tab-btn.active {
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    @media (max-width: 768px) {
+      .terms-overview-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+
+      .term-row {
+        flex-wrap: wrap;
+      }
+
+      .fc-nav,
+      .fc-shortcuts-dock {
+        flex-wrap: wrap;
+      }
+
+      #toast-msg {
+        bottom: 80px !important;
+        left: 14px;
+        right: 14px !important;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
     }
 
     .btn-primary {
@@ -438,8 +534,15 @@
     }
 
     @keyframes dropdownFadeIn {
-      from { opacity: 0; transform: translateY(-4px) scale(0.98); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
+      from {
+        opacity: 0;
+        transform: translateY(-4px) scale(0.98);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
 
     .dropdown-item {
@@ -1109,9 +1212,17 @@
       border-radius: 50%;
     }
 
-    .dot-unseen { background: var(--text-subtle); }
-    .dot-learning { background: var(--warning); }
-    .dot-mastered { background: var(--success); }
+    .dot-unseen {
+      background: var(--text-subtle);
+    }
+
+    .dot-learning {
+      background: var(--warning);
+    }
+
+    .dot-mastered {
+      background: var(--success);
+    }
 
     /* ============================================================ */
     /* 🃏 FLASHCARD MODE (3D LUXURY PERSPECTIVE)                   */
@@ -1428,6 +1539,7 @@
       color: #475569;
       border-color: #cbd5e1;
     }
+
     [data-theme="dark"] .card-type-tag.stage-0 {
       background: rgba(148, 163, 184, 0.12);
       color: #94a3b8;
@@ -1439,6 +1551,7 @@
       color: #b45309;
       border-color: #fde68a;
     }
+
     [data-theme="dark"] .card-type-tag.stage-1 {
       background: rgba(245, 158, 11, 0.12);
       color: #fcd34d;
@@ -1450,6 +1563,7 @@
       color: #047857;
       border-color: #a7f3d0;
     }
+
     [data-theme="dark"] .card-type-tag.stage-2 {
       background: rgba(16, 185, 129, 0.12);
       color: #6ee7b7;
@@ -1652,15 +1766,18 @@
       transform: scale(1.01);
       cursor: default;
     }
+
     .option-btn.correct .opt-text {
       color: #065f46 !important;
       font-weight: 700;
     }
+
     .option-btn.correct .option-key {
       background: #10b981 !important;
       border-color: #059669 !important;
       color: #ffffff !important;
     }
+
     .option-btn.correct::after {
       content: "✓";
       display: inline-flex;
@@ -1684,6 +1801,7 @@
       border-color: #34d399 !important;
       color: #a7f3d0 !important;
     }
+
     [data-theme="dark"] .option-btn.correct .opt-text {
       color: #ecfdf5 !important;
     }
@@ -1697,15 +1815,18 @@
       cursor: default;
       animation: wrongShake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
     }
+
     .option-btn.incorrect .opt-text {
       color: #991b1b !important;
       font-weight: 700;
     }
+
     .option-btn.incorrect .option-key {
       background: #ef4444 !important;
       border-color: #dc2626 !important;
       color: #ffffff !important;
     }
+
     .option-btn.incorrect::after {
       content: "✕";
       display: inline-flex;
@@ -1729,20 +1850,45 @@
       border-color: #f87171 !important;
       color: #fecaca !important;
     }
+
     [data-theme="dark"] .option-btn.incorrect .opt-text {
       color: #fef2f2 !important;
     }
 
     @keyframes popBadge {
-      0% { transform: scale(0); opacity: 0; }
-      70% { transform: scale(1.15); }
-      100% { transform: scale(1); opacity: 1; }
+      0% {
+        transform: scale(0);
+        opacity: 0;
+      }
+
+      70% {
+        transform: scale(1.15);
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
 
     @keyframes wrongShake {
-      0%, 100% { transform: translateX(0); }
-      15%, 45%, 75% { transform: translateX(-6px); }
-      30%, 60%, 90% { transform: translateX(6px); }
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      15%,
+      45%,
+      75% {
+        transform: translateX(-6px);
+      }
+
+      30%,
+      60%,
+      90% {
+        transform: translateX(6px);
+      }
     }
 
     /* FEEDBACK CARD (KHI TRẢ LỜI SAI) */
@@ -1789,8 +1935,15 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* WRITE / TỰ LUẬN INPUT AREA */
@@ -2097,9 +2250,19 @@
     }
 
     @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-4px); }
-      75% { transform: translateX(4px); }
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-4px);
+      }
+
+      75% {
+        transform: translateX(4px);
+      }
     }
 
     /* ============================================================ */
@@ -2296,8 +2459,13 @@
     }
 
     @keyframes modalFadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
 
     .modal-content {
@@ -2314,8 +2482,15 @@
     }
 
     @keyframes modalScaleIn {
-      from { opacity: 0; transform: scale(0.96); }
-      to { opacity: 1; transform: scale(1); }
+      from {
+        opacity: 0;
+        transform: scale(0.96);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
 
     .modal-header {
@@ -2405,13 +2580,13 @@
       margin-bottom: 16px !important;
     }
 
-    .create-set-container > .import-btn-inline {
+    .create-set-container>.import-btn-inline {
       align-self: flex-start;
       max-width: 100%;
       margin: 0 0 16px;
     }
 
-    .create-set-container > .import-box {
+    .create-set-container>.import-box {
       margin: 0 0 16px;
     }
 
@@ -2643,6 +2818,7 @@
       .header-nav-links {
         display: none;
       }
+
       .nav-center-search {
         max-width: 320px;
       }
@@ -2675,7 +2851,8 @@
 
       .smart-search-input {
         padding: 7px 32px 7px 32px;
-        font-size: 16px !important; /* iOS zoom prevention */
+        font-size: 16px !important;
+        /* iOS zoom prevention */
       }
 
       .search-kbd-badge,
@@ -2731,8 +2908,14 @@
         min-width: 0;
         max-width: 100%;
       }
-      .set-selector-group .btn-icon { flex: 0 0 36px; }
-      .set-selector-group > span { display: none; }
+
+      .set-selector-group .btn-icon {
+        flex: 0 0 36px;
+      }
+
+      .set-selector-group>span {
+        display: none;
+      }
 
       .mode-pills {
         width: 100%;
@@ -3034,7 +3217,9 @@
     }
 
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     .hero-jump-right {
@@ -3221,14 +3406,39 @@
       font-size: 12.5px;
     }
 
-    .preview-term { font-weight: 700; color: var(--text); }
-    .preview-def { color: var(--text-muted); }
+    .preview-term {
+      font-weight: 700;
+      color: var(--text);
+    }
 
-    .fb-section { margin-bottom: 14px; }
-    .fb-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
-    .fb-val { font-size: 16px; font-weight: 600; }
-    .fb-your { color: var(--error); }
-    .fb-correct { color: var(--success); }
+    .preview-def {
+      color: var(--text-muted);
+    }
+
+    .fb-section {
+      margin-bottom: 14px;
+    }
+
+    .fb-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .fb-val {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .fb-your {
+      color: var(--error);
+    }
+
+    .fb-correct {
+      color: var(--success);
+    }
 
     .terms-table {
       display: flex;
@@ -3261,10 +3471,12 @@
       margin: 8px 0;
       white-space: pre;
     }
+
     [data-theme="dark"] .code-block {
       background: rgba(0, 0, 0, 0.4);
       border-color: rgba(255, 255, 255, 0.1);
     }
+
     .code-block code {
       font-family: inherit;
       font-size: inherit;
@@ -3285,6 +3497,7 @@
       border: 1px solid rgba(99, 102, 241, 0.2);
       vertical-align: baseline;
     }
+
     [data-theme="dark"] .inline-code {
       background: rgba(99, 102, 241, 0.2);
       color: #a5b4fc;
@@ -3298,11 +3511,11 @@
     }
 
     /* Japanese / CJK typography enhancements */
-    :lang(ja), .cjk-text {
+    :lang(ja),
+    .cjk-text {
       font-feature-settings: "palt" 1;
       line-height: 1.7;
     }
-
   </style>
   <script src="js/cloud.js" defer></script>
 
@@ -3320,23 +3533,42 @@
       </a>
       <nav class="header-nav-links">
         <button class="nav-link-btn active" id="nav-btn-home" onclick="showDashboard()">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
           <span>Trang chủ</span>
         </button>
         <button class="nav-link-btn" id="nav-btn-library" onclick="showDashboard()">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" />
+            <path d="M6 6h10" />
+            <path d="M6 10h10" />
+          </svg>
           <span>Thư viện</span>
         </button>
         <div class="create-dropdown-wrap">
           <button class="btn-create-nav" onclick="toggleCreateDropdown(event)">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
             <span>Tạo</span>
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
           </button>
           <div id="create-dropdown-menu" class="create-dropdown-menu" style="display: none;">
             <div class="dropdown-item" onclick="showCreateSetView(); hideAllDropdowns();">
               <span class="drop-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <line x1="12" y1="8" x2="12" y2="16" />
+                  <line x1="8" y1="12" x2="16" y2="12" />
+                </svg>
               </span>
               <div>
                 <div class="drop-title">Học phần mới</div>
@@ -3345,7 +3577,10 @@
             </div>
             <div class="dropdown-item" onclick="openQuickImportModal('link'); hideAllDropdowns();">
               <span class="drop-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                </svg>
               </span>
               <div>
                 <div class="drop-title">Nhập link Quizlet</div>
@@ -3354,7 +3589,10 @@
             </div>
             <div class="dropdown-item" onclick="openQuickImportModal('paste'); hideAllDropdowns();">
               <span class="drop-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                </svg>
               </span>
               <div>
                 <div class="drop-title">Dán nhanh 1-Click</div>
@@ -3370,10 +3608,15 @@
     <div class="nav-center-search">
       <div class="smart-search-wrapper">
         <span class="search-lens-icon">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
         </span>
         <input type="text" id="global-search-input" class="smart-search-input"
-          placeholder="Tìm học phần, thuật ngữ, câu hỏi hoặc dán link Quizlet..." oninput="handleGlobalSearch(this.value)"
+          placeholder="Tìm học phần, thuật ngữ, câu hỏi hoặc dán link Quizlet..."
+          oninput="handleGlobalSearch(this.value)"
           onkeydown="if(!event.isComposing && event.keyCode !== 229 && event.key==='Enter') executeGlobalSearch(this.value)" />
         <button id="btn-smart-action" class="btn-smart-action" style="display: none;" onclick="executeSmartAction()">
           <span>Tải thẻ</span>
@@ -3385,25 +3628,36 @@
     <!-- RIGHT: CLOUD SYNC, IMPORT, THEME, USER PROFILE -->
     <div class="nav-right-actions">
       <!-- Cloud Sync Status Pill -->
-      <div id="cloud-status-badge" class="cloud-status-pill offline" onclick="showCloudStatusHelp()" title="Kiểm tra trạng thái đồng bộ Cloud">
+      <div id="cloud-status-badge" class="cloud-status-pill offline" onclick="showCloudStatusHelp()"
+        title="Kiểm tra trạng thái đồng bộ Cloud">
         <span id="cloud-status-icon" style="font-size: 13px;">☁️</span>
         <span id="cloud-status-text">Cloud</span>
       </div>
 
-      <button class="btn-quick-import-pill" onclick="openQuickImportModal('link')" title="Nhập học phần nhanh từ Quizlet">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <button class="btn-quick-import-pill" onclick="openQuickImportModal('link')"
+        title="Nhập học phần nhanh từ Quizlet">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
         <span class="quick-import-label">Nhập thẻ</span>
       </button>
 
       <button class="btn-theme-toggle" id="btn-theme-toggle" onclick="toggleTheme()" title="Chuyển chế độ Sáng / Tối">
         <span id="theme-icon-label" style="display: flex; align-items: center; justify-content: center;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
         </span>
       </button>
 
       <!-- User Avatar with Dropdown -->
       <div class="profile-dropdown-wrap">
-        <div class="avatar-circle-modern" id="nav-user-avatar" onclick="toggleProfileDropdown(event)" title="Hồ sơ người học (Thiết bị này)">
+        <div class="avatar-circle-modern" id="nav-user-avatar" onclick="toggleProfileDropdown(event)"
+          title="Hồ sơ người học (Thiết bị này)">
           ĐV
         </div>
         <div id="profile-dropdown-menu" class="profile-dropdown-menu" style="display: none;">
@@ -3417,7 +3671,14 @@
           <div class="dropdown-divider"></div>
           <div class="dropdown-item" onclick="toggleListModal(); hideAllDropdowns();">
             <span class="drop-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="8" y1="6" x2="21" y2="6" />
+                <line x1="8" y1="12" x2="21" y2="12" />
+                <line x1="8" y1="18" x2="21" y2="18" />
+                <line x1="3" y1="6" x2="3.01" y2="6" />
+                <line x1="3" y1="12" x2="3.01" y2="12" />
+                <line x1="3" y1="18" x2="3.01" y2="18" />
+              </svg>
             </span>
             <div>
               <div class="drop-title">Danh sách tất cả thẻ</div>
@@ -3426,7 +3687,11 @@
           </div>
           <div class="dropdown-item" onclick="toggleSettingsModal(); hideAllDropdowns();">
             <span class="drop-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+              </svg>
             </span>
             <div>
               <div class="drop-title">Cài đặt học tập</div>
@@ -3435,7 +3700,9 @@
           </div>
           <div class="dropdown-item" onclick="toggleCloudModal(); hideAllDropdowns();">
             <span class="drop-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+              </svg>
             </span>
             <div>
               <div class="drop-title">Hướng dẫn & Bookmarklet</div>
@@ -3445,7 +3712,9 @@
           <div class="dropdown-divider"></div>
           <div class="dropdown-item" onclick="toggleTheme(); hideAllDropdowns();">
             <span class="drop-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
             </span>
             <div>
               <div class="drop-title">Đổi giao diện</div>
@@ -3541,7 +3810,8 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
   </div>
 
   <div id="dashboard-view" class="dashboard-view">
-    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; color: var(--text-muted);">
+    <div
+      style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; color: var(--text-muted);">
       <div class="spinner" style="margin-bottom: 16px;"></div>
       <div style="font-size: 15px; font-weight: 700;">Đang tải danh sách học phần...</div>
     </div>
@@ -3554,50 +3824,92 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       <div class="set-selector-group">
         <button class="nav-link-btn" onclick="showDashboard()" title="Quay lại Bảng điều khiển"
           style="font-weight: 700; color: var(--primary); padding: 6px 10px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="m15 18-6-6 6-6" />
+          </svg>
           <span>Trang chủ</span>
         </button>
         <span style="color: var(--border-darker); margin: 0 4px;">|</span>
         <select id="set-select" class="set-select" onchange="onSetChange(this.value)">
           <!-- Options populated dynamically -->
         </select>
-        <button id="btn-edit-set" class="btn-icon" style="display:none;" onclick="openEditCurrentSet()" title="Sửa học phần">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        <button id="btn-edit-set" class="btn-icon" style="display:none;" onclick="openEditCurrentSet()"
+          title="Sửa học phần">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+          </svg>
         </button>
-        <button id="btn-reset-prog" class="btn-icon" style="display:none;" onclick="resetSetProgress()" title="Đặt lại tiến độ">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+        <button id="btn-reset-prog" class="btn-icon" style="display:none;" onclick="resetSetProgress()"
+          title="Đặt lại tiến độ">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+            <path d="M21 3v5h-5" />
+            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+            <path d="M8 16H3v5" />
+          </svg>
         </button>
-        <button id="btn-export-set" class="btn-icon" style="display:none;" onclick="exportCurrentSet()" title="Xuất học phần">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        <button id="btn-export-set" class="btn-icon" style="display:none;" onclick="exportCurrentSet()"
+          title="Xuất học phần">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+            <polyline points="16 6 12 2 8 6" />
+            <line x1="12" y1="2" x2="12" y2="15" />
+          </svg>
         </button>
-        <button id="btn-del-set" class="btn-icon btn-icon-danger" style="display:none;" onclick="deleteCurrentSet()" title="Xóa vĩnh viễn học phần">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        <button id="btn-del-set" class="btn-icon btn-icon-danger" style="display:none;" onclick="deleteCurrentSet()"
+          title="Xóa vĩnh viễn học phần">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+          </svg>
         </button>
       </div>
 
       <div class="mode-pills">
         <button class="mode-pill active" id="mode-learn" onclick="switchMode('learn')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="6" />
+            <circle cx="12" cy="12" r="2" />
+          </svg>
           <span>Học (SRS)</span>
         </button>
         <button class="mode-pill" id="mode-flashcards" onclick="switchMode('flashcards')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="15" height="15" rx="3"/><path d="M7 3h11a3 3 0 0 1 3 3v11"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="5" width="15" height="15" rx="3" />
+            <path d="M7 3h11a3 3 0 0 1 3 3v11" />
+          </svg>
           <span>Thẻ nhớ</span>
         </button>
         <button class="mode-pill" id="mode-test" onclick="switchMode('test')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+          </svg>
           <span>Kiểm tra</span>
         </button>
         <button class="mode-pill" id="mode-match" onclick="switchMode('match')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+          </svg>
           <span>Ghép thẻ</span>
         </button>
         <button class="mode-pill" id="mode-write" onclick="switchMode('write')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 20h9" />
+            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+          </svg>
           <span>Tự luận</span>
         </button>
         <button class="mode-pill" id="mode-choice" onclick="switchMode('choice')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="m9 12 2 2 4-4" />
+          </svg>
           <span>Trắc nghiệm</span>
         </button>
       </div>
@@ -3708,22 +4020,35 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       <div class="modal-content">
         <div class="modal-header">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
             <span>Tùy chọn học tập</span>
           </div>
           <button class="btn-icon" onclick="toggleSettingsModal()">✕</button>
         </div>
         <div style="display: flex; flex-direction: column; gap: 16px;">
           <!-- THIẾT LẬP TIẾN ĐỘ ĐỘC LẬP TỪNG THIẾT BỊ -->
-          <div style="background: var(--success-light); border: 1px solid var(--success-border); border-radius: 12px; padding: 14px 16px;">
-            <div style="font-weight: 800; font-size: 11.5px; color: var(--success); display: flex; align-items: center; gap: 6px; margin-bottom: 6px; letter-spacing: 0.06em; text-transform: uppercase;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <div
+            style="background: var(--success-light); border: 1px solid var(--success-border); border-radius: 12px; padding: 14px 16px;">
+            <div
+              style="font-weight: 800; font-size: 11.5px; color: var(--success); display: flex; align-items: center; gap: 6px; margin-bottom: 6px; letter-spacing: 0.06em; text-transform: uppercase;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
               <span>TIẾN ĐỘ HỌC ĐỘC LẬP TRÊN THIẾT BỊ NÀY</span>
             </div>
             <p style="font-size: 12px; color: var(--text-muted); margin: 0 0 10px 0; line-height: 1.5;">
-              Học phần được đồng bộ qua Cloud để dùng chung, nhưng <b>tiến độ ghi nhớ (đã thuộc, đang học, gắn sao)</b> được lưu riêng biệt 100% trong máy này. Máy bạn và máy bạn bè học độc lập, tuyệt đối không bị đè hay lẫn lộn!
+              Học phần được đồng bộ qua Cloud để dùng chung, nhưng <b>tiến độ ghi nhớ (đã thuộc, đang học, gắn sao)</b>
+              được lưu riêng biệt 100% trong máy này. Máy bạn và máy bạn bè học độc lập, tuyệt đối không bị đè hay lẫn
+              lộn!
             </p>
-            <label style="font-weight: 700; font-size: 12px; display: block; margin-bottom: 4px; color: var(--text);">Tên người học trên máy này:</label>
+            <label
+              style="font-weight: 700; font-size: 12px; display: block; margin-bottom: 4px; color: var(--text);">Tên
+              người học trên máy này:</label>
             <input type="text" id="opt-learner-name" placeholder="VD: Đặng Vũ hoặc tên bạn bè"
               style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 13px;">
           </div>
@@ -3732,8 +4057,10 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
             <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">Trả lời bằng:</label>
             <select id="opt-answer-with"
               style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text);">
-              <option value="definition">Định nghĩa / Giải thích / Đáp án (Hỏi Thuật ngữ/Khái niệm -> Chọn / Gõ Định nghĩa)</option>
-              <option value="term">Thuật ngữ / Khái niệm / Câu hỏi (Hỏi Định nghĩa/Giải thích -> Chọn / Gõ Thuật ngữ)</option>
+              <option value="definition">Định nghĩa / Giải thích / Đáp án (Hỏi Thuật ngữ/Khái niệm -> Chọn / Gõ Định
+                nghĩa)</option>
+              <option value="term">Thuật ngữ / Khái niệm / Câu hỏi (Hỏi Định nghĩa/Giải thích -> Chọn / Gõ Thuật ngữ)
+              </option>
             </select>
           </div>
 
@@ -3762,7 +4089,8 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           </div>
 
           <div>
-            <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">Tốc độ phát âm giọng nói (Studio Voice):</label>
+            <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">Tốc độ phát âm giọng
+              nói (Studio Voice):</label>
             <select id="opt-speech-rate"
               style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text);">
               <option value="0.8">Chậm rõ ràng (0.8x) - Dễ nghe bài học phức tạp / Hán tự</option>
@@ -3772,7 +4100,8 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           </div>
 
           <div>
-            <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">Ngôn ngữ phát âm (TTS Language):</label>
+            <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">Ngôn ngữ phát âm (TTS
+              Language):</label>
             <select id="opt-tts-language"
               style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text);">
               <option value="auto">🌐 Tự động nhận diện thông minh (Universal Multi-subject)</option>
@@ -3840,11 +4169,14 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           <button class="btn-icon" onclick="toggleManualModal()">✕</button>
         </div>
         <div style="display: flex; flex-direction: column; gap: 14px;">
-          <input type="text" id="manual-title" placeholder="Tên học phần (VD: Giải phẫu Y khoa, Lập trình Web, Lịch sử...)"
+          <input type="text" id="manual-title"
+            placeholder="Tên học phần (VD: Giải phẫu Y khoa, Lập trình Web, Lịch sử...)"
             style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text);">
           <div>
-            <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">Dán nội dung thẻ học vào đây (mỗi dòng 1 thẻ, ngăn cách bằng dấu gạch nối, dấu hai chấm hoặc Tab):</label>
-            <textarea id="manual-text" rows="8" placeholder="HTML - Ngôn ngữ đánh dấu siêu văn bản&#10;CSS - Định kiểu hiển thị giao diện&#10;JavaScript - Ngôn ngữ lập trình logic Web"
+            <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">Dán nội dung
+              thẻ học vào đây (mỗi dòng 1 thẻ, ngăn cách bằng dấu gạch nối, dấu hai chấm hoặc Tab):</label>
+            <textarea id="manual-text" rows="8"
+              placeholder="HTML - Ngôn ngữ đánh dấu siêu văn bản&#10;CSS - Định kiểu hiển thị giao diện&#10;JavaScript - Ngôn ngữ lập trình logic Web"
               style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: monospace;"></textarea>
           </div>
           <button class="btn-continue" onclick="submitManualImport()">Lưu & Học ngay</button>
@@ -3897,8 +4229,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
               Quizlet Pro!
             </p>
             <div style="text-align: center; margin: 8px 0;">
-              <a href="#" data-quizlet-export
-                id="bookmarklet-link"
+              <a href="#" data-quizlet-export id="bookmarklet-link"
                 style="display: inline-block; background: #8b5cf6; color: white; padding: 10px 20px; border-radius: 20px; font-weight: 700; text-decoration: none; cursor: move; box-shadow: 0 4px 14px rgba(139,92,246,0.35); font-size: 14px;"
                 title="Kéo nút này thả vào thanh Dấu trang (Bookmarks bar)">
                 ⚡ Cào sang Quizlet Pro (Kéo vào Bookmark)
@@ -4358,7 +4689,10 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
         // Sync to Cloud if Firebase is ready
         // Saving locally must stay responsive even if remote sync is slow or offline.
-        if (window.syncCloudSets) syncCloudSets();
+        if (window.syncCloudSets) {
+          const sync = syncCloudSets();
+          if (window.CloudDB?.accountId) await sync;
+        }
         return localBackupSaved;
       }
 
@@ -4450,7 +4784,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
               closeAllModals();
               await loadSetsList(obj.id);
               showToast(`🎉 Đã nhập thành công: "${obj.title}" (${obj.cards.length} thuật ngữ & ảnh)!`, 4000);
-                return true;
+              return true;
             }
             throw new Error('JSON phải chứa một danh sách cards không rỗng.');
           } catch (e) {
@@ -4729,8 +5063,10 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
             const set = StudyUtils.normalizeSet(raw);
             sets.set(set.id, { ...set, numTerms: set.cards.length, isCustom: set.isCustom !== false });
           } catch (error) {
-            sets.set(String(raw.id), { id: String(raw.id), title: String(raw.title || 'Bộ thẻ cần sửa'),
-              numTerms: 0, invalid: true, error: error.message, isCustom: true });
+            sets.set(String(raw.id), {
+              id: String(raw.id), title: String(raw.title || 'Bộ thẻ cần sửa'),
+              numTerms: 0, invalid: true, error: error.message, isCustom: true
+            });
           }
         }
         if (generation !== listGeneration) return;
@@ -4942,8 +5278,10 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           let box = 0; // 0: Chưa học
           if (c.mastery === 1) box = 2; // Đang học
           if (c.mastery === 2) box = 3; // Đã thuộc
-          backupMap[c.id] = { box: box, isStarred: !!c.starred, cardId: c.id, setId: currentSet.id,
-            nextReview: c.nextReview || 0, interval: c.interval || 0, incorrectCount: c.incorrectCount || 0, updatedAt };
+          backupMap[c.id] = {
+            box: box, isStarred: !!c.starred, cardId: c.id, setId: currentSet.id,
+            nextReview: c.nextReview || 0, interval: c.interval || 0, incorrectCount: c.incorrectCount || 0, updatedAt
+          };
         });
         try {
           localStorage.setItem(getStorageKey(currentSet.id), JSON.stringify(backupMap));
@@ -5164,8 +5502,10 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         }
 
         const card = currentRoundQueue[currentCardIndex];
-        preAnswerProgress = { mastery: card.mastery, nextReview: card.nextReview,
-          interval: card.interval, incorrectCount: card.incorrectCount };
+        preAnswerProgress = {
+          mastery: card.mastery, nextReview: card.nextReview,
+          interval: card.interval, incorrectCount: card.incorrectCount
+        };
         const app = document.getElementById("app");
 
         const isPromptTerm = settings.answerWith === "definition";
@@ -5290,7 +5630,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           scheduleStudy(() => {
             currentCardIndex++;
             renderCurrentCard();
-          }, 800);
+          }, 8000);
         } else {
           playBeep(false);
           if (buttons[btnIndex]) buttons[btnIndex].classList.add("incorrect");
@@ -5583,7 +5923,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         let pool = settings.starredOnly ? cardsState.filter(c => c.starred) : cardsState;
         if (fcIsShuffled) {
           if (!window._shuffledPool || window._shuffledPool.length !== pool.length ||
-              window._shuffledPool.some(card => !pool.includes(card))) {
+            window._shuffledPool.some(card => !pool.includes(card))) {
             window._shuffledPool = StudyUtils.shuffle(pool);
           }
           return window._shuffledPool;
@@ -5947,7 +6287,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT" || e.target.isContentEditable) return;
         if (e.metaKey || e.ctrlKey || e.altKey || e.repeat || e.target.closest('button, a')) return;
         if (document.getElementById('study-view').style.display === 'none' ||
-            [...document.querySelectorAll('.modal-overlay')].some(m => m.style.display === 'flex')) return;
+          [...document.querySelectorAll('.modal-overlay')].some(m => m.style.display === 'flex')) return;
 
         if (e.key === "s" || e.key === "S") {
           if (currentMode === "flashcards") {
@@ -6028,32 +6368,32 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
         // 4. Common Math & Greek Symbols
         s = s.replace(/\\times\b/g, "&times;")
-             .replace(/\\div\b/g, "&divide;")
-             .replace(/\\pm\b/g, "&plusmn;")
-             .replace(/\\leq\b/g, "&le;")
-             .replace(/\\geq\b/g, "&ge;")
-             .replace(/\\neq\b/g, "&ne;")
-             .replace(/\\approx\b/g, "&asymp;")
-             .replace(/\\infty\b/g, "&infin;")
-             .replace(/\\rightarrow\b/g, "&rarr;")
-             .replace(/\\leftarrow\b/g, "&larr;")
-             .replace(/\\sum\b/g, "&sum;")
-             .replace(/\\int\b/g, "&int;")
-             .replace(/\\alpha\b/g, "&alpha;")
-             .replace(/\\beta\b/g, "&beta;")
-             .replace(/\\gamma\b/g, "&gamma;")
-             .replace(/\\delta\b/g, "&delta;")
-             .replace(/\\Delta\b/g, "&Delta;")
-             .replace(/\\theta\b/g, "&theta;")
-             .replace(/\\lambda\b/g, "&lambda;")
-             .replace(/\\mu\b/g, "&mu;")
-             .replace(/\\pi\b/g, "&pi;")
-             .replace(/\\sigma\b/g, "&sigma;")
-             .replace(/\\omega\b/g, "&omega;")
-             .replace(/\\Omega\b/g, "&Omega;")
-             .replace(/\\sqrt\{([^}]+)\}/g, "&radic;($1)")
-             .replace(/\\sqrt\(([^)]+)\)/g, "&radic;($1)")
-             .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '<span class="math-frac"><span class="math-num">$1</span>/<span class="math-den">$2</span></span>');
+          .replace(/\\div\b/g, "&divide;")
+          .replace(/\\pm\b/g, "&plusmn;")
+          .replace(/\\leq\b/g, "&le;")
+          .replace(/\\geq\b/g, "&ge;")
+          .replace(/\\neq\b/g, "&ne;")
+          .replace(/\\approx\b/g, "&asymp;")
+          .replace(/\\infty\b/g, "&infin;")
+          .replace(/\\rightarrow\b/g, "&rarr;")
+          .replace(/\\leftarrow\b/g, "&larr;")
+          .replace(/\\sum\b/g, "&sum;")
+          .replace(/\\int\b/g, "&int;")
+          .replace(/\\alpha\b/g, "&alpha;")
+          .replace(/\\beta\b/g, "&beta;")
+          .replace(/\\gamma\b/g, "&gamma;")
+          .replace(/\\delta\b/g, "&delta;")
+          .replace(/\\Delta\b/g, "&Delta;")
+          .replace(/\\theta\b/g, "&theta;")
+          .replace(/\\lambda\b/g, "&lambda;")
+          .replace(/\\mu\b/g, "&mu;")
+          .replace(/\\pi\b/g, "&pi;")
+          .replace(/\\sigma\b/g, "&sigma;")
+          .replace(/\\omega\b/g, "&omega;")
+          .replace(/\\Omega\b/g, "&Omega;")
+          .replace(/\\sqrt\{([^}]+)\}/g, "&radic;($1)")
+          .replace(/\\sqrt\(([^)]+)\)/g, "&radic;($1)")
+          .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '<span class="math-frac"><span class="math-num">$1</span>/<span class="math-den">$2</span></span>');
 
         // 5. Multi-line conversion (outside pre tags)
         const parts = s.split(/(<pre[\s\S]*?<\/pre>)/gi);
@@ -6845,7 +7185,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         testCards.forEach((card, idx) => {
           const typeRoll = Math.random();
           if (typeRoll < 0.5 || activePool.length < 3) {
-              const options = StudyUtils.choiceOptions(activePool, card.definition, 'definition');
+            const options = StudyUtils.choiceOptions(activePool, card.definition, 'definition');
             testState.questions.push({
               id: idx + 1,
               cardId: card.id,
@@ -7210,40 +7550,48 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
   <!-- 📱 MOBILE BOTTOM NAVIGATION DOCK -->
   <nav class="mobile-bottom-bar" id="mobile-bottom-bar" aria-label="Điều hướng di động">
     <button class="mobile-nav-item active" id="mob-nav-home" onclick="showDashboard()">
-      <svg class="mob-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-        <polyline points="9 22 9 12 15 12 15 22"/>
+      <svg class="mob-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+        <polyline points="9 22 9 12 15 12 15 22" />
       </svg>
       <span>Trang chủ</span>
     </button>
-    <button class="mobile-nav-item" id="mob-nav-study" onclick="if(currentSet){ switchMode('learn'); } else { showDashboard(); }">
-      <svg class="mob-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <circle cx="12" cy="12" r="6"/>
-        <circle cx="12" cy="12" r="2"/>
+    <button class="mobile-nav-item" id="mob-nav-study"
+      onclick="if(currentSet){ switchMode('learn'); } else { showDashboard(); }">
+      <svg class="mob-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <circle cx="12" cy="12" r="6" />
+        <circle cx="12" cy="12" r="2" />
       </svg>
       <span>Học SRS</span>
     </button>
     <button class="mobile-nav-item mob-nav-create" onclick="openQuickImportModal('link')" title="Nhập thẻ nhanh">
       <div class="mob-create-circle">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
           <line x1="12" y1="5" x2="12" y2="19"></line>
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
       </div>
       <span>Nhập thẻ</span>
     </button>
-    <button class="mobile-nav-item" id="mob-nav-flashcards" onclick="if(currentSet){ switchMode('flashcards'); } else { showDashboard(); }">
-      <svg class="mob-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="5" width="15" height="15" rx="3"/>
-        <path d="M7 3h11a3 3 0 0 1 3 3v11"/>
+    <button class="mobile-nav-item" id="mob-nav-flashcards"
+      onclick="if(currentSet){ switchMode('flashcards'); } else { showDashboard(); }">
+      <svg class="mob-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="5" width="15" height="15" rx="3" />
+        <path d="M7 3h11a3 3 0 0 1 3 3v11" />
       </svg>
       <span>Thẻ nhớ</span>
     </button>
     <button class="mobile-nav-item" id="mob-nav-settings" onclick="toggleSettingsModal()">
-      <svg class="mob-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="3"/>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      <svg class="mob-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3" />
+        <path
+          d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
       </svg>
       <span>Cài đặt</span>
     </button>
@@ -7251,9 +7599,11 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
   <div id="cloud-account-modal" class="modal-overlay" style="display:none">
     <div class="modal-content">
-      <div class="modal-header">Đồng bộ học phần <button class="btn-icon" onclick="closeAllModals()" aria-label="Đóng">✕</button></div>
+      <div class="modal-header">Đồng bộ học phần <button class="btn-icon" onclick="closeAllModals()"
+          aria-label="Đóng">✕</button></div>
       <p id="cloud-account-info"></p>
-      <p style="margin:12px 0;color:var(--text-muted)">Khi có xung đột, bản trên máy được giữ nguyên. Có thể lưu thành bản sao để đồng bộ cả hai phiên bản. Xóa học phần chỉ xóa trên thiết bị này.</p>
+      <p style="margin:12px 0;color:var(--text-muted)">Khi có xung đột, bản trên máy được giữ nguyên. Có thể lưu thành
+        bản sao để đồng bộ cả hai phiên bản. Xóa học phần chỉ xóa trên thiết bị này.</p>
       <div style="display:flex;flex-wrap:wrap;gap:10px">
         <button id="cloud-login" class="btn-primary" onclick="cloudLogin()">Đăng nhập Google</button>
         <button id="cloud-logout" class="btn-cancel" onclick="cloudLogout()" hidden>Đăng xuất</button>
