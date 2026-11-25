@@ -290,6 +290,23 @@ class BrowserRegressions(unittest.TestCase):
                 self.assertLessEqual(field["right"], width)
                 self.assertLessEqual(field["labelBottom"], field["fieldTop"])
 
+    def test_saved_set_opens_even_if_localstorage_backup_is_full(self):
+        self.page.evaluate("""() => {
+            const original = Storage.prototype.setItem;
+            Storage.prototype.setItem = function(key, value) {
+                if (key === 'qp_deleted_set_ids') throw new DOMException('Storage full', 'QuotaExceededError');
+                return original.call(this, key, value);
+            };
+            showCreateSetView();
+        }""")
+        self.page.locator("#create-title").fill("Stored in IndexedDB")
+        self.page.locator(".term-input").first.fill("term")
+        self.page.locator(".def-input").first.fill("definition")
+        self.page.locator("#btn-save-set-top").click()
+        self.page.wait_for_function("currentSet?.title === 'Stored in IndexedDB'")
+        self.assertEqual(self.page.evaluate("currentSet.cards.length"), 1)
+        self.assertTrue(self.page.evaluate("document.getElementById('study-view').style.display !== 'none'"))
+
     def test_srs_uses_due_dates(self):
         self.seed()
         self.page.evaluate("""()=>{

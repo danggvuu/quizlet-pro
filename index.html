@@ -4339,16 +4339,26 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
         // Save locally first
         await window.Database.saveSet(setObj);
-        localStorage.setItem('qp_deleted_set_ids', JSON.stringify(getDeletedSetIds().filter(id => id !== setObj.id)));
+        let localBackupSaved = true;
+        try {
+          localStorage.setItem('qp_deleted_set_ids', JSON.stringify(getDeletedSetIds().filter(id => id !== setObj.id)));
+        } catch (error) {
+          localBackupSaved = false;
+          console.warn('Học phần đã lưu trong IndexedDB nhưng không cập nhật được danh sách ẩn:', error);
+        }
 
         try {
           const sets = getStoredCustomSets().filter(s => String(s.id) !== String(setObj.id));
           sets.unshift(setObj);
           localStorage.setItem("qp_custom_sets", JSON.stringify(sets));
-        } catch (e) { }
+        } catch (error) {
+          localBackupSaved = false;
+          console.warn('Học phần đã lưu trong IndexedDB nhưng không tạo được bản dự phòng localStorage:', error);
+        }
 
         // Sync to Cloud if Firebase is ready
         if (window.syncCloudSets) syncCloudSets();
+        return localBackupSaved;
       }
 
       async function migrateLocalStorageToIndexedDB() {
@@ -6376,7 +6386,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         document.querySelectorAll('#btn-save-set-top, #btn-save-set-bottom').forEach(b => b.disabled = true);
         try {
           if (window.saveEditorDraft) saveEditorDraft();
-          await saveCustomSet(setObj, { base: isEdit && String(currentSet?.id) === String(targetId) ? currentSet : null });
+          var localBackupSaved = await saveCustomSet(setObj, { base: isEdit && String(currentSet?.id) === String(targetId) ? currentSet : null });
         } catch (error) {
           showToast(`Không lưu được học phần: ${error.message}`);
           return;
@@ -6386,6 +6396,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         }
 
         showToast(`🎉 ${isEdit ? 'Đã cập nhật' : 'Đã tạo'} học phần: "${title}" (${cards.length} thẻ)!`, 4000);
+        if (!localBackupSaved) {
+          showToast('Học phần chính đã lưu trên thiết bị, nhưng không tạo được bản dự phòng localStorage. Hãy xuất JSON để sao lưu.', 7000);
+        }
 
         currentEditingSetId = null;
         document.getElementById('create-set-view').style.display = 'none';

@@ -1,4 +1,4 @@
-const CACHE = 'quizlet-pro-v4';
+const CACHE = 'quizlet-pro-v5';
 const SHELL = ['/', '/index.html', '/js/study-utils.js', '/js/database.js', '/js/navigation.js',
     '/js/session.js', '/js/cloud.js', '/js/editor.js', '/js/bookmarklet.js'];
 const MANIFEST = '/data/sets.json';
@@ -22,15 +22,23 @@ self.addEventListener('install', event => {
             await Promise.allSettled(sets.filter(set => set && /^[A-Za-z0-9_-]{1,120}$/.test(String(set.id)))
                 .map(set => cache.add(`/data/sets/${encodeURIComponent(set.id)}.json`)));
         } catch (error) { console.warn('Offline set preload:', error); }
+        // Activate new app code promptly instead of leaving open tabs on a stale worker.
+        await self.skipWaiting();
     })());
 });
 
 self.addEventListener('activate', event => {
     event.waitUntil((async () => {
-        for (const name of await caches.keys()) {
+        const names = await caches.keys();
+        const upgrading = names.some(name => name.startsWith('quizlet-pro-') && name !== CACHE);
+        for (const name of names) {
             if (name.startsWith('quizlet-pro-') && name !== CACHE) await caches.delete(name);
         }
         await self.clients.claim();
+        if (upgrading) {
+            const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+            await Promise.allSettled(clients.map(client => client.navigate(client.url)));
+        }
     })());
 });
 
