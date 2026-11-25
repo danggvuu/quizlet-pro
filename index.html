@@ -4357,23 +4357,31 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         }
 
         // Sync to Cloud if Firebase is ready
+        // Saving locally must stay responsive even if remote sync is slow or offline.
         if (window.syncCloudSets) syncCloudSets();
         return localBackupSaved;
       }
 
       async function migrateLocalStorageToIndexedDB() {
-        if (localStorage.getItem("qp_migrated_v2")) return;
+        let alreadyMigrated = false;
+        try { alreadyMigrated = localStorage.getItem("qp_migrated_v2") === "true"; } catch (e) { }
         const oldSets = getStoredCustomSets();
+        let restored = 0;
         if (oldSets && oldSets.length > 0) {
           for (const set of oldSets) {
             if (getDeletedSetIds().includes(String(set.id))) continue;
             try {
-              await Database.saveSet(set, { preserveTimestamp: true });
+              const stored = await Database.getSetById(set.id);
+              if (!stored) {
+                await Database.saveSet(set, { preserveTimestamp: true });
+                if (alreadyMigrated) restored++;
+              }
             } catch (error) {
               console.warn("Giữ lại dữ liệu cũ không hợp lệ trong bản dự phòng:", error);
               continue;
             }
-            // Also migrate progress if exists
+            // Import old progress once; set content backup can safely repair missing sets later.
+            if (alreadyMigrated) continue;
             try {
               const progRaw = localStorage.getItem(`qp_progress_${set.id}`);
               if (progRaw) {
@@ -4388,7 +4396,8 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
             } catch (e) { }
           }
         }
-        localStorage.setItem("qp_migrated_v2", "true");
+        try { localStorage.setItem("qp_migrated_v2", "true"); } catch (e) { }
+        if (restored) showToast(`Đã khôi phục ${restored} học phần từ bản dự phòng trên trình duyệt này.`, 6000);
       }
 
 
@@ -6937,14 +6946,15 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
                   <div style="margin-top: 14px;">
                     <input type="text" class="test-written-input" placeholder="Nhập câu trả lời chính xác..." 
                            value="${escapeHtml(testState.userAnswers[q.id] || '')}"
-                           oninput="testState.userAnswers[${q.id}] = this.value; saveActiveSession();" />
+                           oninput="testState.userAnswers[${q.id}] = this.value; saveActiveSession();"
+                           onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();advanceTestQuestion(${q.id});}" />
                   </div>
                 ` : ''}
               </div>
             `).join('')}
           </div>
 
-          <div style="text-align: center; margin-top: 32px; margin-bottom: 60px;">
+          <div id="test-submit-section" style="text-align: center; margin-top: 32px; margin-bottom: 60px;">
             <button class="btn-primary" style="padding: 16px 54px; font-size: 18px; border-radius: 12px; box-shadow: 0 6px 20px rgba(66,85,255,0.35);" onclick="submitTest()">
               Nộp bài kiểm tra 🏁
             </button>
@@ -6966,6 +6976,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           if (idx === oIdx) b.classList.add("selected");
           else b.classList.remove("selected");
         });
+        advanceTestQuestion(qId);
       }
 
       function selectTestAnswer(qId, val) {
@@ -6981,6 +6992,24 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
             b.classList.remove("selected");
           }
         });
+        advanceTestQuestion(qId);
+      }
+
+      function advanceTestQuestion(currentId) {
+        if (!testState || testState.isSubmitted) return;
+        const questions = testState.questions || [];
+        const currentIndex = questions.findIndex(q => String(q.id) === String(currentId));
+        const ordered = currentIndex < 0
+          ? questions
+          : [...questions.slice(currentIndex + 1), ...questions.slice(0, currentIndex + 1)];
+        const next = ordered.find(q => !String(testState.userAnswers[q.id] || '').trim());
+        const target = next
+          ? document.getElementById(`test_q_${next.id}`)
+          : document.getElementById('test-submit-section');
+        target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (next?.type === 'written') {
+          setTimeout(() => document.querySelector(`#test_q_${CSS.escape(String(next.id))} .test-written-input`)?.focus({ preventScroll: true }), 250);
+        }
       }
 
       function submitTest() {

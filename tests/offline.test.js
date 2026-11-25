@@ -12,7 +12,7 @@ function worker(overrides = {}) {
     };
     const context = {
         self: { location: { origin: 'http://localhost' }, addEventListener: (type, cb) => events[type] = cb,
-            clients: { claim: async () => {} } },
+            clients: { claim: async () => {} }, skipWaiting: async () => {} },
         caches: { open: async () => cache, keys: async () => [], delete: async () => true },
         fetch: async () => new Response('network'), URL, Response, AbortController, setTimeout, clearTimeout,
         console: { warn: () => {} }, ...overrides

@@ -3,10 +3,12 @@ function updateCloudSyncUI(status, message = '') {
     const badge = document.getElementById('cloud-status-badge');
     if (!badge) return;
     const labels = { connected: 'Đã đồng bộ', syncing: 'Đang đồng bộ', conflict: 'Có xung đột',
-        offline: 'Lưu trên máy', locked: 'Chưa có quyền', catalog: 'Thư viện chung' };
+        offline: 'Lưu trên máy', locked: 'Chưa có quyền', catalog: 'Lưu trên máy' };
     badge.className = `cloud-status-pill ${status === 'connected' ? 'online' : 'offline'}`;
     document.getElementById('cloud-status-text').textContent = labels[status] || labels.offline;
-    badge.title = message || labels[status] || labels.offline;
+    badge.title = message || (status === 'catalog'
+        ? 'Chưa đăng nhập Google. Bộ thẻ mới chỉ được lưu trên trình duyệt này.'
+        : labels[status] || labels.offline);
 }
 
 function showCloudStatusHelp() {
@@ -50,13 +52,12 @@ function syncCloudSets() {
         cloudSyncAgain = true;
         return cloudSyncRunning;
     }
-    cloudSyncRunning = performCloudSync().finally(() => {
-        cloudSyncRunning = null;
-        if (cloudSyncAgain) {
+    cloudSyncRunning = (async () => {
+        do {
             cloudSyncAgain = false;
-            syncCloudSets();
-        }
-    });
+            await performCloudSync();
+        } while (cloudSyncAgain);
+    })().finally(() => { cloudSyncRunning = null; });
     return cloudSyncRunning;
 }
 

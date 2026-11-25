@@ -142,6 +142,17 @@ class BrowserRegressions(unittest.TestCase):
         self.page.locator("#btn-save-set-top").click()
         self.page.wait_for_function("currentSet?.id==='broken' && cardsState.length===1")
 
+    def test_missing_indexeddb_set_is_restored_from_same_origin_backup(self):
+        self.seed()
+        self.page.evaluate("""async()=>{
+            await Database.deleteSet('audit_a');
+            localStorage.setItem('qp_migrated_v2', 'true');
+            await migrateLocalStorageToIndexedDB();
+        }""")
+        restored = self.page.evaluate("Database.getSetById('audit_a')")
+        self.assertEqual(restored["title"], "Audit A")
+        self.assertEqual(len(restored["cards"]), 5)
+
     def test_text_import_preserves_definition_and_rejects_bad_lines(self):
         self.assertFalse(self.page.evaluate("parseAndImportText('Ratio\\tx = 1: 2\\nBad line')"))
         self.assertIsNone(self.page.evaluate("currentSet"))
@@ -306,6 +317,15 @@ class BrowserRegressions(unittest.TestCase):
         self.page.wait_for_function("currentSet?.title === 'Stored in IndexedDB'")
         self.assertEqual(self.page.evaluate("currentSet.cards.length"), 1)
         self.assertTrue(self.page.evaluate("document.getElementById('study-view').style.display !== 'none'"))
+
+    def test_set_save_does_not_wait_for_slow_cloud_sync(self):
+        self.page.evaluate("window.syncCloudSets = () => new Promise(() => {})")
+        self.page.evaluate("showCreateSetView()")
+        self.page.locator("#create-title").fill("Save without network")
+        self.page.locator(".term-input").first.fill("term")
+        self.page.locator(".def-input").first.fill("definition")
+        self.page.locator("#btn-save-set-top").click()
+        self.page.wait_for_function("currentSet?.title === 'Save without network'")
 
     def test_srs_uses_due_dates(self):
         self.seed()
