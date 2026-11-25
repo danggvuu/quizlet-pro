@@ -319,7 +319,7 @@ class BrowserRegressions(unittest.TestCase):
         self.assertTrue(self.page.evaluate("document.getElementById('study-view').style.display !== 'none'"))
 
     def test_set_save_does_not_wait_for_slow_cloud_sync(self):
-        self.page.evaluate("window.syncCloudSets = () => new Promise(() => {})")
+        self.page.evaluate("() => { window.syncCloudSets = () => new Promise(() => {}); }")
         self.page.evaluate("showCreateSetView()")
         self.page.locator("#create-title").fill("Save without network")
         self.page.locator(".term-input").first.fill("term")
