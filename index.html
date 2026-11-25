@@ -4464,11 +4464,16 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           cards: cards
         };
 
-        await saveCustomSet(newSet);
-        closeAllModals();
-        await loadSetsList(newSet.id);
-        showToast(`🎉 Đã tạo thành công: "${title}" (${cards.length} thuật ngữ)!`, 4000);
-        return true;
+        try {
+          await saveCustomSet(newSet);
+          closeAllModals();
+          await loadSetsList(newSet.id);
+          showToast(`🎉 Đã tạo thành công: "${title}" (${cards.length} thuật ngữ)!`, 4000);
+          return true;
+        } catch (error) {
+          showToast(`Không thể nhập bộ thẻ: ${error.message}`, 6000);
+          return false;
+        }
       }
 
       // CHECK HASH IMPORT FROM BOOKMARKLET
@@ -4498,17 +4503,18 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           id: currentSet.id,
           title: currentSet.title,
           description: currentSet.description || "",
-          cards: (cardsState && cardsState.length > 0) ? cardsState.map(c => ({
+          cards: (currentSet.cards || []).map(c => ({
             id: c.id,
             term: c.term,
             definition: c.definition,
             image: c.image || ""
-          })) : (currentSet.cards || [])
+          }))
         };
 
         const jsonStr = JSON.stringify(exportObj, null, 2);
 
         // 1. Tải file JSON về máy
+        let downloaded = false;
         try {
           const blob = new Blob([jsonStr], { type: "application/json" });
           const a = document.createElement("a");
@@ -4516,9 +4522,13 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           a.href = URL.createObjectURL(blob);
           a.download = `${safeName}.json`;
           document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(a.href);
+          try {
+            a.click();
+            downloaded = true;
+          } finally {
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+          }
         } catch (e) { }
 
         // 2. Đồng thời copy JSON vào clipboard để dán chia sẻ qua tin nhắn
@@ -4527,7 +4537,14 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           await navigator.clipboard.writeText(jsonStr);
           copied = true;
         } catch (e) { }
-        showToast(`📁 Đã xuất "${currentSet.title}".json${copied ? ' và sao chép mã' : ''}. Có thể nhập lại bằng nút Chọn file JSON.`, 4000);
+        if (!downloaded && !copied) {
+          showToast('Không xuất được bộ thẻ. Hãy cho phép tải tệp hoặc sao chép rồi thử lại.', 6000);
+          return false;
+        }
+        showToast(downloaded
+          ? `📁 Đã xuất "${currentSet.title}".json${copied ? ' và sao chép mã' : ''}. Có thể nhập lại bằng nút Chọn file JSON.`
+          : 'Đã sao chép mã JSON. Chưa tải được tệp, hãy dán mã vào nơi an toàn để giữ bản sao.', 4000);
+        return true;
       }
 
       // QUẢN LÝ DANH SÁCH BỘ THẺ ĐÃ BỊ XÓA (Vĩnh viễn không hiển thị lại)
@@ -6109,6 +6126,8 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         setLoadGeneration++;
         cancelStudyActivity();
         window.scrollTo({ top: 0, behavior: 'instant' });
+        window.initializingEditor = true;
+        if (window.resetEditorImport) resetEditorImport();
         currentEditingSetId = null;
         document.getElementById('dashboard-view').style.display = 'none';
         document.getElementById('study-view').style.display = 'none';
@@ -6130,6 +6149,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
         // Add 5 default empty rows
         for (let i = 0; i < 5; i++) addCardRow();
+        window.initializingEditor = false;
         if (window.restoreDraftFor) restoreDraftFor('new');
       }
 
@@ -6139,6 +6159,8 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         setLoadGeneration++;
         cancelStudyActivity();
         window.scrollTo({ top: 0, behavior: 'instant' });
+        window.initializingEditor = true;
+        if (window.resetEditorImport) resetEditorImport();
         currentEditingSetId = currentSet.id;
 
         document.getElementById('dashboard-view').style.display = 'none';
@@ -6166,14 +6188,17 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         } else {
           for (let i = 0; i < 3; i++) addCardRow();
         }
+        window.initializingEditor = false;
         if (window.restoreDraftFor) restoreDraftFor(String(currentEditingSetId));
       }
 
 
       let parsedImportCards = [];
+      let invalidImportRows = [];
 
       function updateImportPreview() {
-        const text = document.getElementById('import-raw-text').value;
+        invalidImportRows = [];
+        const text = document.getElementById('import-raw-text').value.replace(/\r\n?/g, '\n');
         if (!text.trim()) {
           document.getElementById('preview-list').innerHTML = "Không có nội dung để xem trước";
           document.getElementById('preview-count').innerText = "0";
@@ -6196,18 +6221,19 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         parsedImportCards = [];
         let html = '';
 
-        cards.forEach(c => {
+        cards.forEach((c, index) => {
           if (!c.trim()) return;
           const parts = c.split(new RegExp(termSep.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
           const term = parts[0] ? parts[0].trim() : '';
           const def = parts.slice(1).join(termSep).trim();
+          if (!term || !def) invalidImportRows.push(index + 1);
           if (term || def) {
             parsedImportCards.push({ term, def });
             html += `<div class="preview-item"><div class="preview-term">${escapeHtml(term)}</div><div class="preview-def">${escapeHtml(def)}</div></div>`;
           }
         });
 
-        document.getElementById('preview-list').innerHTML = html;
+        document.getElementById('preview-list').innerHTML = (invalidImportRows.length ? `<div role="alert">Dòng ${invalidImportRows.join(', ')} cần có cả thuật ngữ và định nghĩa.</div>` : '') + html;
         document.getElementById('preview-count').innerText = parsedImportCards.length;
       }
 
@@ -6230,14 +6256,19 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       function applyImportToRows() {
+        updateImportPreview();
+        if (invalidImportRows.length) {
+          showToast(`Chưa nhập: dòng ${invalidImportRows.join(', ')} cần có cả thuật ngữ và định nghĩa.`, 6000);
+          return;
+        }
         if (parsedImportCards.length === 0) return;
 
         // Clear existing empty rows if it's a fresh creation
         const list = document.getElementById('create-cards-list');
-        const rows = document.querySelectorAll('.card-row');
+        const rows = list.querySelectorAll('.card-row');
         let isEmpty = true;
         rows.forEach(r => {
-          if (r.querySelector('.term-input').value.trim() || r.querySelector('.def-input').value.trim()) isEmpty = false;
+          if (r.querySelector('.term-input').value.trim() || r.querySelector('.def-input').value.trim() || r.querySelector('.image-input')?.value.trim()) isEmpty = false;
         });
         if (isEmpty) {
           list.innerHTML = ''; // clear all empty default rows
@@ -6253,6 +6284,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         document.getElementById('import-box-ui').style.display = 'none';
         document.getElementById('import-raw-text').value = '';
         updateImportPreview();
+        if (window.saveEditorDraft) saveEditorDraft();
       }
 
       function addCardRow(term = '', definition = '', original = null) {
@@ -6280,23 +6312,41 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         </div>
       `;
         list.appendChild(div);
-        div.querySelectorAll('.card-row-input').forEach(field => {
+        const imageGroup = document.createElement('div');
+        imageGroup.className = 'card-row-input-group';
+        imageGroup.style.marginTop = '12px';
+        const imageLabel = document.createElement('label');
+        imageLabel.className = 'card-row-label';
+        imageLabel.htmlFor = `${div.id}-image`;
+        imageLabel.textContent = 'Đường dẫn ảnh (không bắt buộc)';
+        const imageInput = document.createElement('input');
+        imageInput.id = imageLabel.htmlFor;
+        imageInput.className = 'q-input image-input';
+        imageInput.style.marginBottom = '0';
+        imageInput.type = 'url';
+        imageInput.placeholder = 'https://...';
+        imageInput.value = original?.image || '';
+        imageGroup.append(imageLabel, imageInput);
+        div.append(imageGroup);
+        div.querySelectorAll('textarea.card-row-input').forEach(field => {
           field.style.height = `${Math.max(field.scrollHeight, 72)}px`;
         });
+        if (window.saveEditorDraft) saveEditorDraft();
         return div;
       }
 
       async function saveCreatedSet() {
         if (window.savingEditor) return;
         const title = document.getElementById('create-title').value.trim() || 'Học phần không tên';
-        const rows = document.querySelectorAll('.card-row');
+        const rows = document.querySelectorAll('#create-cards-list .card-row');
         const cards = [];
 
         rows.forEach((row, idx) => {
           const term = row.querySelector('.term-input').value.trim();
           const def = row.querySelector('.def-input').value.trim();
-          if (term || def) {
-            cards.push({ id: row.originalCard?.id ?? row.dataset.draftId ?? crypto.randomUUID(), term: term, definition: def, image: row.originalCard?.image || "" });
+          const image = row.querySelector('.image-input')?.value.trim() || '';
+          if (term || def || image) {
+            cards.push({ id: row.originalCard?.id ?? row.dataset.draftId ?? crypto.randomUUID(), term: term, definition: def, image });
           }
         });
 
@@ -6305,7 +6355,11 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           return;
         }
 
-        const isEdit = !!currentEditingSetId;
+        if (cards.some(card => card.image && !/^https?:\/\//i.test(card.image))) {
+          showToast('Đường dẫn ảnh phải bắt đầu bằng http:// hoặc https://.');
+          return;
+        }
+        const isEdit = currentEditingSetId != null;
         const targetId = isEdit ? currentEditingSetId : ("set_" + Date.now());
         const draftKey = isEdit ? String(currentEditingSetId) : 'new';
 
@@ -6321,7 +6375,8 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         window.savingEditor = true;
         document.querySelectorAll('#btn-save-set-top, #btn-save-set-bottom').forEach(b => b.disabled = true);
         try {
-          await saveCustomSet(setObj, { base: isEdit ? currentSet : null });
+          if (window.saveEditorDraft) saveEditorDraft();
+          await saveCustomSet(setObj, { base: isEdit && String(currentSet?.id) === String(targetId) ? currentSet : null });
         } catch (error) {
           showToast(`Không lưu được học phần: ${error.message}`);
           return;

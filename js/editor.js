@@ -1,22 +1,31 @@
 function getEditorDrafts() {
-    try { return JSON.parse(localStorage.getItem('qp_editor_drafts') || '{}'); }
+    try {
+        const drafts = JSON.parse(localStorage.getItem('qp_editor_drafts') || '{}');
+        return drafts && typeof drafts === 'object' && !Array.isArray(drafts) ? drafts : {};
+    }
     catch { return {}; }
 }
 
 function saveEditorDraft() {
-    if (document.getElementById('create-set-view').style.display === 'none' || window.restoringDraft) return;
+    if (document.getElementById('create-set-view').style.display === 'none' || window.restoringDraft || window.initializingEditor) return;
     const key = currentEditingSetId == null ? 'new' : String(currentEditingSetId);
     const cards = [...document.querySelectorAll('#create-cards-list .card-row')].map(row => {
         if (!row.dataset.draftId) row.dataset.draftId = crypto.randomUUID();
         return { id: row.originalCard?.id ?? row.dataset.draftId,
             term: row.querySelector('.term-input').value,
             definition: row.querySelector('.def-input').value,
-            image: row.originalCard?.image || '' };
+            image: row.querySelector('.image-input')?.value.trim() ?? row.originalCard?.image ?? '' };
     });
     const draft = { editingId: currentEditingSetId, title: document.getElementById('create-title').value,
         description: document.getElementById('create-desc').value, cards, updatedAt: Date.now(),
-        importText: document.getElementById('import-raw-text').value };
-    if (!draft.title && !draft.description && !draft.importText && cards.every(c => !c.term && !c.definition)) return;
+        importText: document.getElementById('import-raw-text').value,
+        importSettings: Object.fromEntries(['termSep', 'cardSep'].map(name => [name, document.querySelector(`input[name="${name}"]:checked`).value])),
+        termSepCustom: document.getElementById('termSepCustom').value,
+        cardSepCustom: document.getElementById('cardSepCustom').value };
+    if (!draft.title.trim() && !draft.description.trim() && !draft.importText.trim() && cards.every(c => !c.term.trim() && !c.definition.trim() && !c.image)) {
+        clearEditorDraft(key);
+        return;
+    }
     try {
         const drafts = getEditorDrafts();
         drafts[key] = draft;
@@ -34,6 +43,14 @@ function restoreDraftFor(key) {
         document.getElementById('create-title').value = draft.title || '';
         document.getElementById('create-desc').value = draft.description || '';
         document.getElementById('import-raw-text').value = draft.importText || '';
+        for (const name of ['termSep', 'cardSep']) {
+            const value = draft.importSettings?.[name];
+            const radio = [...document.querySelectorAll(`input[name="${name}"]`)].find(input => input.value === value);
+            if (radio) radio.checked = true;
+            document.getElementById(`${name}Custom`).value = draft[`${name}Custom`] || '';
+        }
+        document.getElementById('import-box-ui').style.display = draft.importText ? 'block' : 'none';
+        updateImportPreview();
         document.getElementById('create-cards-list').replaceChildren();
         (draft.cards || []).forEach(card => addCardRow(card.term, card.definition, card));
         if (!draft.cards?.length) addCardRow();
@@ -48,7 +65,10 @@ function restoreEditorDraft(key = localStorage.getItem('qp_active_draft')) {
     showCreateSetView();
     window.restoringDraft = false;
     restoreDraftFor(key);
-    document.getElementById('create-view-heading').textContent = 'Tiếp tục bản nháp';
+    document.getElementById('create-view-heading').textContent = currentEditingSetId == null ? 'Tiếp tục bản nháp' : '✏️ Tiếp tục chỉnh sửa học phần';
+    document.querySelectorAll('#btn-save-set-top, #btn-save-set-bottom').forEach(button => {
+        button.textContent = currentEditingSetId == null ? 'Tạo' : '💾 Lưu thay đổi';
+    });
     localStorage.setItem('qp_active_draft', key);
     showToast('Đã khôi phục bản nháp trên thiết bị này.');
 }
@@ -56,8 +76,10 @@ function restoreEditorDraft(key = localStorage.getItem('qp_active_draft')) {
 function clearEditorDraft(key) {
     const drafts = getEditorDrafts();
     delete drafts[key];
-    localStorage.setItem('qp_editor_drafts', JSON.stringify(drafts));
-    localStorage.removeItem('qp_active_draft');
+    try {
+        localStorage.setItem('qp_editor_drafts', JSON.stringify(drafts));
+        if (localStorage.getItem('qp_active_draft') === String(key)) localStorage.removeItem('qp_active_draft');
+    } catch { showToast('Chưa xóa được bản nháp khỏi bộ nhớ thiết bị.'); }
 }
 
 function renderDraftBanner() {
@@ -73,6 +95,17 @@ function renderDraftBanner() {
         button.textContent = `Tiếp tục bản nháp: ${draft.title || 'Chưa đặt tên'}`;
         button.onclick = () => restoreEditorDraft(key);
         banner.append(button);
+        const discard = document.createElement('button');
+        discard.className = 'btn-cancel';
+        discard.title = 'Bỏ bản nháp';
+        discard.setAttribute('aria-label', `Bỏ bản nháp: ${draft.title || 'Chưa đặt tên'}`);
+        discard.textContent = '🗑️';
+        discard.onclick = () => {
+            if (!confirm('Bỏ bản nháp này? Nội dung chưa lưu sẽ bị xóa.')) return;
+            clearEditorDraft(key);
+            renderDraftBanner();
+        };
+        banner.append(discard);
     }
     document.getElementById('dashboard-view').prepend(banner);
 }
@@ -111,7 +144,18 @@ async function copyCurrentSet() {
     } catch (error) { showToast(error.message); }
 }
 
+function resetEditorImport() {
+    document.getElementById('import-raw-text').value = '';
+    document.getElementById('import-box-ui').style.display = 'none';
+    document.querySelector('input[name="termSep"][value="tab"]').checked = true;
+    document.querySelector('input[name="cardSep"][value="newline"]').checked = true;
+    document.getElementById('termSepCustom').value = '';
+    document.getElementById('cardSepCustom').value = '';
+    updateImportPreview();
+}
+
 document.getElementById('create-set-view').addEventListener('input', saveEditorDraft);
+document.getElementById('create-set-view').addEventListener('change', saveEditorDraft);
 
 const fileLabel = document.createElement('label');
 fileLabel.className = 'btn-cancel';

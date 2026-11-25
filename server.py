@@ -102,7 +102,12 @@ def fetch_studiable_items(requests, set_id, cookies, headers):
         token = next_token
 
 def extract_set_id(url_or_text):
-    m = re.search(r"(\d{6,})", str(url_or_text))
+    text = str(url_or_text)
+    if "://" in text:
+        text = urllib.parse.urlparse(text).path
+        m = re.match(r"^/(\d{6,})(?:/|$)", text)
+    else:
+        m = re.fullmatch(r"(\d{6,})", text.strip())
     return m.group(1) if m else None
 
 
@@ -114,6 +119,32 @@ def extract_quizlet_cookies(cookie_jar):
         if cookie.domain.lstrip(".").lower() == "quizlet.com"
     }
 
+def load_set(path):
+    """Validate persisted records without discarding legacy one-sided cards."""
+    path = Path(path)
+    with path.open(encoding="utf-8") as stream:
+        data = json.load(stream)
+    if not isinstance(data, dict) or not isinstance(data.get("cards"), list) or not data["cards"]:
+        raise ValueError("Bộ thẻ không có danh sách cards hợp lệ.")
+    set_id = str(data.get("id", path.stem))
+    if not SET_ID_RE.fullmatch(set_id) or set_id != path.stem:
+        raise ValueError("ID bộ thẻ không khớp tên tập tin.")
+    for card in data["cards"]:
+        if not isinstance(card, dict) or not all(isinstance(card.get(key), str) for key in ("term", "definition")):
+            raise ValueError("Nội dung thẻ không hợp lệ.")
+    return {**data, "id": set_id,
+            "title": data.get("title") if isinstance(data.get("title"), str) and data["title"].strip() else path.stem,
+            "description": data.get("description") if isinstance(data.get("description"), str) else "",
+            "numTerms": len(data["cards"])}
+
+
+def set_summary(data):
+    summary = {key: data[key] for key in ("id", "title", "numTerms")}
+    if isinstance(data.get("sourceWarning"), str) and data["sourceWarning"]:
+        summary["sourceWarning"] = data["sourceWarning"]
+    return summary
+
+
 def update_manifest(set_id, title, count):
     if IS_VERCEL:
         return
@@ -121,14 +152,27 @@ def update_manifest(set_id, title, count):
         manifest_path = BASE_DIR / "data" / "sets.json"
         with MANIFEST_LOCK:
             sets_list = []
-            if manifest_path.exists():
-                with open(manifest_path, "r", encoding="utf-8") as f:
-                    sets_list = json.load(f)
+            try:
+                if manifest_path.exists():
+                    sets_list = json.loads(manifest_path.read_text(encoding="utf-8"))
+                    if not isinstance(sets_list, list) or any(not isinstance(s, dict) for s in sets_list):
+                        raise ValueError("Manifest không hợp lệ")
+                else:
+                    raise ValueError("Manifest chưa tồn tại")
+            except (ValueError, UnicodeError):
+                sets_list = []
+                # Recover a missing/damaged index from the actual set files.
+                for path in sorted(DATA_DIR.glob("*.json")):
+                    try:
+                        sets_list.append(set_summary(load_set(path)))
+                    except (OSError, ValueError, TypeError):
+                        continue
             sets_list = [s for s in sets_list if str(s.get("id")) != str(set_id)]
-            sets_list.append({"id": str(set_id), "title": title, "numTerms": count})
+            sets_list.append(set_summary(load_set(DATA_DIR / f"{set_id}.json")))
             atomic_write_json(manifest_path, sets_list)
     except Exception as e:
         print("update_manifest error:", e)
+        return "Bộ thẻ đã lưu nhưng chưa cập nhật được danh sách ngoại tuyến. Hãy thử lưu lại."
 
 def scrape_quizlet(set_id, raw_url=None):
     if not re.fullmatch(r"\d{6,}", str(set_id)):
@@ -224,7 +268,9 @@ def scrape_quizlet(set_id, raw_url=None):
     save_path = DATA_DIR / f"{set_id}.json"
     atomic_write_json(save_path, set_obj)
 
-    update_manifest(set_id, title, len(cards))
+    warning = update_manifest(set_id, title, len(cards))
+    if isinstance(warning, str) and warning:
+        set_obj["persistenceWarning"] = warning
 
     return set_obj
 
@@ -240,7 +286,7 @@ class handler(http.server.SimpleHTTPRequestHandler):
             self.send_json({"status": "error", "message": "Nguồn yêu cầu không được phép."}, 403)
             return
         self.send_response(204)
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Methods", "GET, HEAD, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
 
@@ -263,40 +309,49 @@ class handler(http.server.SimpleHTTPRequestHandler):
         # SimpleHTTPRequestHandler otherwise exposes source, .git and .venv.
         path = urllib.parse.unquote(urllib.parse.urlparse(self.path).path)
         target = Path(self.translate_path(self.path)).resolve()
+        if path == "/":
+            target = (BASE_DIR / "index.html").resolve()
+        expected = BASE_DIR / ("index.html" if path == "/" else path.lstrip("/"))
         allowed = (
             path in ("/", "/index.html", "/sw.js", "/data/sets.json")
             or re.fullmatch(r"/js/[A-Za-z0-9_-]+\.js", path)
             or re.fullmatch(r"/data/sets/[A-Za-z0-9_-]+\.json", path)
         )
-        if not allowed or not target.is_relative_to(BASE_DIR):
+        if not allowed or not target.is_relative_to(BASE_DIR) or target != expected or not target.is_file():
             self.send_error(404)
             return None
         return super().send_head()
 
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
-        if parsed.path == "/" or parsed.path == "/index.html":
-            self.send_response(200)
-            self.send_header("Content-type", "text/html; charset=utf-8")
-            self.end_headers()
-            with open(BASE_DIR / "index.html", "rb") as f:
-                self.wfile.write(f.read())
-            return
-        elif parsed.path == "/api/sets":
+        if parsed.path == "/api/sets":
             self.handle_list_sets()
             return
         elif parsed.path == "/api/health":
             self.send_json({"app": "quizlet-pro", "status": "ok"})
             return
         elif parsed.path.startswith("/api/sets/"):
-            set_id = parsed.path.replace("/api/sets/", "").strip()
+            set_id = urllib.parse.unquote(parsed.path[len("/api/sets/"):])
             self.handle_get_set(set_id)
             return
         elif parsed.path == "/api/tts":
             self.handle_tts(parsed.query)
             return
 
-        super().do_GET()
+        if parsed.path.startswith("/api/"):
+            self.send_json({"status": "error", "message": "API không tồn tại."}, 404)
+            return
+        if self.command == "HEAD":
+            super().do_HEAD()
+        else:
+            super().do_GET()
+
+    def do_HEAD(self):
+        self.do_GET()
+
+    def end_headers(self):
+        self.send_header("X-Content-Type-Options", "nosniff")
+        super().end_headers()
 
     def do_POST(self):
         parsed = urllib.parse.urlparse(self.path)
@@ -316,7 +371,7 @@ class handler(http.server.SimpleHTTPRequestHandler):
             self.send_json({"status": "error", "message": "Yêu cầu Content-Type: application/json."}, 415)
             return
         try:
-            payload = json.loads(body.decode("utf-8"))
+            payload = json.loads(body.decode("utf-8"), parse_constant=lambda value: (_ for _ in ()).throw(ValueError(value)))
             if not isinstance(payload, dict):
                 raise ValueError("JSON phải là object.")
         except (ValueError, UnicodeError):
@@ -330,8 +385,13 @@ class handler(http.server.SimpleHTTPRequestHandler):
                     self.send_json({"status": "error", "message": "URL phải là văn bản."}, 400)
                     return
                 url = url.strip()
-                parsed_url = urllib.parse.urlparse(url)
-                if parsed_url.scheme not in ("http", "https") or parsed_url.hostname not in ("quizlet.com", "www.quizlet.com"):
+                try:
+                    parsed_url = urllib.parse.urlparse(url)
+                    hostname = parsed_url.hostname
+                except ValueError:
+                    self.send_json({"status": "error", "message": "URL không hợp lệ."}, 400)
+                    return
+                if parsed_url.scheme not in ("http", "https") or hostname not in ("quizlet.com", "www.quizlet.com"):
                     self.send_json({"status": "error", "message": "Chỉ hỗ trợ đường link quizlet.com hợp lệ."}, 400)
                     return
                 set_id = extract_set_id(url)
@@ -352,7 +412,13 @@ class handler(http.server.SimpleHTTPRequestHandler):
                     self.send_json({"status": "error", "message": "Danh sách thẻ trống!"}, 400)
                     return
                 title = title.strip() or "Bộ thẻ tự tạo"
-                requested_id = str(payload.get("id") or "")
+                if not isinstance(payload.get("description", ""), str) or not isinstance(payload.get("sourceWarning", ""), str):
+                    self.send_json({"status": "error", "message": "Mô tả và cảnh báo nguồn phải là văn bản."}, 400)
+                    return
+                if payload.get("id") is not None and (isinstance(payload["id"], bool) or not isinstance(payload["id"], (str, int))):
+                    self.send_json({"status": "error", "message": "ID bộ thẻ không hợp lệ."}, 400)
+                    return
+                requested_id = str(payload["id"]) if payload.get("id") is not None else ""
                 if requested_id and not SET_ID_RE.fullmatch(requested_id):
                     self.send_json({"status": "error", "message": "ID bộ thẻ không hợp lệ."}, 400)
                     return
@@ -395,24 +461,27 @@ class handler(http.server.SimpleHTTPRequestHandler):
                     "numTerms": len(cards),
                     "cards": cards
                 }
+                if payload.get("sourceWarning"):
+                    set_obj["sourceWarning"] = payload["sourceWarning"]
                 save_path = DATA_DIR / f"{set_id}.json"
                 atomic_write_json(save_path, set_obj)
-                update_manifest(set_id, title, len(cards))
-                self.send_json({"status": "ok", "set": set_obj})
+                warning = update_manifest(set_id, title, len(cards))
+                result = {"status": "ok", "set": set_obj}
+                if isinstance(warning, str) and warning:
+                    result["warning"] = warning
+                self.send_json(result)
             except Exception as e:
                 self.send_json({"status": "error", "message": str(e)}, 500)
             return
 
-        self.send_response(404)
-        self.end_headers()
+        self.send_json({"status": "error", "message": "API không tồn tại."}, 404)
 
     def handle_tts(self, query_str):
         query = urllib.parse.parse_qs(query_str)
         text = query.get("q", [""])[0]
         lang = query.get("tl", ["en"])[0]
         if not text:
-            self.send_response(400)
-            self.end_headers()
+            self.send_json({"status": "error", "message": "Thiếu văn bản cần đọc."}, 400)
             return
         clean_text = text.split("\n")[0]
         clean_text = re.sub(r"[\/\(\)=><\+]", " ", clean_text).strip()
@@ -420,7 +489,11 @@ class handler(http.server.SimpleHTTPRequestHandler):
             clean_text = clean_text.split("=")[0].strip()
         clean_text = clean_text[:120]
 
-        tts_url = f"https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl={lang}&q={urllib.parse.quote(clean_text)}"
+        if not clean_text or not re.fullmatch(r"[A-Za-z]{2,3}(?:-[A-Za-z]{2,4})?", lang):
+            self.send_json({"status": "error", "message": "Văn bản hoặc ngôn ngữ không hợp lệ."}, 400)
+            return
+        tts_url = "https://translate.google.com/translate_tts?" + urllib.parse.urlencode({
+            "ie": "UTF-8", "client": "tw-ob", "tl": lang, "q": clean_text})
         req = urllib.request.Request(tts_url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
         try:
             with urllib.request.urlopen(req, timeout=8) as resp:
@@ -431,14 +504,15 @@ class handler(http.server.SimpleHTTPRequestHandler):
                 self.send_header("Cache-Control", "public, max-age=86400")
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
-                self.wfile.write(audio_data)
+                if self.command != "HEAD":
+                    self.wfile.write(audio_data)
         except Exception as e:
             print("TTS Error:", e)
-            self.send_response(500)
-            self.end_headers()
+            self.send_json({"status": "error", "message": "Không tải được âm thanh. Hãy thử lại."}, 502)
 
     def handle_list_sets(self):
         sets_list = []
+        warnings = []
         # Lấy từ cả BASE_DIR và DATA_DIR
         search_dirs = [DATA_DIR]
         if BASE_DIR / "data" / "sets" != DATA_DIR and (BASE_DIR / "data" / "sets").exists():
@@ -446,21 +520,17 @@ class handler(http.server.SimpleHTTPRequestHandler):
 
         seen_ids = set()
         for s_dir in search_dirs:
-            for p in s_dir.glob("*.json"):
+            for p in sorted(s_dir.glob("*.json")):
                 try:
-                    with open(p, "r", encoding="utf-8") as f:
-                        d = json.load(f)
-                        sid = str(d.get("id"))
-                        if sid not in seen_ids:
-                            seen_ids.add(sid)
-                            sets_list.append({
-                                "id": d.get("id"),
-                                "title": d.get("title", p.stem),
-                                "numTerms": d.get("numTerms", len(d.get("cards", [])))
-                            })
-                except Exception:
-                    pass
-        self.send_json({"sets": sets_list})
+                    if not p.resolve().is_relative_to(s_dir.resolve()):
+                        raise ValueError("Liên kết tập tin không hợp lệ.")
+                    d = load_set(p)
+                    if d["id"] not in seen_ids:
+                        seen_ids.add(d["id"])
+                        sets_list.append(set_summary(d))
+                except (OSError, ValueError, TypeError):
+                    warnings.append({"id": p.stem, "message": "Không đọc được bộ thẻ đã lưu."})
+        self.send_json({"sets": sets_list, **({"warnings": warnings} if warnings else {})})
 
     def handle_get_set(self, set_id):
         if not SET_ID_RE.fullmatch(set_id):
@@ -472,15 +542,25 @@ class handler(http.server.SimpleHTTPRequestHandler):
         if not save_path.exists():
             self.send_json({"status": "error", "message": "Không tìm thấy bộ thẻ"}, 404)
             return
-        with open(save_path, "r", encoding="utf-8") as f:
-            d = json.load(f)
+        if not save_path.resolve().is_relative_to(save_path.parent.resolve()):
+            self.send_json({"status": "error", "message": "Không tìm thấy bộ thẻ"}, 404)
+            return
+        try:
+            d = load_set(save_path)
+        except (OSError, ValueError, TypeError):
+            self.send_json({"status": "error", "message": "Bộ thẻ đã lưu bị lỗi hoặc không hợp lệ."}, 500)
+            return
         self.send_json(d)
 
     def send_json(self, data, code=200):
+        body = json.dumps(data, ensure_ascii=False).encode("utf-8")
         self.send_response(code)
         self.send_header("Content-type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
         self.end_headers()
-        self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
+        if self.command != "HEAD":
+            self.wfile.write(body)
 
 # Vercel entrypoint exports
 QuizletAppHandler = handler
