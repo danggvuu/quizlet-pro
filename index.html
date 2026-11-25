@@ -5428,6 +5428,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
             }
           }, 50);
         }
+
+        // Keep feedback visible briefly, then continue automatically if the learner does nothing.
+        scheduleStudy(() => nextCardAfterFeedback(true), 3000);
       }
 
       function nextCardAfterFeedback(skipRepeat = false) {

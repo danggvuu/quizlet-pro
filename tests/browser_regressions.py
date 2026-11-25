@@ -191,6 +191,16 @@ class BrowserRegressions(unittest.TestCase):
         self.page.locator(".override-btn").click()
         self.assertEqual(self.page.evaluate("cardsState[0].mastery"), 1)
 
+    def test_wrong_answers_auto_advance_after_feedback(self):
+        self.seed()
+        self.page.evaluate("handleChoice(currentRoundOptions.findIndex(x=>x!==currentCorrectChoice))")
+        self.page.wait_for_function("currentCardIndex===1", timeout=8000)
+
+        self.page.locator("#mode-write").click()
+        self.page.locator("#write-user-input").fill("not the answer")
+        self.page.locator(".btn-submit-write").click()
+        self.page.wait_for_function("currentCardIndex===1", timeout=8000)
+
     def test_partial_cards_rejected_on_import_but_legacy_can_be_viewed(self):
         partial = {"id":"partial","title":"Partial","cards":[{"id":"p","term":"question","definition":""}]}
         self.assertFalse(self.page.evaluate("s=>parseAndImportText(JSON.stringify(s))", partial))
