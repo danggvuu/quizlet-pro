@@ -27,10 +27,12 @@ def main():
             url = f"http://127.0.0.1:{httpd.server_port}"
             page.goto(url)
             expect(page.locator(".set-card-modern")).to_have_count(20)
+            expect(page.locator("#nav-btn-home")).to_have_count(0)
+            expect(page.locator(".hero-jump-card, .dash-welcome-text")).to_have_count(0)
 
             page.locator(".btn-create-nav").click()
             expect(page.locator("#create-dropdown-menu")).to_be_visible()
-            page.locator(".btn-quick-import-pill").click()
+            page.locator("#create-import-paste").click()
             expect(page.locator("#quick-import-modal")).to_be_visible()
             page.locator("#import-tab-paste").click()
             fixture = {
@@ -92,9 +94,9 @@ def main():
             expect(page.locator(".match-win-card")).to_be_visible()
 
             page.evaluate("showDashboard()")
-            page.locator("#dash-filter-input").fill("de test")
+            page.locator("#global-search-input").fill("de test")
             # Match a simpler accentless substring without punctuation assumptions.
-            page.locator("#dash-filter-input").fill("Brien")
+            page.locator("#global-search-input").fill("Brien")
             expect(page.locator(".set-card-modern")).to_have_count(1)
             page.locator(".set-card-modern .btn-icon-danger").click()
             # Dismiss confirms by default; title apostrophes must not break onclick.
