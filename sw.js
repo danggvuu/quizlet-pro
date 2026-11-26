@@ -48,6 +48,7 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
     event.waitUntil((async () => {
         const names = await caches.keys();
+        const upgrading = names.some(name => /^quizlet-pro-v\d+$/.test(name) && name !== CACHE);
         const data = await caches.open(DATA_CACHE);
         for (const name of names) {
             if (!name.startsWith('quizlet-pro-') || name === CACHE || name === DATA_CACHE) continue;
@@ -63,7 +64,7 @@ self.addEventListener('activate', event => {
                 await caches.delete(name);
             } catch (error) { console.warn('Offline cache migration:', error); }
         }
-        const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+        const clients = upgrading ? await self.clients.matchAll({ type: 'window', includeUncontrolled: true }) : [];
         const managed = await Promise.all(clients.map(client => new Promise(resolve => {
             const channel = new MessageChannel();
             const done = value => { clearTimeout(timer); channel.port1.close(); resolve(value); };
