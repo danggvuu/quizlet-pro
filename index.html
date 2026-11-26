@@ -4381,19 +4381,24 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
             const placeholder = root.querySelector(".avatar-placeholder");
             const image = root.querySelector("img");
             const initialsNode = root.querySelector(".avatar-initials");
+            const showPhoto = Boolean(photoURL && image?.dataset.failedPhotoUrl !== photoURL);
             if (placeholder) placeholder.hidden = signedIn;
             if (initialsNode) {
               initialsNode.textContent = initials;
-              initialsNode.hidden = !signedIn || Boolean(photoURL);
+              initialsNode.hidden = !signedIn || showPhoto;
             }
             if (image) {
               image.onerror = () => {
+                image.dataset.failedPhotoUrl = photoURL;
                 image.hidden = true;
                 if (initialsNode) initialsNode.hidden = !signedIn;
               };
-              image.hidden = !photoURL;
-              if (photoURL && image.src !== photoURL) image.src = photoURL;
-              if (!photoURL) image.removeAttribute("src");
+              image.hidden = !showPhoto;
+              if (showPhoto && image.src !== photoURL) image.src = photoURL;
+              if (!photoURL) {
+                image.removeAttribute("src");
+                delete image.dataset.failedPhotoUrl;
+              }
             }
           };
           setAvatar(navAvatar);

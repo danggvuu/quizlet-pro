@@ -206,6 +206,12 @@ class BrowserRegressions(unittest.TestCase):
                 'src', 'https://images.example.test/same-user.png')
             expect(page.locator('#profile-login-action')).to_be_hidden()
             expect(page.locator('#profile-logout-action')).to_be_visible()
+            page.locator('#nav-user-avatar-image').evaluate("image => image.dispatchEvent(new Event('error'))")
+            expect(page.locator('#nav-user-avatar-image')).to_be_hidden()
+            expect(page.locator('#nav-user-avatar .avatar-initials')).to_be_visible()
+            page.evaluate('updateLearnerProfileUI()')
+            expect(page.locator('#nav-user-avatar-image')).to_be_hidden()
+            expect(page.locator('#nav-user-avatar .avatar-initials')).to_be_visible()
 
             page.evaluate('CloudDB.signOut()')
             page.wait_for_function('!CloudDB.accountId')
