@@ -1842,6 +1842,17 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .write-hint {
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 600;
     }
 
     .btn-skip {
@@ -4102,7 +4113,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
               độ Học (Learn):</label>
             <select id="opt-learn-question-type"
               style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text);">
-              <option value="both">Kết hợp cả Trắc nghiệm & Tự luận</option>
+              <option value="both">Xoay vòng: học từng nhóm rồi kiểm tra viết cùng nhóm</option>
               <option value="choice_only">Chỉ Trắc nghiệm (4 đáp án)</option>
               <option value="write_only">Chỉ Tự luận (Gõ bàn phím)</option>
             </select>
@@ -4118,6 +4129,14 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
               <option value="15">15 câu / thẻ</option>
               <option value="999">Toàn bộ học phần</option>
             </select>
+            <div class="table-import-help">Chế độ xoay vòng học đủ số thẻ đã chọn, rồi kiểm tra viết đúng nhóm đó trước khi sang nhóm tiếp theo.</div>
+          </div>
+
+          <div>
+            <label style="display:flex;align-items:center;gap:10px;font-weight:600;font-size:14px;cursor:pointer;">
+              <input type="checkbox" id="opt-shuffle-questions"> Đảo thứ tự câu hỏi
+            </label>
+            <div class="table-import-help">Áp dụng cho Học, Tự luận, Trắc nghiệm và Kiểm tra. Trong chế độ xoay vòng, hai lượt vẫn dùng cùng một nhóm thẻ.</div>
           </div>
 
           <div>
@@ -4286,7 +4305,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
       <script src="js/study-utils.js?v=11"></script>
       <script src="js/database.js?v=11"></script>
-      <script src="js/session.js?v=11"></script>
+      <script src="js/session.js?v=13"></script>
     <script>
       // GLOBAL STATE
       let currentSet = null;
@@ -4299,6 +4318,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         writeAnswerWith: "auto",
         learnQuestionType: "both", // 'both', 'choice_only', 'write_only'
         roundSize: 7,
+        shuffleQuestions: false,
         autoSound: true,
         ttsLanguage: "auto", // 'auto', 'en-US', 'vi-VN', 'ja-JP', 'zh-CN', 'ko-KR', 'fr-FR', 'de-DE', 'es-ES', 'off'
         speechRate: 0.95, // Tốc độ phát âm Studio Voice
@@ -4389,12 +4409,14 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
       // ROUND RUNTIME & ACTIVE SESSION
       let currentRoundQueue = [];
+      let learnRoundPhase = 'choice';
       let currentCardIndex = 0;
       let isWaitingNext = false;
       let fcIndex = 0;
       let fcFlipped = false;
       let currentRoundOptions = [];
       let currentCorrectChoice = "";
+      let currentCorrectDisplayChoice = "";
       let studyGeneration = 0;
       let setLoadGeneration = 0;
       const studyTimers = new Map();
@@ -5515,9 +5537,13 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
       function prepareNextRound(reviewEarly = false) {
         const activePool = getStudyPool();
-        let candidates = currentMode === 'learn' && !reviewEarly
-          ? StudyUtils.reviewQueue(activePool)
+        const mixedLearn = currentMode === 'learn' && settings.learnQuestionType === 'both';
+        // Finish written recall before introducing another group, even before its SRS due time.
+        const pendingWritten = mixedLearn ? activePool.filter(c => c.mastery === 1) : [];
+        const candidates = pendingWritten.length ? pendingWritten
+          : currentMode === 'learn' && !reviewEarly ? StudyUtils.reviewQueue(activePool)
           : activePool.filter(c => reviewEarly || c.mastery < 2);
+        learnRoundPhase = pendingWritten.length ? 'write' : 'choice';
 
         if (candidates.length === 0 && activePool.length > 0) {
           if (currentMode === 'learn') {
@@ -5544,10 +5570,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           return;
         }
 
-        const rSize = settings.roundSize === 999 ? candidates.length : settings.roundSize;
-        const selected = candidates.slice(0, rSize);
+        const rSize = Number(settings.roundSize) === 999 ? candidates.length : (Number(settings.roundSize) || 7);
+        const selected = (settings.shuffleQuestions ? StudyUtils.shuffle(candidates) : candidates).slice(0, rSize);
 
-        // Luôn giữ đúng thứ tự thẻ từ đầu đến cuối theo bài học (Bắt đầu từ thẻ số 1)
         currentRoundQueue = [...selected];
         currentCardIndex = 0;
         renderCurrentCard();
@@ -5596,6 +5621,12 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         studyPhase = 'question';
         pendingAnswer = null;
         preAnswerProgress = null;
+        if (currentCardIndex >= currentRoundQueue.length && currentRoundQueue.length &&
+            currentMode === 'learn' && settings.learnQuestionType === 'both' && learnRoundPhase === 'choice') {
+          learnRoundPhase = 'write';
+          if (settings.shuffleQuestions) currentRoundQueue = StudyUtils.shuffle(currentRoundQueue);
+          currentCardIndex = 0;
+        }
         if (currentCardIndex >= currentRoundQueue.length) {
           studyPhase = 'summary';
           renderRoundSummaryView();
@@ -5610,13 +5641,6 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         };
         const app = document.getElementById("app");
 
-        const isWriteQuestion = currentMode === 'write' ||
-          (currentMode === 'learn' && settings.learnQuestionType === 'write_only');
-        const answerWith = isWriteQuestion ? getWriteAnswerWith() : settings.answerWith;
-        const isPromptTerm = answerWith === "definition";
-        const promptText = isPromptTerm ? card.term : card.definition;
-        const correctChoice = isPromptTerm ? card.definition : card.term;
-
         // Determine question type: 'choice' or 'write'
         let qType = "choice";
         if (currentMode === "write") {
@@ -5627,8 +5651,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           if (settings.learnQuestionType === "write_only") qType = "write";
           else if (settings.learnQuestionType === "choice_only") qType = "choice";
           else {
-            // If stage 0 -> choice, if stage 1 -> write for deeper recall!
-            qType = card.mastery === 1 ? "write" : "choice";
+            qType = learnRoundPhase;
           }
         }
 
@@ -5651,6 +5674,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
           currentRoundOptions = options;
           currentCorrectChoice = questionCorrectChoice;
+          currentCorrectDisplayChoice = questionCorrectChoice;
 
           bottomHtml = `
           <div class="options-grid">
@@ -5666,9 +5690,10 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         } else {
           // Written Mode
           currentCorrectChoice = writeTarget;
+          currentCorrectDisplayChoice = questionCorrectChoice;
           bottomHtml = `
           <div class="write-area">
-            <input type="text" id="write-user-input" class="write-input-box" placeholder="${currentQuestionAnswerWith === 'term' ? 'Gõ tiếng Nhật (kana / Kanji)...' : 'Gõ câu trả lời chính xác...'}" autocomplete="off" autocapitalize="off" spellcheck="false" oninput="saveActiveSession()" autofocus />
+            <input type="text" id="write-user-input" class="write-input-box" placeholder="${currentQuestionAnswerWith === 'term' ? 'Gõ tiếng Nhật (kana / Kanji)...' : 'Gõ câu trả lời chính xác...'}" autocomplete="off" autocapitalize="off" spellcheck="false" oninput="saveActiveSession()" />
             <div class="write-action-bar">
               <button class="btn-cancel" onclick="showWriteHint()">Gợi ý</button>
               <button class="btn-skip" onclick="handleWriteSkip()">Tôi không biết (Bỏ qua)</button>
@@ -5685,7 +5710,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
             <div class="badge-wrap">
               <span class="card-type-tag stage-${card.mastery || 0}">${card.mastery === 2 ? "Thành thạo" : card.mastery === 1 ? "Đang học" : "Chưa học"}</span>
               <span class="card-mode-tag">${qType === "write" ? "Tự luận" : "Trắc nghiệm"}</span>
-              <span class="card-step-tag">Thẻ ${currentCardIndex + 1} / ${currentRoundQueue.length}</span>
+              <span class="card-step-tag">${currentMode === 'learn' && settings.learnQuestionType === 'both' ? (learnRoundPhase === 'write' ? 'Kiểm tra viết' : 'Học') : 'Thẻ'} ${currentCardIndex + 1} / ${currentRoundQueue.length}</span>
             </div>
             <div class="card-actions">
             ${questionIsPromptTerm ? `<button class="tts-btn" onclick="speakCurrentCard()" title="Phát âm (Phím S)">🔊</button>` : ""}
@@ -5773,6 +5798,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         if (!inp) return;
         const val = inp.value.trim();
         const correct = currentCorrectChoice;
+        const correctDisplay = currentCorrectDisplayChoice || correct;
         const card = currentRoundQueue[currentCardIndex];
 
         if (!val) {
@@ -5800,7 +5826,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           inp.style.borderColor = "var(--error)";
           inp.style.backgroundColor = "var(--error-light)";
           studyPhase = 'feedback';
-          pendingAnswer = { userVal: val, correctVal: correct, requireRetype: true };
+          pendingAnswer = { userVal: val, correctVal: correctDisplay, requireRetype: true };
           demoteCardMastery(card);
           scheduleStudy(() => {
             renderFeedback(card, val, correct, true);
@@ -5850,7 +5876,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       function upgradeCardMastery(card) {
-        Object.assign(card, StudyUtils.gradeCard(card, true));
+        if (currentMode === 'learn' && settings.learnQuestionType === 'both' && learnRoundPhase === 'choice') {
+          if (card.mastery !== 2) Object.assign(card, StudyUtils.gradeCard({ ...card, mastery: 0 }, true));
+        } else Object.assign(card, StudyUtils.gradeCard(card, true));
         saveProgressToStorage();
         updateProgressUI();
       }
@@ -6261,8 +6289,10 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       // MODAL TOGGLES & SETTINGS SYNC
       function syncSettingsToUI() {
         const elAnswer = document.getElementById("opt-answer-with");
+        const elWriteAnswer = document.getElementById("opt-write-answer-with");
         const elType = document.getElementById("opt-learn-question-type");
         const elRound = document.getElementById("opt-round-size");
+        const elShuffle = document.getElementById("opt-shuffle-questions");
         const elRate = document.getElementById("opt-speech-rate");
         const elTtsLang = document.getElementById("opt-tts-language");
         const elSound = document.getElementById("opt-sound");
@@ -6271,8 +6301,10 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         const elLearner = document.getElementById("opt-learner-name");
 
         if (elAnswer) elAnswer.value = settings.answerWith || "definition";
+        if (elWriteAnswer) elWriteAnswer.value = settings.writeAnswerWith || "auto";
         if (elType) elType.value = settings.learnQuestionType || "both";
         if (elRound) elRound.value = String(settings.roundSize || 7);
+        if (elShuffle) elShuffle.checked = !!settings.shuffleQuestions;
         if (elRate) elRate.value = String(settings.speechRate || 0.95);
         if (elTtsLang) elTtsLang.value = settings.ttsLanguage || "auto";
         if (elSound) elSound.checked = settings.autoSound !== false;
@@ -6324,8 +6356,11 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
       function applySettings() {
         settings.answerWith = document.getElementById("opt-answer-with").value;
+        const elWriteAnswer = document.getElementById("opt-write-answer-with");
+        if (elWriteAnswer) settings.writeAnswerWith = elWriteAnswer.value || "auto";
         settings.learnQuestionType = document.getElementById("opt-learn-question-type").value;
         settings.roundSize = parseInt(document.getElementById("opt-round-size").value, 10);
+        settings.shuffleQuestions = document.getElementById("opt-shuffle-questions").checked;
         if (document.getElementById("opt-speech-rate")) {
           settings.speechRate = parseFloat(document.getElementById("opt-speech-rate").value) || 0.95;
         }
@@ -7259,9 +7294,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           return;
         }
 
-        const poolShuffled = StudyUtils.shuffle(activePool);
+        const questionPool = settings.shuffleQuestions ? StudyUtils.shuffle(activePool) : activePool;
         const questionLimit = Number(settings.roundSize) === 999 ? activePool.length : (Number(settings.roundSize) || 7);
-        const testCards = poolShuffled.slice(0, Math.min(questionLimit, poolShuffled.length));
+        const testCards = questionPool.slice(0, Math.min(questionLimit, questionPool.length));
         testState.questions = [];
         testState.userAnswers = {};
         testState.isSubmitted = false;

@@ -46,7 +46,7 @@ class BrowserRegressions(unittest.TestCase):
         self.errors = []
         self.page.on("pageerror", lambda error: self.errors.append(str(error)))
         self.page.on("dialog", lambda dialog: dialog.accept())
-        self.page.add_init_script("localStorage.setItem('qp_settings',JSON.stringify({autoSound:false}));")
+        self.page.add_init_script("if (!localStorage.getItem('qp_settings')) localStorage.setItem('qp_settings',JSON.stringify({autoSound:false}));")
         self.page.goto(self.url)
         self.page.wait_for_function("window.appReady === true")
 
@@ -461,19 +461,23 @@ class BrowserRegressions(unittest.TestCase):
                 self.seed(fixture)
                 self.page.evaluate("mode => switchMode(mode)", mode)
 
-                for index in range(2):
-                    if mode == "write":
-                        answer = self.page.evaluate("currentCorrectChoice")
-                        self.page.locator("#write-user-input").fill(answer)
-                        self.page.locator(".btn-submit-write").click()
-                    else:
-                        answer_index = self.page.evaluate("currentRoundOptions.indexOf(currentCorrectChoice)")
-                        self.page.locator(".option-btn").nth(answer_index).click()
+                for phase in (("choice", "write") if mode == "learn" else (mode,)):
+                    for index in range(2):
+                        if phase == "write":
+                            answer = self.page.evaluate("currentCorrectChoice")
+                            self.page.locator("#write-user-input").fill(answer)
+                            self.page.locator(".btn-submit-write").click()
+                        else:
+                            answer_index = self.page.evaluate("currentRoundOptions.indexOf(currentCorrectChoice)")
+                            self.page.locator(".option-btn").nth(answer_index).click()
 
-                    self.page.wait_for_function("index => currentCardIndex === index", arg=index + 1, timeout=2000)
+                        if mode == "learn" and phase == "choice" and index == 1:
+                            self.page.wait_for_selector("#write-user-input", timeout=2000)
+                        else:
+                            self.page.wait_for_function("index => currentCardIndex === index", arg=index + 1, timeout=2000)
 
                 expect(self.page.locator(".summary-title")).to_have_text("Hoàn thành vòng học này!")
-                self.assertEqual(self.page.evaluate("cardsState.map(card => card.mastery)"), [1, 1])
+                self.assertEqual(self.page.evaluate("cardsState.map(card => card.mastery)"), [2, 2] if mode == "learn" else [1, 1])
                 saved = self.page.evaluate("SessionState.read()")
                 self.assertEqual(saved["cardIndex"], 2)
                 self.assertEqual(saved["phase"], "summary")
@@ -506,6 +510,166 @@ class BrowserRegressions(unittest.TestCase):
 
         expect(self.page.locator(".summary-title")).to_have_text("Hoàn thành vòng học này!")
         self.assertEqual(self.page.evaluate("currentRoundQueue.length"), 10)
+
+    def test_learn_cycles_ten_choices_then_ten_written_answers_for_the_same_cards(self):
+        fixture = copy.deepcopy(FIXTURE)
+        fixture["id"] = "rotating_groups"
+        fixture["cards"] = [
+            {"id": str(i), "term": f"word{i}", "definition": f"meaning{i}", "image": ""}
+            for i in range(62)
+        ]
+        self.seed(fixture)
+        self.page.evaluate("toggleSettingsModal()")
+        self.page.locator("#opt-round-size").select_option("10")
+        self.page.locator("#opt-learn-question-type").select_option("both")
+        self.page.locator("#settings-modal button", has_text="Lưu & Tiếp tục học").click()
+        self.page.clock.install()
+        for start in range(0, 62, 10):
+            ids = [str(i) for i in range(start, min(start + 10, 62))]
+            self.assertEqual(self.page.evaluate("currentRoundQueue.map(card => card.id)"), ids)
+            for _ in ids:
+                expect(self.page.locator(".option-btn").first).to_be_visible()
+                self.page.evaluate("handleChoice(currentRoundOptions.indexOf(currentCorrectChoice))")
+                self.page.clock.run_for(800)
+            expect(self.page.locator("#write-user-input")).to_be_visible()
+            self.assertEqual(self.page.evaluate("currentCardIndex"), 0)
+            self.assertEqual(self.page.evaluate("currentRoundQueue.map(card => card.id)"), ids)
+            expect(self.page.locator("#stat-learning")).to_have_text(str(len(ids)))
+            for card_id in ids:
+                self.assertEqual(self.page.evaluate("currentRoundQueue[currentCardIndex].id"), card_id)
+                answer = self.page.evaluate("currentCorrectChoice")
+                self.page.locator("#write-user-input").fill(answer)
+                self.page.locator(".btn-submit-write").click()
+                self.page.clock.run_for(800)
+            expect(self.page.locator(".summary-title")).to_have_text("Hoàn thành vòng học này!")
+            expect(self.page.locator("#stat-mastered")).to_have_text(str(start + len(ids)))
+            if start + len(ids) < 62:
+                self.page.locator("#app .btn-continue").click()
+
+    def test_learn_written_phase_and_feedback_resume_without_adding_new_cards(self):
+        self.seed()
+        self.page.evaluate("startModeView()")
+        self.page.clock.install()
+        for _ in range(5):
+            self.page.evaluate("handleChoice(currentRoundOptions.indexOf(currentCorrectChoice))")
+            self.page.clock.run_for(800)
+        expect(self.page.locator("#write-user-input")).to_be_visible()
+        self.page.locator("#write-user-input").fill("unfinished answer")
+        self.page.reload()
+        self.page.wait_for_function("window.appReady && document.getElementById('write-user-input')")
+        expect(self.page.locator("#write-user-input")).to_have_value("unfinished answer")
+        self.assertEqual(self.page.evaluate("currentCardIndex"), 0)
+        self.page.locator("#write-user-input").fill("wrong")
+        self.page.locator(".btn-submit-write").click()
+        self.page.clock.run_for(800)
+        expect(self.page.locator(".feedback-box")).to_be_visible()
+        self.page.reload()
+        self.page.wait_for_selector(".feedback-box")
+        self.page.locator("#btn-next-wrong").click()
+        expect(self.page.locator("#write-user-input")).to_be_visible()
+        self.assertEqual(self.page.evaluate("currentCardIndex"), 1)
+        self.assertEqual(self.page.evaluate("currentRoundQueue.map(card => card.id)"), [str(i) for i in range(5)])
+
+    def test_learn_checks_previously_learned_cards_before_opening_a_new_group(self):
+        fixture = copy.deepcopy(FIXTURE)
+        fixture["id"] = "pending_written"
+        fixture["cards"] = [
+            {"id": str(i), "term": f"word{i}", "definition": f"meaning{i}", "image": ""}
+            for i in range(62)
+        ]
+        self.seed(fixture)
+        self.page.evaluate("""() => {
+            cardsState.slice(0, 13).forEach(card => Object.assign(card, {
+                mastery: 1, nextReview: Date.now() + 300000
+            }));
+            saveProgressToStorage();
+            settings.roundSize = 10;
+            settings.learnQuestionType = 'both';
+            startModeView();
+        }""")
+        expect(self.page.locator("#write-user-input")).to_be_visible()
+        self.assertEqual(self.page.evaluate("currentRoundQueue.map(card => card.id)"), [str(i) for i in range(10)])
+
+    def test_learn_group_size_follows_every_user_selection(self):
+        self.page.clock.install()
+        for count in (5, 7, 10, 15, 999):
+            with self.subTest(count=count):
+                fixture = copy.deepcopy(FIXTURE)
+                fixture["id"] = f"group_size_{count}"
+                fixture["cards"] = [
+                    {"id": str(i), "term": f"word{i}", "definition": f"meaning{i}", "image": ""}
+                    for i in range(17)
+                ]
+                self.seed(fixture)
+                self.page.evaluate("toggleSettingsModal()")
+                self.page.locator("#opt-round-size").select_option(str(count))
+                self.page.locator("#opt-learn-question-type").select_option("both")
+                self.page.locator("#settings-modal button", has_text="Lưu & Tiếp tục học").click()
+                size = min(count, 17)
+                ids = [str(i) for i in range(size)]
+                self.assertEqual(self.page.evaluate("currentRoundQueue.map(card => card.id)"), ids)
+                for _ in range(size):
+                    self.page.evaluate("handleChoice(currentRoundOptions.indexOf(currentCorrectChoice))")
+                    self.page.clock.run_for(800)
+                expect(self.page.locator("#write-user-input")).to_be_visible()
+                self.assertEqual(self.page.evaluate("currentRoundQueue.map(card => card.id)"), ids)
+                expect(self.page.locator(".card-step-tag")).to_have_text(f"Kiểm tra viết 1 / {size}")
+
+    def test_shuffle_setting_keeps_the_same_group_and_restores_its_order(self):
+        self.seed()
+        self.page.evaluate("StudyUtils.shuffle = values => [...values].reverse(); toggleSettingsModal()")
+        self.page.locator("#opt-round-size").select_option("5")
+        self.page.locator("#opt-shuffle-questions").check()
+        self.page.locator("#settings-modal button", has_text="Lưu & Tiếp tục học").click()
+        self.assertEqual(self.page.evaluate("currentRoundQueue.map(card => card.id)"), ["4", "3", "2", "1", "0"])
+        self.page.clock.install()
+        for _ in range(5):
+            self.page.evaluate("handleChoice(currentRoundOptions.indexOf(currentCorrectChoice))")
+            self.page.clock.run_for(800)
+        expect(self.page.locator("#write-user-input")).to_be_visible()
+        self.assertEqual(self.page.evaluate("currentRoundQueue.map(card => card.id)"), ["0", "1", "2", "3", "4"])
+        self.page.locator("#write-user-input").fill("saved draft")
+        self.page.reload()
+        self.page.wait_for_function("window.appReady && document.getElementById('write-user-input')")
+        self.assertEqual(self.page.evaluate("currentRoundQueue.map(card => card.id)"), ["0", "1", "2", "3", "4"])
+        expect(self.page.locator("#write-user-input")).to_have_value("saved draft")
+        self.page.evaluate("toggleSettingsModal()")
+        expect(self.page.locator("#opt-shuffle-questions")).to_be_checked()
+        expect(self.page.locator("#opt-round-size")).to_have_value("5")
+
+    def test_shuffle_setting_applies_to_question_modes_and_can_be_disabled(self):
+        self.seed()
+        self.page.evaluate("StudyUtils.shuffle = values => [...values].reverse()")
+        for mode in ("learn", "choice", "write", "test"):
+            for shuffled in (True, False):
+                with self.subTest(mode=mode, shuffled=shuffled):
+                    self.page.evaluate("""args => {
+                        settings.shuffleQuestions = args.shuffled;
+                        currentMode = args.mode;
+                        startModeView();
+                    }""", {"mode": mode, "shuffled": shuffled})
+                    actual = self.page.evaluate("testState.questions.map(q => q.cardId)" if mode == "test"
+                                                else "currentRoundQueue.map(card => card.id)")
+                    self.assertEqual(actual, ["4", "3", "2", "1", "0"] if shuffled else ["0", "1", "2", "3", "4"])
+
+    def test_legacy_completed_learning_group_opens_its_written_phase(self):
+        self.seed()
+        self.page.evaluate("""() => {
+            cardsState.forEach(card => Object.assign(card, {mastery: 1, nextReview: Date.now() + 300000}));
+            saveProgressToStorage();
+            const snapshot = SessionState.read();
+            delete snapshot.learnPhase;
+            const savedSettings = JSON.parse(snapshot.settings);
+            delete savedSettings.shuffleQuestions;
+            snapshot.settings = JSON.stringify(savedSettings);
+            snapshot.cardIndex = snapshot.queue.length;
+            snapshot.phase = 'summary';
+            localStorage.setItem('qp_active_session', JSON.stringify(snapshot));
+        }""")
+        self.page.reload()
+        self.page.wait_for_selector("#write-user-input")
+        self.assertEqual(self.page.evaluate("currentCardIndex"), 0)
+        self.assertEqual(self.page.evaluate("currentRoundQueue.map(card => card.id)"), [str(i) for i in range(5)])
 
     def test_test_mode_uses_question_limit_and_answer_direction(self):
         fixture = copy.deepcopy(FIXTURE)
@@ -801,6 +965,10 @@ class BrowserRegressions(unittest.TestCase):
         }""")
         self.assertEqual(self.page.evaluate("currentRoundQueue.map(c=>c.id)"),["2"])
         self.page.evaluate("handleChoice(currentRoundOptions.indexOf(currentCorrectChoice))")
+        self.page.wait_for_selector("#write-user-input")
+        self.assertEqual(self.page.evaluate("cardsState[2].interval"),1)
+        self.page.locator("#write-user-input").fill(self.page.evaluate("currentCorrectChoice"))
+        self.page.locator(".btn-submit-write").click()
         self.page.wait_for_function("currentCardIndex===1")
         self.assertEqual(self.page.evaluate("cardsState[2].interval"),2)
         self.page.evaluate("prepareNextRound()")

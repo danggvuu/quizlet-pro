@@ -10,6 +10,8 @@ window.SessionState = {
         const snapshot = {
             version: 2, setId: String(currentSet.id), content: StudyUtils.contentKey(currentSet),
             mode: currentMode, settings: JSON.stringify(settings), timestamp: Date.now(),
+            answerWith: currentQuestionAnswerWith,
+            learnPhase: currentMode === 'learn' && settings.learnQuestionType === 'both' ? learnRoundPhase : null,
             queue: currentRoundQueue.map(card => String(card.id)),
             cardIndex: currentCardIndex + (advance ? 1 : 0),
             phase: advance ? 'question' : studyPhase,
@@ -26,11 +28,16 @@ window.SessionState = {
     restore(snapshot) {
         if (!snapshot || snapshot.version !== 2 || String(snapshot.setId) !== String(currentSet.id) ||
             snapshot.content !== StudyUtils.contentKey(currentSet) ||
-            snapshot.settings !== JSON.stringify(settings) ||
             !['learn', 'write', 'choice', 'flashcards', 'test'].includes(snapshot.mode)) return false;
+        try {
+            if (JSON.stringify({ ...DEFAULT_SETTINGS, ...JSON.parse(snapshot.settings) }) !== JSON.stringify(settings)) return false;
+        } catch { return false; }
         const byId = new Map(cardsState.map(card => [String(card.id), card]));
         if (!Array.isArray(snapshot.queue) || snapshot.queue.some(id => !byId.has(id))) return false;
         currentMode = snapshot.mode;
+        learnRoundPhase = snapshot.learnPhase === 'write' || (!snapshot.learnPhase &&
+            (snapshot.feedback?.requireRetype || snapshot.writtenInput)) ? 'write' : 'choice';
+        currentQuestionAnswerWith = snapshot.answerWith || (currentMode === 'write' ? getWriteAnswerWith() : settings.answerWith);
         document.querySelectorAll('[id^="mode-"]').forEach(pill => pill.classList.toggle('active', pill.id === `mode-${currentMode}`));
         syncMobileNav(currentMode === 'flashcards' ? 'flashcards' : 'study');
         const savedIndex = Math.max(0, Math.min(snapshot.cardIndex || 0, snapshot.queue.length));

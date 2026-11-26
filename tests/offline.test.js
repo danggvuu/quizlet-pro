@@ -23,7 +23,7 @@ function worker(overrides = {}) {
         };
     };
     const records = new Map();
-    stores.set('quizlet-pro-v12', records);
+    stores.set('quizlet-pro-v13', records);
     const cache = {
         addAll: async () => {},
         match: async key => records.get(keyOf(key))?.clone(),
@@ -34,7 +34,7 @@ function worker(overrides = {}) {
         self: { location: { origin: 'http://localhost' }, addEventListener: (type, cb) => events[type] = cb,
             clients: { claim: async () => { state.claimed++; }, matchAll: async () => [] },
             skipWaiting: async () => { state.skipped++; } },
-        caches: { open: async name => name === 'quizlet-pro-v12' ? cache : open(name),
+        caches: { open: async name => name === 'quizlet-pro-v13' ? cache : open(name),
             keys: async () => [...stores.keys()], delete: async name => stores.delete(name) },
         fetch: async () => new Response('network'), URL, Request, Response, AbortController, setTimeout, clearTimeout,
         console: { warn: () => {} }, ...overrides
