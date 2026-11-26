@@ -3919,15 +3919,14 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           </div>
 
           <div>
-            <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">Số thẻ mỗi vòng (Round
-              size):</label>
+            <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">Số câu / thẻ mỗi lượt:</label>
             <select id="opt-round-size"
               style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text);">
-              <option value="5">5 thẻ / vòng</option>
-              <option value="7" selected>7 thẻ / vòng (Khuyên dùng)</option>
-              <option value="10">10 thẻ / vòng</option>
-              <option value="15">15 thẻ / vòng</option>
-              <option value="999">Học toàn bộ không chia vòng</option>
+              <option value="5">5 câu / thẻ</option>
+              <option value="7" selected>7 câu / thẻ (Khuyên dùng)</option>
+              <option value="10">10 câu / thẻ</option>
+              <option value="15">15 câu / thẻ</option>
+              <option value="999">Toàn bộ học phần</option>
             </select>
           </div>
 
@@ -5607,7 +5606,6 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       function demoteCardMastery(card) {
         Object.assign(card, StudyUtils.gradeCard(card, false));
         card.incorrectCount = (card.incorrectCount || 0) + 1;
-        currentRoundQueue.push(card); // Repeat in this round
         saveProgressToStorage();
         updateProgressUI();
       }
@@ -5625,8 +5623,8 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         if (requireRetype) {
           retypeHtml = `
           <div class="retype-container">
-            <div class="retype-label">✍️ Gõ lại câu trả lời đúng để tiếp tục (Hoặc ấn Enter để bỏ qua):</div>
-            <input type="text" id="retype-input" class="retype-input" placeholder="Gõ chính xác, hoặc ấn Enter để bỏ qua..." autocomplete="off" />
+            <div class="retype-label">✍️ Gõ lại đáp án đúng để ghi nhớ. Hoặc bấm Tiếp tục để bỏ qua.</div>
+            <input type="text" id="retype-input" class="retype-input" placeholder="Gõ lại đáp án đúng..." autocomplete="off" />
           </div>
         `;
         }
@@ -5656,7 +5654,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           ${retypeHtml}
 
           <button class="btn-continue" id="btn-next-wrong" onclick="nextCardAfterFeedback(true)">
-            ${requireRetype ? "Bỏ qua & Tiếp tục (Enter)" : "Tiếp tục (Nhấn Space / Enter) →"}
+            ${requireRetype ? "Tiếp tục, không cần gõ lại" : "Tiếp tục (Space / Enter) →"}
           </button>
         </div>
       `;
@@ -5678,14 +5676,15 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
               });
               rInp.addEventListener("keydown", (e) => {
                 if (e.isComposing || e.keyCode === 229) return;
-                if (e.key === "Enter") nextCardAfterFeedback(true);
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  if (checkFuzzyMatch(rInp.value, correctVal)) nextCardAfterFeedback(false);
+                }
               });
             }
           }, 50);
         }
 
-        // Keep feedback visible briefly, then continue automatically if the learner does nothing.
-        scheduleStudy(() => nextCardAfterFeedback(true), 3000);
       }
 
       function nextCardAfterFeedback(skipRepeat = false) {
@@ -6818,7 +6817,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           return;
         }
 
-        const shuffledCards = [...activePool].sort(() => Math.random() - 0.5);
+        const shuffledCards = StudyUtils.shuffle(activePool);
         const selectedCards = shuffledCards.slice(0, Math.min(6, shuffledCards.length));
         matchState.totalPairs = selectedCards.length;
         matchState.matchedCount = 0;
@@ -6956,7 +6955,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
             el.classList.remove("selected", "wrong");
             matchState.selectedTile = null;
             matchState.isLocked = false;
-          }, 450);
+          }, 900);
         }
       }
 
@@ -7009,8 +7008,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           return;
         }
 
-        const poolShuffled = [...activePool].sort(() => Math.random() - 0.5);
-        const testCards = poolShuffled.slice(0, Math.min(20, poolShuffled.length));
+        const poolShuffled = StudyUtils.shuffle(activePool);
+        const questionLimit = settings.roundSize === 999 ? activePool.length : (Number(settings.roundSize) || 7);
+        const testCards = poolShuffled.slice(0, Math.min(questionLimit, poolShuffled.length));
         testState.questions = [];
         testState.userAnswers = {};
         testState.isSubmitted = false;
