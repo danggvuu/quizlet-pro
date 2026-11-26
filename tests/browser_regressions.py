@@ -639,7 +639,7 @@ class BrowserRegressions(unittest.TestCase):
 
     def test_shuffle_setting_applies_to_question_modes_and_can_be_disabled(self):
         self.seed()
-        self.page.evaluate("StudyUtils.shuffle = values => [...values].reverse()")
+        self.page.evaluate("() => { StudyUtils.shuffle = values => [...values].reverse(); }")
         for mode in ("learn", "choice", "write", "test"):
             for shuffled in (True, False):
                 with self.subTest(mode=mode, shuffled=shuffled):
@@ -657,7 +657,9 @@ class BrowserRegressions(unittest.TestCase):
         self.page.evaluate("""() => {
             cardsState.forEach(card => Object.assign(card, {mastery: 1, nextReview: Date.now() + 300000}));
             saveProgressToStorage();
-            const snapshot = SessionState.read();
+        }""")
+        self.page.add_init_script("""{
+            const snapshot = JSON.parse(localStorage.getItem('qp_active_session'));
             delete snapshot.learnPhase;
             const savedSettings = JSON.parse(snapshot.settings);
             delete savedSettings.shuffleQuestions;
