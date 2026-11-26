@@ -242,6 +242,8 @@ async function initializeCloud() {
         const client = {
             accountId: null,
             accountEmail: null,
+            accountDisplayName: null,
+            accountPhotoURL: null,
             accountVersion: 0,
             accountReady: false,
             signIn: () => authSDK.signInWithPopup(auth, new authSDK.GoogleAuthProvider()),
@@ -286,9 +288,12 @@ async function initializeCloud() {
             stopListening?.();
             stopListening = null;
             client.accountId = user?.uid || null;
-            client.accountEmail = user?.email || user?.displayName || null;
+            client.accountEmail = user?.email || null;
+            client.accountDisplayName = user?.displayName || null;
+            client.accountPhotoURL = user?.photoURL || null;
             client.accountVersion++;
             client.accountReady = true;
+            window.updateLearnerProfileUI?.();
             try {
                 if (user) localStorage.setItem('qp_cloud_account', user.uid);
                 else localStorage.removeItem('qp_cloud_account');

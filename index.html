@@ -765,6 +765,22 @@
       box-shadow: var(--shadow-xs);
       transition: var(--transition-fast);
       border: 2px solid var(--card-bg);
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .avatar-circle-modern.signed-out {
+      background: var(--bg-subtle);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+
+    .avatar-circle-modern img,
+    .profile-menu-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .avatar-circle-modern:hover {
@@ -806,6 +822,12 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .profile-menu-device {
+      overflow-wrap: anywhere;
     }
 
     .profile-menu-name {
@@ -3518,7 +3540,7 @@
       line-height: 1.7;
     }
   </style>
-  <script src="js/cloud.js?v=8" defer></script>
+  <script src="js/cloud.js?v=9" defer></script>
 
 </head>
 
@@ -3655,18 +3677,62 @@
         </span>
       </button>
 
-      <!-- User Avatar with Dropdown -->
+      <!-- Google account menu; device learner profile stays separate. -->
       <div class="profile-dropdown-wrap">
-        <div class="avatar-circle-modern" id="nav-user-avatar" onclick="toggleProfileDropdown(event)"
-          title="Hồ sơ người học (Thiết bị này)">
-          ĐV
-        </div>
+        <button type="button" class="avatar-circle-modern signed-out" id="nav-user-avatar"
+          onclick="toggleProfileDropdown(event)" title="Đăng nhập Google để đồng bộ học phần"
+          aria-label="Tài khoản Google, chưa đăng nhập" aria-haspopup="menu" aria-expanded="false">
+          <svg class="avatar-placeholder" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+            aria-hidden="true">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M5 21a7 7 0 0 1 14 0" />
+          </svg>
+          <img id="nav-user-avatar-image" alt="" hidden>
+          <span class="avatar-initials" hidden></span>
+        </button>
         <div id="profile-dropdown-menu" class="profile-dropdown-menu" style="display: none;">
           <div class="profile-menu-header">
-            <div class="profile-menu-avatar" id="profile-menu-avatar-val">ĐV</div>
+            <div class="profile-menu-avatar" id="profile-menu-avatar-val">
+              <svg class="avatar-placeholder" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                aria-hidden="true">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M5 21a7 7 0 0 1 14 0" />
+              </svg>
+              <img id="profile-menu-avatar-image" alt="" hidden>
+              <span class="avatar-initials" hidden></span>
+            </div>
             <div>
-              <div class="profile-menu-name" id="profile-menu-name-val">Đặng Vũ</div>
-              <div class="profile-menu-tier" id="profile-menu-device-val">Tiến độ lưu riêng trên máy này ⭐</div>
+              <div class="profile-menu-name" id="profile-menu-name-val">Chưa đăng nhập</div>
+              <div class="profile-menu-tier profile-menu-device" id="profile-menu-device-val">Hồ sơ học tập trên thiết bị này</div>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item" id="profile-login-action" onclick="cloudLogin(); hideAllDropdowns();">
+            <span class="drop-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                <path d="M10 17l5-5-5-5M15 12H3" />
+              </svg>
+            </span>
+            <div>
+              <div class="drop-title">Đăng nhập Google</div>
+              <div class="drop-sub">Đồng bộ học phần giữa các thiết bị</div>
+            </div>
+          </div>
+          <div class="dropdown-item" id="profile-logout-action" onclick="cloudLogout(); hideAllDropdowns();" hidden>
+            <span class="drop-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <path d="M16 17l5-5-5-5M21 12H9" />
+              </svg>
+            </span>
+            <div>
+              <div class="drop-title">Đăng xuất Google</div>
+              <div class="drop-sub">Ngắt đồng bộ trên thiết bị này</div>
             </div>
           </div>
           <div class="dropdown-divider"></div>
@@ -4253,9 +4319,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       <img id="lightbox-img" class="lightbox-img" src="" alt="Ảnh phóng to" />
     </div>
 
-    <script src="js/study-utils.js?v=8"></script>
-    <script src="js/database.js?v=8"></script>
-    <script src="js/session.js?v=8"></script>
+      <script src="js/study-utils.js?v=9"></script>
+      <script src="js/database.js?v=9"></script>
+      <script src="js/session.js?v=9"></script>
     <script>
       // GLOBAL STATE
       let currentSet = null;
@@ -4297,23 +4363,55 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
       function updateLearnerProfileUI() {
         try {
-          const name = getLearnerName();
+          const account = window.CloudDB;
+          const signedIn = Boolean(account?.accountId);
+          const name = signedIn ? account.accountDisplayName || account.accountEmail || "Tài khoản Google" : "";
           const words = name.trim().split(/\s+/).filter(Boolean);
-          let initials = "QP";
-          if (words.length >= 2) {
-            initials = (words[0][0] + words[words.length - 1][0]).toUpperCase();
-          } else if (words.length === 1 && words[0].length > 0) {
-            initials = words[0].substring(0, 2).toUpperCase();
-          }
+          const initials = words.length >= 2
+            ? (words[0][0] + words[words.length - 1][0]).toUpperCase()
+            : words[0]?.substring(0, 2).toUpperCase() || "";
+          const photoURL = signedIn && /^https:\/\//.test(account.accountPhotoURL || "")
+            ? account.accountPhotoURL : "";
           const navAvatar = document.getElementById("nav-user-avatar");
           const menuAvatar = document.getElementById("profile-menu-avatar-val");
           const menuName = document.getElementById("profile-menu-name-val");
+          const setAvatar = root => {
+            if (!root) return;
+            root.classList.toggle("signed-out", !signedIn);
+            const placeholder = root.querySelector(".avatar-placeholder");
+            const image = root.querySelector("img");
+            const initialsNode = root.querySelector(".avatar-initials");
+            if (placeholder) placeholder.hidden = signedIn;
+            if (initialsNode) {
+              initialsNode.textContent = initials;
+              initialsNode.hidden = !signedIn || Boolean(photoURL);
+            }
+            if (image) {
+              image.onerror = () => {
+                image.hidden = true;
+                if (initialsNode) initialsNode.hidden = !signedIn;
+              };
+              image.hidden = !photoURL;
+              if (photoURL && image.src !== photoURL) image.src = photoURL;
+              if (!photoURL) image.removeAttribute("src");
+            }
+          };
+          setAvatar(navAvatar);
+          setAvatar(menuAvatar);
           if (navAvatar) {
-            navAvatar.innerText = initials;
-            navAvatar.title = `Tài khoản: ${name} (Thiết bị này)`;
+            const title = signedIn ? `Tài khoản Google: ${account.accountEmail || name}` : "Đăng nhập Google để đồng bộ học phần";
+            navAvatar.title = title;
+            navAvatar.setAttribute("aria-label", title);
           }
-          if (menuAvatar) menuAvatar.innerText = initials;
-          if (menuName) menuName.innerText = name;
+          if (menuName) menuName.textContent = signedIn ? name : "Chưa đăng nhập";
+          const menuDevice = document.getElementById("profile-menu-device-val");
+          if (menuDevice) menuDevice.textContent = signedIn
+            ? [account.accountEmail, "Đồng bộ học phần đã bật"].filter(Boolean).join(" · ")
+            : `Hồ sơ học tập trên thiết bị này: ${getLearnerName()}`;
+          const loginAction = document.getElementById("profile-login-action");
+          const logoutAction = document.getElementById("profile-logout-action");
+          if (loginAction) loginAction.hidden = signedIn;
+          if (logoutAction) logoutAction.hidden = !signedIn;
         } catch (e) { }
       }
 
@@ -7649,9 +7747,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       </div>
     </div>
   </div>
-  <script src="js/navigation.js?v=8"></script>
-  <script src="js/editor.js?v=8"></script>
-  <script src="js/bookmarklet.js?v=8"></script>
+  <script src="js/navigation.js?v=9"></script>
+  <script src="js/editor.js?v=9"></script>
+  <script src="js/bookmarklet.js?v=9"></script>
 </body>
 
 </html>

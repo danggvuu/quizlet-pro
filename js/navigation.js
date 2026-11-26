@@ -2,6 +2,7 @@
 function hideAllDropdowns() {
     document.querySelectorAll('.create-dropdown-menu, .profile-dropdown-menu')
         .forEach(menu => { menu.style.display = 'none'; });
+    document.getElementById('nav-user-avatar')?.setAttribute('aria-expanded', 'false');
 }
 
 function toggleDropdown(event, id) {
@@ -18,6 +19,8 @@ function toggleCreateDropdown(event) {
 
 function toggleProfileDropdown(event) {
     toggleDropdown(event, 'profile-dropdown-menu');
+    event.currentTarget.setAttribute('aria-expanded', String(
+        document.getElementById('profile-dropdown-menu').style.display !== 'none'));
 }
 
 document.addEventListener('click', event => {
@@ -204,7 +207,7 @@ document.addEventListener('keydown', event => {
 }, true);
 
 function makeControlsKeyboardAccessible(root = document) {
-    root.querySelectorAll('.dropdown-item, .set-card-modern[onclick], .brand, .avatar-circle-modern, .cloud-status-pill, .fc-wrapper, .match-tile')
+    root.querySelectorAll('.dropdown-item, .set-card-modern[onclick], .brand, .cloud-status-pill, .fc-wrapper, .match-tile')
         .forEach(element => {
             element.tabIndex = 0;
             element.setAttribute('role', 'button');

@@ -72,7 +72,9 @@ class BrowserRegressions(unittest.TestCase):
                 code = "export const initializeApp=()=>({});"
             elif url.endswith("firebase-auth.js"):
                 code = "const initialUser=" + json.dumps(uid) + ";" + """
-                    const user=id=>id?{uid:id,email:id+'@example.test'}:null;
+                    const user=id=>id?{uid:id,email:id+'@example.test',
+                        displayName:id==='same-user'?'Google Same User':null,
+                        photoURL:id==='same-user'?'https://images.example.test/same-user.png':null}:null;
                     const auth={currentUser:user(initialUser)};
                     let observer;
                     export const getAuth=()=>auth;
@@ -182,6 +184,34 @@ class BrowserRegressions(unittest.TestCase):
             }""")
             self.assertIn("tài khoản khác", result)
             self.assertFalse(any(path.startswith("users/other-user/") for path in store))
+        finally:
+            context.close()
+
+    def test_profile_avatar_tracks_google_auth_not_local_learner_name(self):
+        context, page = self.cloud_device({}, uid=None)
+        try:
+            page.locator('#nav-user-avatar').click()
+            expect(page.locator('#nav-user-avatar')).to_have_class('avatar-circle-modern signed-out')
+            expect(page.locator('#nav-user-avatar-image')).to_be_hidden()
+            expect(page.locator('#profile-menu-name-val')).to_have_text('Chưa đăng nhập')
+            expect(page.locator('#profile-menu-device-val')).to_contain_text('Đặng Vũ')
+            expect(page.locator('#profile-login-action')).to_be_visible()
+            expect(page.locator('#profile-logout-action')).to_be_hidden()
+
+            page.evaluate('CloudDB.signIn()')
+            page.wait_for_function("CloudDB.accountId === 'same-user'")
+            expect(page.locator('#profile-menu-name-val')).to_have_text('Google Same User')
+            expect(page.locator('#profile-menu-device-val')).to_contain_text('same-user@example.test')
+            expect(page.locator('#nav-user-avatar-image')).to_have_attribute(
+                'src', 'https://images.example.test/same-user.png')
+            expect(page.locator('#profile-login-action')).to_be_hidden()
+            expect(page.locator('#profile-logout-action')).to_be_visible()
+
+            page.evaluate('CloudDB.signOut()')
+            page.wait_for_function('!CloudDB.accountId')
+            expect(page.locator('#profile-menu-name-val')).to_have_text('Chưa đăng nhập')
+            expect(page.locator('#nav-user-avatar-image')).to_be_hidden()
+            expect(page.locator('#profile-login-action')).to_be_visible()
         finally:
             context.close()
 
