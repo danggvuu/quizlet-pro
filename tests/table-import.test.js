@@ -1,0 +1,44 @@
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const TableImport = require('../js/table-import.js');
+
+test('parses quoted CSV cells, escaped quotes and line breaks', () => {
+    const parsed = TableImport.parseDelimited('Term,Definition,Example\r\n"hello, world","line 1\nline 2","A ""quote"""');
+    assert.equal(parsed.delimiter, ',');
+    assert.deepEqual(parsed.rows, [
+        ['Term', 'Definition', 'Example'],
+        ['hello, world', 'line 1\nline 2', 'A "quote"']
+    ]);
+});
+
+test('detects semicolon-delimited CSV and maps extra columns into the definition', () => {
+    const rows = TableImport.parseDelimited('Từ;Nghĩa;Ví dụ\nnhà;house;my house').rows;
+    assert.equal(TableImport.guessHasHeader(rows), true);
+    const roles = TableImport.guessRoles(rows[0]);
+    roles[2] = 'definition-extra';
+    const mapped = TableImport.mapRows(rows, true, roles);
+    assert.deepEqual(mapped.invalidRows, []);
+    assert.deepEqual(mapped.cards, [{ term: 'nhà', definition: 'house\nVí dụ: my house' }]);
+});
+
+test('reports source row numbers and missing mapped values', () => {
+    const rows = [['Term', 'Meaning'], ['cat', 'mèo'], ['dog', ''], ['', 'bird']];
+    const mapped = TableImport.mapRows(rows, true, ['term', 'definition']);
+    assert.deepEqual(mapped.cards, [{ term: 'cat', definition: 'mèo' }]);
+    assert.deepEqual(mapped.invalidRows, [
+        { row: 3, missing: ['định nghĩa'] },
+        { row: 4, missing: ['thuật ngữ'] }
+    ]);
+});
+
+test('allows a title row before the selected header row', () => {
+    const rows = [['Unit 1'], ['Term', 'Definition'], ['alpha', 'first']];
+    assert.equal(TableImport.guessHeaderRow(rows), 1);
+    const mapped = TableImport.mapRows(rows, 1, ['term', 'definition']);
+    assert.deepEqual(mapped.cards, [{ term: 'alpha', definition: 'first' }]);
+    assert.deepEqual(mapped.invalidRows, []);
+});
+
+test('rejects unclosed quoted CSV cells', () => {
+    assert.throws(() => TableImport.parseDelimited('term,definition\n"open,cell'), /chưa đóng/);
+});

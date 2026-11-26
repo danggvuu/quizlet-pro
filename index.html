@@ -2569,6 +2569,99 @@
       font-size: 12.5px;
     }
 
+    .table-import-file-label,
+    .table-import-section h3 {
+      display: block;
+      margin: 10px 0 6px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .table-import-toolbar,
+    .table-import-map-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .table-import-toolbar {
+      margin: 8px 0;
+      color: var(--text-muted);
+      font-size: 12px;
+      flex-wrap: wrap;
+    }
+
+    .table-import-section {
+      margin-top: 12px;
+    }
+
+    .table-import-help {
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.5;
+      margin: 4px 0 10px;
+    }
+
+    .table-import-warning {
+      color: #b45309;
+    }
+
+    .table-import-column-map {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .table-import-map-row {
+      min-width: 0;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      font-size: 12px;
+    }
+
+    .table-import-map-row span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .table-import-role {
+      width: auto;
+      min-width: 130px;
+      padding: 7px;
+      font-size: 12px;
+    }
+
+    .table-import-preview {
+      overflow: auto;
+      max-height: 220px;
+    }
+
+    .table-import-preview-grid {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 12px;
+    }
+
+    .table-import-preview-grid th,
+    .table-import-preview-grid td {
+      max-width: 0;
+      padding: 7px;
+      border: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .table-import-preview-grid th {
+      background: var(--card-bg);
+    }
+
     .import-preview-title {
       font-weight: 700;
       margin-bottom: 6px;
@@ -2933,6 +3026,19 @@
 
       .modal-content {
         padding: 20px 16px;
+      }
+
+      .table-import-column-map {
+        grid-template-columns: 1fr;
+      }
+
+      .table-import-map-row {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .table-import-role {
+        width: 100%;
       }
     }
 
@@ -3336,7 +3442,7 @@
       line-height: 1.7;
     }
   </style>
-  <script src="js/cloud.js?v=10" defer></script>
+  <script src="js/cloud.js?v=11" defer></script>
 
 </head>
 
@@ -3407,6 +3513,18 @@
               <div>
                 <div class="drop-title">Dán nhanh 1-Click</div>
                 <div class="drop-sub">Dán nhanh danh sách thẻ</div>
+              </div>
+            </div>
+            <div class="dropdown-item" id="create-import-table" onclick="openTableImporter('new'); hideAllDropdowns();">
+              <span class="drop-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="16" rx="2" />
+                  <path d="M3 10h18M9 4v16m6-16v16" />
+                </svg>
+              </span>
+              <div>
+                <div class="drop-title">Nhập Excel / CSV / TSV</div>
+                <div class="drop-sub">Chọn bảng và ghép cột trước khi tạo</div>
               </div>
             </div>
           </div>
@@ -3593,8 +3711,7 @@
     <input type="text" id="create-desc" class="q-input" placeholder="Thêm mô tả..."
       style="font-size: 16px; border: none; border-bottom: 2px solid var(--border); border-radius: 0; padding: 10px 0; box-shadow: none;">
 
-    <button class="import-btn-inline" onclick="document.getElementById('import-box-ui').style.display='block'">+ Nhập từ
-      Word, Excel, Google Docs, v.v.</button>
+    <button class="import-btn-inline" onclick="openTableImporter('editor')">+ Nhập tệp hoặc bảng (Excel, CSV, TSV)</button>
 
     <div id="import-box-ui" class="import-box">
       <div class="import-box-header">
@@ -3840,6 +3957,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
             placeholder="かぞく	Gia đình&#10;ちち	Bố mình&#10;はは	Mẹ mình"></textarea>
           <button class="btn-primary" style="width: 100%; padding: 12px;" onclick="submitQuickImportText()">Tạo & Bắt
             đầu học ngay 🚀</button>
+          <button class="btn-cancel" style="width: 100%; margin-top: 8px;" onclick="openTableImporter('new')">Nhập từ Excel, CSV hoặc bảng đã sao chép</button>
         </div>
 
         <!-- TAB 3: BOOKMARKLET & GUIDE -->
@@ -3856,6 +3974,51 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
             </a>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div id="table-import-modal" class="modal-overlay" style="display:none">
+      <div class="modal-content" style="max-width:760px">
+        <div class="modal-header">
+          <span>Nhập từ tệp hoặc bảng</span>
+          <button class="btn-icon" id="table-import-close" aria-label="Đóng">✕</button>
+        </div>
+        <p id="table-import-target-note" style="color:var(--text-muted);font-size:13px;margin:-8px 0 16px"></p>
+        <div id="table-import-title-wrap" style="margin-bottom:14px">
+          <label for="table-import-title" class="import-setting-title">Tên học phần</label>
+          <input id="table-import-title" class="q-input" placeholder="Ví dụ: Sinh học - Chương 1">
+        </div>
+        <label class="table-import-file-label" for="table-import-file">Chọn tệp Excel (.xlsx), CSV hoặc TSV</label>
+        <input id="table-import-file" class="q-input" type="file" accept=".xlsx,.csv,.tsv,.txt,text/csv,text/tab-separated-values">
+        <div id="table-import-sheet-wrap" hidden style="margin-top:10px">
+          <label for="table-import-sheet" class="import-setting-title">Trang tính trong Excel</label>
+          <select id="table-import-sheet" class="q-input"></select>
+        </div>
+        <div id="table-import-source" role="status" style="color:var(--text-muted);font-size:12px;margin:8px 0">Chọn file hoặc dán bảng vào ô bên dưới.</div>
+        <label for="table-import-text" class="import-setting-title">Hoặc dán bảng từ Excel / Google Sheets / Word</label>
+        <textarea id="table-import-text" class="import-textarea" style="height:110px" placeholder="Dán các hàng và cột vào đây"></textarea>
+        <div class="table-import-toolbar">
+          <label for="table-import-header-row">Dòng tiêu đề</label>
+          <select id="table-import-header-row" class="q-input" style="width:auto;min-width:150px;padding:7px"></select>
+          <button id="table-import-clear" class="btn-cancel" type="button">Xóa dữ liệu</button>
+        </div>
+        <div id="table-import-error" role="alert" hidden style="color:var(--danger,#dc2626);font-size:13px;margin:8px 0"></div>
+        <section id="table-import-mapping-wrap" hidden class="table-import-section">
+          <h3>Ghép cột</h3>
+          <p class="table-import-help">Chọn cột thuật ngữ và định nghĩa. Cột phụ có thể ghép thêm vào một trong hai mặt.</p>
+          <div id="table-import-column-map" class="table-import-column-map"></div>
+          <div class="import-preview" style="margin:14px 0 0">
+            <div class="import-preview-title">Xem trước (<span id="table-import-count">0</span> thẻ)</div>
+            <div id="table-import-summary" role="status" class="table-import-help">Chọn tệp hoặc dán bảng để xem trước.</div>
+            <div id="table-import-preview" class="table-import-preview"></div>
+          </div>
+        </section>
+        <div class="import-actions" style="margin-top:16px;flex-wrap:wrap">
+          <button id="table-import-quizlet" class="btn-cancel" type="button">Nhập từ link Quizlet</button>
+          <button id="table-import-cancel" class="btn-cancel" type="button">Hủy</button>
+          <button id="table-import-submit" class="btn-primary" type="button" disabled>Tạo học phần</button>
+        </div>
+        <p class="table-import-help" style="margin:12px 0 0">Tệp được đọc ngay trong trình duyệt. Nhập .xlsx cần Internet để tải bộ đọc Excel; CSV/TSV có thể nhập ngoại tuyến.</p>
       </div>
     </div>
 
@@ -4094,9 +4257,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       <img id="lightbox-img" class="lightbox-img" src="" alt="Ảnh phóng to" />
     </div>
 
-      <script src="js/study-utils.js?v=10"></script>
-      <script src="js/database.js?v=10"></script>
-      <script src="js/session.js?v=10"></script>
+      <script src="js/study-utils.js?v=11"></script>
+      <script src="js/database.js?v=11"></script>
+      <script src="js/session.js?v=11"></script>
     <script>
       // GLOBAL STATE
       let currentSet = null;
@@ -7402,7 +7565,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       </svg>
       <span>Học SRS</span>
     </button>
-    <button class="mobile-nav-item mob-nav-create" onclick="openQuickImportModal('link')" title="Nhập thẻ nhanh">
+    <button class="mobile-nav-item mob-nav-create" onclick="openTableImporter('new')" title="Nhập tệp hoặc bảng">
       <div class="mob-create-circle">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"
           stroke-linecap="round" stroke-linejoin="round">
@@ -7448,9 +7611,10 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       </div>
     </div>
   </div>
-  <script src="js/navigation.js?v=10"></script>
-  <script src="js/editor.js?v=10"></script>
-  <script src="js/bookmarklet.js?v=10"></script>
+  <script src="js/navigation.js?v=11"></script>
+  <script src="js/editor.js?v=11"></script>
+  <script src="js/bookmarklet.js?v=11"></script>
+  <script src="js/table-import.js?v=11"></script>
 </body>
 
 </html>

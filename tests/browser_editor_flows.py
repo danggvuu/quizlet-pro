@@ -77,15 +77,66 @@ class BrowserEditorFlows(unittest.TestCase):
         self.page.locator("#create-cards-list .btn-icon").last.click()
         self.assertEqual(len(self.drafts()["new"]["cards"]), 5)
         self.page.locator(".import-btn-inline").click()
-        self.page.locator("#import-raw-text").fill("a\tb\nc\td")
-        self.page.locator(".import-actions .btn-primary").click()
+        self.page.locator("#table-import-text").fill("Term\tDefinition\na\tb\nc\td")
+        self.page.locator("#table-import-submit").click()
         draft = self.drafts()["new"]
         self.assertEqual([c["term"] for c in draft["cards"]], ["a", "c"])
-        self.assertEqual(draft["importText"], "")
         self.page.reload()
         self.page.wait_for_function("window.appReady === true")
         expect(self.page.locator(".term-input")).to_have_count(2)
         expect(self.page.locator(".term-input").first).to_have_value("a")
+
+    def test_csv_file_import_maps_extra_column_into_definition(self):
+        self.page.evaluate("openTableImporter('new')")
+        payload = b'Term,Definition,Example\r\n"hello, world",greeting,"says \"\"hello\"\""\r\n'
+        self.page.locator("#table-import-file").set_input_files({
+            "name": "cards.csv", "mimeType": "text/csv", "buffer": payload
+        })
+        self.page.wait_for_function("document.getElementById('table-import-count').textContent === '1'")
+        self.page.locator("#table-import-column-map select").nth(2).select_option("definition-extra")
+        self.page.locator("#table-import-title").fill("Imported CSV")
+        self.page.locator("#table-import-submit").click()
+        self.page.wait_for_function("currentSet?.title === 'Imported CSV'")
+        self.assertEqual(self.page.evaluate("currentSet.cards[0].term"), "hello, world")
+        self.assertEqual(self.page.evaluate("currentSet.cards[0].definition"), 'greeting\nExample: says "hello"')
+
+    def test_xlsx_import_selects_a_sheet_in_browser(self):
+        self.page.evaluate("""() => { window.XLSX = {
+            read: () => ({ SheetNames: ['First', 'Second'], Sheets: {
+                First: [['Term', 'Definition'], ['one', 'một']],
+                Second: [['Term', 'Definition'], ['two', 'hai']]
+            }}),
+            utils: { sheet_to_json: sheet => sheet }
+        }}""")
+        self.page.evaluate("openTableImporter('new')")
+        self.page.locator("#table-import-file").set_input_files({
+            "name": "cards.xlsx", "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "buffer": b"fake xlsx"
+        })
+        expect(self.page.locator("#table-import-sheet-wrap")).to_be_visible()
+        self.page.locator("#table-import-sheet").select_option("1")
+        self.assertIn("two", self.page.locator("#table-import-preview").inner_text())
+
+    def test_mobile_import_modal_accepts_pasted_table(self):
+        self.page.set_viewport_size({"width": 390, "height": 844})
+        self.page.locator(".mob-nav-create").click()
+        expect(self.page.locator("#table-import-modal")).to_be_visible()
+        self.page.locator("#table-import-text").fill("Term\tDefinition\nphone\tđiện thoại")
+        self.assertLessEqual(
+            self.page.locator("#table-import-modal .modal-content").evaluate("el => el.scrollWidth"),
+            self.page.locator("#table-import-modal .modal-content").evaluate("el => el.clientWidth")
+        )
+        self.page.locator("#table-import-submit").click()
+        self.page.wait_for_function("currentSet?.cards?.[0]?.term === 'phone'")
+
+    def test_invalid_text_replaces_previous_valid_preview(self):
+        self.page.evaluate("openTableImporter('new')")
+        text = self.page.locator("#table-import-text")
+        text.fill("Term\tDefinition\nvalid\tvalue")
+        expect(self.page.locator("#table-import-submit")).to_be_enabled()
+        text.fill('"unclosed')
+        expect(self.page.locator("#table-import-error")).to_be_visible()
+        expect(self.page.locator("#table-import-submit")).to_be_disabled()
+        expect(self.page.locator("#table-import-count")).to_have_text("0")
 
     def test_empty_draft_is_removed(self):
         self.create()
@@ -117,7 +168,7 @@ class BrowserEditorFlows(unittest.TestCase):
 
     def test_import_separator_draft_restored(self):
         self.create()
-        self.page.locator(".import-btn-inline").click()
+        self.page.evaluate("document.getElementById('import-box-ui').style.display = 'block'")
         self.page.locator("#termSepCustom").fill("=>")
         self.page.locator("#cardSepCustom").fill("||")
         self.page.locator("#import-raw-text").fill("a=>b=>c||d=>e")
@@ -125,14 +176,14 @@ class BrowserEditorFlows(unittest.TestCase):
         self.page.wait_for_function("window.appReady === true")
         expect(self.page.locator("#termSepCustom")).to_have_value("=>")
         expect(self.page.locator("#preview-count")).to_have_text("2")
-        self.page.locator(".import-actions .btn-primary").click()
+        self.page.locator("#import-box-ui .btn-primary").click()
         expect(self.page.locator(".def-input").first).to_have_value("b=>c")
 
     def test_invalid_import_does_not_insert_partial_rows(self):
         self.create()
-        self.page.locator(".import-btn-inline").click()
+        self.page.evaluate("document.getElementById('import-box-ui').style.display = 'block'")
         self.page.locator("#import-raw-text").fill("valid\tdefinition\nbroken")
-        self.page.locator(".import-actions .btn-primary").click()
+        self.page.locator("#import-box-ui .btn-primary").click()
         expect(self.page.locator(".term-input").first).to_have_value("")
         expect(self.page.locator("#import-raw-text")).to_have_value("valid\tdefinition\nbroken")
 
@@ -158,7 +209,7 @@ class BrowserEditorFlows(unittest.TestCase):
     def test_new_editor_has_no_stale_import(self):
         self.seed()
         self.create()
-        self.page.locator(".import-btn-inline").click()
+        self.page.evaluate("document.getElementById('import-box-ui').style.display = 'block'")
         self.page.locator("#import-raw-text").fill("stale\ttext")
         self.page.evaluate("showDashboard(); openEditCurrentSet()")
         expect(self.page.locator("#import-raw-text")).to_have_value("")

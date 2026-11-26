@@ -23,7 +23,7 @@ function worker(overrides = {}) {
         };
     };
     const records = new Map();
-    stores.set('quizlet-pro-v10', records);
+    stores.set('quizlet-pro-v11', records);
     const cache = {
         addAll: async () => {},
         match: async key => records.get(keyOf(key))?.clone(),
@@ -34,7 +34,7 @@ function worker(overrides = {}) {
         self: { location: { origin: 'http://localhost' }, addEventListener: (type, cb) => events[type] = cb,
             clients: { claim: async () => { state.claimed++; }, matchAll: async () => [] },
             skipWaiting: async () => { state.skipped++; } },
-        caches: { open: async name => name === 'quizlet-pro-v10' ? cache : open(name),
+        caches: { open: async name => name === 'quizlet-pro-v11' ? cache : open(name),
             keys: async () => [...stores.keys()], delete: async name => stores.delete(name) },
         fetch: async () => new Response('network'), URL, Request, Response, AbortController, setTimeout, clearTimeout,
         console: { warn: () => {} }, ...overrides
@@ -66,10 +66,12 @@ test('service worker network remains usable if cache storage cannot open', async
 
 test('service worker isolates script revisions and canonicalizes HTML fallback', async () => {
     const w = worker({ fetch: async () => { throw new Error('offline'); } });
-    w.records.set('/js/database.js?v=9', new Response('saved module'));
+    w.records.set('/js/database.js?v=11', new Response('saved module'));
+    w.records.set('/js/table-import.js?v=11', new Response('saved importer'));
     w.records.set('/', new Response('saved shell'));
-    assert.equal(await (await fetchEvent(w, '/js/database.js?v=9')).text(), 'saved module');
-    assert.equal((await fetchEvent(w, '/js/database.js?v=10')).status, 503);
+    assert.equal(await (await fetchEvent(w, '/js/database.js?v=11')).text(), 'saved module');
+    assert.equal(await (await fetchEvent(w, '/js/table-import.js?v=11')).text(), 'saved importer');
+    assert.equal((await fetchEvent(w, '/js/database.js?v=9')).status, 503);
     assert.equal(await (await fetchEvent(w, '/?offline=1', 'navigate')).text(), 'saved shell');
     assert.equal(await (await fetchEvent(w, '/index.html')).text(), 'saved shell');
     assert.equal((await fetchEvent(w, '/data/sets/unseen.json')).status, 503);
