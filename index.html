@@ -839,23 +839,6 @@
       color: var(--text);
     }
 
-    .dash-search-box input {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-full);
-      padding: 7px 16px;
-      font-size: 13px;
-      color: var(--text);
-      outline: none;
-      min-width: 240px;
-      transition: var(--transition-fast);
-    }
-
-    .dash-search-box input:focus {
-      border-color: var(--border-focus);
-      box-shadow: 0 0 0 3px var(--primary-glow);
-    }
-
     /* SET CARDS GRID */
     .grid-recents {
       display: grid;
@@ -4881,35 +4864,6 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         } catch (e) { }
       }
 
-      // XÓA NHANH TOÀN BỘ 20 BỘ ĐỀ TOEIC TIẾNG ANH MẪU
-      function deleteAllSampleSets() {
-        if (!confirm("Bạn có chắc chắn muốn xóa toàn bộ các bộ đề TOEIC mẫu khỏi trang chủ để giao diện gọn gàng không?")) {
-          return;
-        }
-        const sampleIds = [
-          "927731678", "927731707", "927731719", "927731732", "927731743",
-          "927731753", "927731770", "927731825", "927731839", "927731856",
-          "1024619363", "1007017985", "1008990116", "1010710706", "1012039369",
-          "1013575766", "1015913274", "1020661698", "1022004296", "1023641138"
-        ];
-        sampleIds.forEach(id => markSetAsDeleted(id));
-
-        if (window.allDashboardSets) {
-          window.allDashboardSets = window.allDashboardSets.filter(s => !sampleIds.includes(String(s.id)));
-          renderDashboard(window.allDashboardSets);
-        }
-
-        const select = document.getElementById("set-select");
-        if (select) {
-          sampleIds.forEach(id => {
-            const opt = select.querySelector(`option[value="${id}"]`);
-            if (opt) opt.remove();
-          });
-        }
-
-        showToast("🧹 Đã dọn sạch toàn bộ 20 bộ đề TOEIC mẫu!", 3000);
-      }
-
       function deleteCurrentSet() {
         if (!currentSet) return;
         deleteSet(currentSet.id, currentSet.title);
@@ -6734,15 +6688,14 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         const view = document.getElementById('dashboard-view');
         if (!sets || sets.length === 0) {
           view.innerHTML = `
-          <div class="summary-box" style="padding: 60px 24px; text-align: center; max-width: 520px; margin: 40px auto;">
+          <div class="summary-box" style="padding: 40px 24px; text-align: center; max-width: 520px; margin: 40px auto;">
             <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg>
             </div>
-            <div class="summary-title" style="font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 8px;">Chưa có học phần nào</div>
-            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px; line-height: 1.5;">Hãy tạo học phần đầu tiên của bạn hoặc nhập nhanh từ link Quizlet để bắt đầu hành trình ghi nhớ.</p>
-            <div style="display: flex; justify-content: center; gap: 10px;">
-              <button class="btn-primary" style="width: auto; padding: 10px 22px;" onclick="showCreateSetView()">+ Tạo học phần mới</button>
-              <button class="btn-hero-action" onclick="openQuickImportModal('link')">Nhập từ Quizlet</button>
+            <div class="summary-title" style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 18px;">Chưa có học phần</div>
+            <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+              <button class="btn-primary" style="width: auto; padding: 10px 22px;" onclick="showCreateSetView()">Tạo học phần</button>
+              <button class="btn-cancel" style="padding: 10px 22px;" onclick="openQuickImportModal('paste')">Nhập học phần</button>
             </div>
           </div>
         `;
@@ -6752,63 +6705,12 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         }
 
         window.allDashboardSets = sets;
-        const firstSet = sets[0];
-        const displayHeroTitle = formatSetTitle(firstSet.title);
         let html = `
-        <div class="dash-welcome-banner">
-          <div class="dash-welcome-text">
-            <h2>Chào mừng bạn trở lại</h2>
-            <p>Chọn một học phần để tiếp tục rèn luyện phản xạ và trí nhớ hôm nay.</p>
-          </div>
-        </div>
-
-        <div class="dash-section-header">
-          <h2 class="dash-section-title">Tiếp tục học</h2>
-        </div>
-
-        <div class="hero-jump-card">
-          <div class="hero-jump-left" data-set-id="${escapeHtml(firstSet.id)}">
-            <div class="hero-set-badge">HỌC PHẦN GẦN NHẤT</div>
-            <h3 class="hero-set-title" title="${escapeHtml(firstSet.title)}">${escapeHtml(displayHeroTitle)}</h3>
-            <p class="hero-set-meta">${firstSet.numTerms} thuật ngữ ${firstSet.isCustom ? '· Tạo bởi bạn' : '· Hệ thống'}</p>
-            
-            <div class="hero-actions">
-              <button class="btn-hero-action primary" onclick="launchSetMode(this.closest('[data-set-id]').dataset.setId, 'learn')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-                <span>Học SRS</span>
-              </button>
-              <button class="btn-hero-action" onclick="launchSetMode(this.closest('[data-set-id]').dataset.setId, 'flashcards')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="15" height="15" rx="3"/><path d="M7 3h11a3 3 0 0 1 3 3v11"/></svg>
-                <span>Thẻ nhớ</span>
-              </button>
-              <button class="btn-hero-action" onclick="launchSetMode(this.closest('[data-set-id]').dataset.setId, 'test')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                <span>Kiểm tra</span>
-              </button>
-              <button class="btn-hero-action" onclick="launchSetMode(this.closest('[data-set-id]').dataset.setId, 'match')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                <span>Ghép thẻ</span>
-              </button>
-            </div>
-          </div>
-          <div class="hero-jump-right">
-            <button class="btn-icon btn-icon-danger" data-set-id="${escapeHtml(firstSet.id)}" data-title="${escapeHtml(displayHeroTitle)}" onclick="event.stopPropagation(); deleteSet(this.dataset.setId, this.dataset.title);" title="Xóa bộ thẻ này">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-            </button>
-          </div>
-        </div>
-
-        <div class="dash-section-header" style="margin-top: 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-            <h2 class="dash-section-title">Học phần gần đây</h2>
-            ${sets.some(s => String(s.id).length >= 9 && !isNaN(Number(s.id))) ? `
-              <button onclick="deleteAllSampleSets()" style="background: var(--error-light); border: 1px solid var(--error-border); color: var(--error); padding: 5px 12px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 700; cursor: pointer;" title="Ẩn/Xóa tất cả 20 bộ đề TOEIC mẫu">
-                Dọn dẹp đề mẫu
-              </button>
-            ` : ''}
-          </div>
-          <div class="dash-search-box">
-            <input type="text" id="dash-filter-input" placeholder="Tìm kiếm học phần..." oninput="filterDashboardSets(this.value)" />
+        <div class="dash-section-header" style="margin-top: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <h2 class="dash-section-title">Học phần</h2>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="color:var(--text-muted);font-size:13px">${sets.length} học phần</span>
+            <button class="btn-primary" style="width:auto;padding:8px 14px" onclick="showCreateSetView()">+ Tạo học phần</button>
           </div>
         </div>
 
@@ -6827,9 +6729,8 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           return `
           <div style="grid-column: 1 / -1; padding: 48px 20px; text-align: center; color: var(--text-muted); background: var(--card-bg); border-radius: var(--radius-xl); border: 1px dashed var(--border);">
             <div style="font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 6px;">Không tìm thấy học phần nào</div>
-            <p style="font-size: 13.5px; margin-bottom: 16px; max-width: 380px; margin-left: auto; margin-right: auto; line-height: 1.5;">Thử tìm kiếm với từ khóa khác hoặc xóa bộ lọc để hiển thị toàn bộ.</p>
-            <button class="btn-primary" onclick="const fi = document.getElementById('dash-filter-input'); if(fi) fi.value=''; const gi = document.getElementById('global-search-input'); if(gi) gi.value=''; filterDashboardSets('');" style="width: auto; padding: 8px 18px; font-size: 13px; margin: 0 auto;">
-              Hiển thị lại tất cả
+            <button class="btn-cancel" onclick="document.getElementById('global-search-input').value=''; filterDashboardSets('');" style="width: auto; padding: 8px 18px; margin: 0 auto;">
+              Xóa tìm kiếm
             </button>
           </div>
         `;
