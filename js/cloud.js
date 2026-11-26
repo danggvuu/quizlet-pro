@@ -15,6 +15,9 @@ function cloudErrorMessage(error) {
     if (error.code === 'auth/operation-not-allowed') {
         return 'Bật Google trong Authentication > Sign-in method của Firebase Console.';
     }
+    if (error.code === 'auth/popup-blocked') {
+        return 'Trình duyệt đã chặn cửa sổ Google. Cho phép cửa sổ bật lên cho trang này rồi đăng nhập lại.';
+    }
     if (error.code === 'permission-denied') {
         return 'Chưa có quyền truy cập thư viện cá nhân. Hãy triển khai firestore.rules cho đúng Firebase project.';
     }

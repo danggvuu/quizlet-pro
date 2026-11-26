@@ -156,6 +156,9 @@ class BrowserRegressions(unittest.TestCase):
         store = {}
         context, page = self.cloud_device(store, uid=None, mobile=True)
         try:
+            expect(page.locator('#cloud-account-banner')).to_be_visible()
+            self.assertTrue(page.locator('#cloud-account-banner button').evaluate(
+                'button=>button.getBoundingClientRect().right<=window.innerWidth'))
             page.evaluate("fixture=>Database.saveSet({...fixture,isCustom:true})", FIXTURE)
             page.evaluate("loadSetsList(null,{skipCloud:true})")
             page.locator("#cloud-account-banner button").tap()
