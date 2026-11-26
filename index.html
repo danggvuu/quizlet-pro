@@ -3998,6 +3998,22 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         <label for="table-import-text" class="import-setting-title">Hoặc dán bảng từ Excel / Google Sheets / Word</label>
         <textarea id="table-import-text" class="import-textarea" style="height:110px" placeholder="Dán các hàng và cột vào đây"></textarea>
         <div class="table-import-toolbar">
+          <label for="table-import-delimiter">Dấu phân cách cột</label>
+          <select id="table-import-delimiter" class="q-input" style="width:auto;max-width:100%;padding:7px">
+            <option value="auto">Tự nhận diện</option>
+            <option value="tab">Tab</option>
+            <option value=":">Hai chấm (:)</option>
+            <option value="：">Hai chấm toàn chiều rộng (：)</option>
+            <option value=",">Phẩy (,)</option>
+            <option value="、">Phẩy Nhật (、)</option>
+            <option value=";">Chấm phẩy (;)</option>
+            <option value="|">Gạch đứng (|)</option>
+            <option value="custom">Tùy chỉnh</option>
+          </select>
+          <input id="table-import-delimiter-custom" class="q-input" placeholder="Ví dụ: =>" aria-label="Dấu phân cách cột tùy chỉnh" hidden>
+        </div>
+        <p class="table-import-help">Mỗi dòng là một thẻ. Nếu nội dung có nhiều loại dấu, hãy chọn dấu dùng để tách hai mặt thẻ, ví dụ Hai chấm (:).</p>
+        <div class="table-import-toolbar">
           <label for="table-import-header-row">Dòng tiêu đề</label>
           <select id="table-import-header-row" class="q-input" style="width:auto;min-width:150px;padding:7px"></select>
           <button id="table-import-clear" class="btn-cancel" type="button">Xóa dữ liệu</button>
@@ -4068,6 +4084,17 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
               <option value="term">Thuật ngữ / Khái niệm / Câu hỏi (Hỏi Định nghĩa/Giải thích -> Chọn / Gõ Thuật ngữ)
               </option>
             </select>
+          </div>
+
+          <div>
+            <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">Chiều Luyện gõ:</label>
+            <select id="opt-write-answer-with"
+              style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text);">
+              <option value="auto">Tự nhận diện (bộ tiếng Nhật: hiện nghĩa → gõ thuật ngữ)</option>
+              <option value="term">Hiện nghĩa / giải thích → gõ thuật ngữ</option>
+              <option value="definition">Hiện thuật ngữ → gõ nghĩa / giải thích</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">Áp dụng cho chế độ Luyện gõ và câu Tự luận trong Học.</div>
           </div>
 
           <div>
@@ -4269,6 +4296,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       // CÀI ĐẶT NGƯỜI DÙNG (LƯU VĨNH VIỄN VÀO LOCALSTORAGE)
       const DEFAULT_SETTINGS = {
         answerWith: "definition",
+        writeAnswerWith: "auto",
         learnQuestionType: "both", // 'both', 'choice_only', 'write_only'
         roundSize: 7,
         autoSound: true,
@@ -4291,6 +4319,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       let pendingAnswer = null;
       let preAnswerProgress = null;
       let studyPhase = 'question';
+      let currentQuestionAnswerWith = settings.answerWith;
 
       // HỒ SƠ NGƯỜI HỌC TRÊN THIẾT BỊ NÀY (TIẾN ĐỘ & TÀI KHOẢN HOÀN TOÀN TÁCH BIỆT THEO MÁY)
       function getLearnerName() {
@@ -5524,6 +5553,39 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         renderCurrentCard();
       }
 
+      function isJapaneseText(value) {
+        return /[\u3040-\u30ff\u3400-\u9fff]/.test(String(value || ''));
+      }
+
+      function isJapaneseStudySet() {
+        const cards = (currentSet?.cards || cardsState || []).filter(card => card?.term && card?.definition);
+        if (cards.length < 2) return false;
+        const japaneseTerms = cards.filter(card => isJapaneseText(card.term)).length;
+        return japaneseTerms / cards.length >= 0.6;
+      }
+
+      function getWriteAnswerWith() {
+        const selected = settings.writeAnswerWith || 'auto';
+        if (selected !== 'auto') return selected;
+        return isJapaneseStudySet() ? 'term' : settings.answerWith;
+      }
+
+      function cleanDefinitionForTyping(value) {
+        const text = String(value || '').trim();
+        const hasStructuredGloss = /【[^】]+】/.test(text) || /\[(?:Phiên âm|[A-ZÀ-ỸĐ0-9][A-ZÀ-ỸĐ0-9\s-]*)\]\s*$/u.test(text);
+        if (!hasStructuredGloss) return text;
+        return text
+          .replace(/\s*【[^】]*】/g, '')
+          .replace(/\s*\[[^\]]*\]\s*$/g, '')
+          .replace(/^[\s~～]+/, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
+
+      function getTypingTarget(value) {
+        return currentQuestionAnswerWith === 'definition' ? cleanDefinitionForTyping(value) : value;
+      }
+
       // RENDER QUESTION CARD
       function renderCurrentCard() {
         studyGeneration++;
@@ -5548,7 +5610,10 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         };
         const app = document.getElementById("app");
 
-        const isPromptTerm = settings.answerWith === "definition";
+        const isWriteQuestion = currentMode === 'write' ||
+          (currentMode === 'learn' && settings.learnQuestionType === 'write_only');
+        const answerWith = isWriteQuestion ? getWriteAnswerWith() : settings.answerWith;
+        const isPromptTerm = answerWith === "definition";
         const promptText = isPromptTerm ? card.term : card.definition;
         const correctChoice = isPromptTerm ? card.definition : card.term;
 
@@ -5567,6 +5632,12 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           }
         }
 
+        currentQuestionAnswerWith = qType === 'write' ? getWriteAnswerWith() : settings.answerWith;
+        const questionIsPromptTerm = currentQuestionAnswerWith === 'definition';
+        const questionPromptText = questionIsPromptTerm ? card.term : card.definition;
+        const questionCorrectChoice = questionIsPromptTerm ? card.definition : card.term;
+        const writeTarget = getTypingTarget(questionCorrectChoice);
+
         // Prepare image HTML
         const imageHtml = (settings.showImages && card.image) ? `
         <div class="prompt-image-container" onclick="openLightbox(this.querySelector('img').src)" title="Click để phóng to ảnh">
@@ -5576,17 +5647,17 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
         let bottomHtml = "";
         if (qType === "choice") {
-          const options = StudyUtils.choiceOptions(getStudyPool(), correctChoice, isPromptTerm ? 'definition' : 'term');
+          const options = StudyUtils.choiceOptions(getStudyPool(), questionCorrectChoice, questionIsPromptTerm ? 'definition' : 'term');
 
           currentRoundOptions = options;
-          currentCorrectChoice = correctChoice;
+          currentCorrectChoice = questionCorrectChoice;
 
           bottomHtml = `
           <div class="options-grid">
             ${options.map((opt, idx) => `
               <button class="option-btn" onclick="handleChoice(${idx})">
                 <span class="option-key">${idx + 1}</span>
-                <span class="opt-text rich-text-container">${formatRichContent(opt)}</span>
+            <span class="opt-text rich-text-container">${formatRichContent(opt)}</span>
               </button>
             `).join("")}
           </div>
@@ -5594,14 +5665,16 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         `;
         } else {
           // Written Mode
-          currentCorrectChoice = correctChoice;
+          currentCorrectChoice = writeTarget;
           bottomHtml = `
           <div class="write-area">
-            <input type="text" id="write-user-input" class="write-input-box" placeholder="Nhập câu trả lời chính xác..." autocomplete="off" oninput="saveActiveSession()" autofocus />
+            <input type="text" id="write-user-input" class="write-input-box" placeholder="${currentQuestionAnswerWith === 'term' ? 'Gõ tiếng Nhật (kana / Kanji)...' : 'Gõ câu trả lời chính xác...'}" autocomplete="off" autocapitalize="off" spellcheck="false" oninput="saveActiveSession()" autofocus />
             <div class="write-action-bar">
+              <button class="btn-cancel" onclick="showWriteHint()">Gợi ý</button>
               <button class="btn-skip" onclick="handleWriteSkip()">Tôi không biết (Bỏ qua)</button>
               <button class="btn-submit-write" onclick="handleWriteSubmit()">Trả lời (Enter) ↵</button>
             </div>
+            <div id="write-hint" class="write-hint" hidden></div>
           </div>
         `;
         }
@@ -5615,14 +5688,14 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
               <span class="card-step-tag">Thẻ ${currentCardIndex + 1} / ${currentRoundQueue.length}</span>
             </div>
             <div class="card-actions">
-              ${isPromptTerm ? `<button class="tts-btn" onclick="speakCurrentCard()" title="Phát âm (Phím S)">🔊</button>` : ""}
+            ${questionIsPromptTerm ? `<button class="tts-btn" onclick="speakCurrentCard()" title="Phát âm (Phím S)">🔊</button>` : ""}
               <button class="star-btn ${card.starred ? "starred" : ""}" onclick="toggleCurrentCardStar()" title="Gắn sao">★</button>
             </div>
           </div>
 
           <div class="prompt-area">
             <div class="prompt-content">
-              <div class="prompt-text rich-text-container">${formatRichContent(promptText)}</div>
+              <div class="prompt-text rich-text-container">${formatRichContent(questionPromptText)}</div>
             </div>
             ${imageHtml}
           </div>
@@ -5634,8 +5707,14 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         if (qType === "write") {
           scheduleStudy(() => {
             const inp = document.getElementById("write-user-input");
-            if (inp) {
+            const isTouchDevice = window.matchMedia?.('(hover: none) and (pointer: coarse)').matches;
+            if (inp && !isTouchDevice && window.innerWidth > 768) {
               inp.focus();
+              inp.addEventListener("keydown", (e) => {
+                if (e.isComposing || e.keyCode === 229) return;
+                if (e.key === "Enter") handleWriteSubmit();
+              });
+            } else if (inp) {
               inp.addEventListener("keydown", (e) => {
                 if (e.isComposing || e.keyCode === 229) return;
                 if (e.key === "Enter") handleWriteSubmit();
@@ -5644,7 +5723,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           }, 50);
         }
 
-        if (settings.autoSound && isPromptTerm) {
+        if (settings.autoSound && questionIsPromptTerm) {
           speakCurrentCard();
         }
         saveActiveSession();
@@ -5757,7 +5836,17 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       }
 
       function checkFuzzyMatch(input, target) {
-        return StudyUtils.answersMatch(input, target);
+        return StudyUtils.answersMatch(input, getTypingTarget(target));
+      }
+
+      function showWriteHint() {
+        const hint = document.getElementById('write-hint');
+        if (!hint || !currentRoundQueue[currentCardIndex]) return;
+        const target = String(currentCorrectChoice || '').trim();
+        const visible = [...target].slice(0, Math.min(3, target.length)).join('');
+        hint.textContent = visible ? `Gợi ý: ${visible}${target.length > visible.length ? '…' : ''}` : 'Chưa có gợi ý.';
+        hint.hidden = false;
+        saveActiveSession();
       }
 
       function upgradeCardMastery(card) {
@@ -5778,7 +5867,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         studyPhase = 'feedback';
         pendingAnswer = { userVal, correctVal, requireRetype };
         saveActiveSession();
-        const isPromptTerm = settings.answerWith === "definition";
+        const isPromptTerm = currentQuestionAnswerWith === "definition";
         const promptText = isPromptTerm ? card.term : card.definition;
         const app = document.getElementById("app");
 
@@ -7614,7 +7703,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
   <script src="js/navigation.js?v=11"></script>
   <script src="js/editor.js?v=11"></script>
   <script src="js/bookmarklet.js?v=11"></script>
-  <script src="js/table-import.js?v=11"></script>
+  <script src="js/table-import.js?v=12"></script>
 </body>
 
 </html>

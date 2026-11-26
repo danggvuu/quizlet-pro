@@ -12,7 +12,7 @@
                 continue;
             }
             if (char === '"' && !cell.trim()) { cell = ''; quoted = true; }
-            else if (char === delimiter) { row.push(cell); cell = ''; }
+            else if (text.startsWith(delimiter, i)) { row.push(cell); cell = ''; i += delimiter.length - 1; }
             else if (char === '\n' || char === '\r') {
                 if (char === '\r' && text[i + 1] === '\n') i++;
                 row.push(cell); rows.push(row); row = []; cell = '';
@@ -24,7 +24,7 @@
     }
 
     function detectDelimiter(text) {
-        const candidates = ['\t', ',', ';', '|'];
+        const candidates = ['\t', ',', ';', '|', ':', '：', '、'];
         let best = { delimiter: '\t', score: -1 };
         for (const delimiter of candidates) {
             let rows;
@@ -45,6 +45,9 @@
     function parseDelimited(input, requestedDelimiter = 'auto') {
         const text = String(input ?? '').replace(/^\uFEFF/, '');
         const delimiter = requestedDelimiter === 'auto' ? detectDelimiter(text) : requestedDelimiter;
+        if (typeof delimiter !== 'string' || !delimiter.length || /[\r\n"]/.test(delimiter)) {
+            throw new Error('Hãy nhập dấu phân cách cột, không dùng xuống dòng hoặc dấu ngoặc kép.');
+        }
         return { delimiter, rows: parseWithDelimiter(text, delimiter) };
     }
 
@@ -131,6 +134,7 @@
     let target = 'new';
     let rows = [];
     let workbook = null;
+    let textSource = null;
     let roles = [];
     let xlsxPromise = null;
 
@@ -144,6 +148,7 @@
     function clearSource() {
         rows = [];
         workbook = null;
+        textSource = null;
         roles = [];
         byId('table-import-text').value = '';
         byId('table-import-file').value = '';
@@ -157,6 +162,8 @@
 
     function openTableImporter(nextTarget = 'new') {
         target = nextTarget === 'editor' ? 'editor' : 'new';
+        byId('table-import-delimiter').value = 'auto';
+        byId('table-import-delimiter-custom').value = '';
         clearSource();
         byId('table-import-title-wrap').hidden = target !== 'new';
         byId('table-import-submit').textContent = target === 'editor' ? 'Thêm vào bộ đang sửa' : 'Tạo học phần';
@@ -239,9 +246,24 @@
             throw new Error('Định dạng chưa hỗ trợ. Chọn .xlsx, .csv hoặc .tsv.');
         }
         const text = await file.text();
-        const delimiter = extension === 'tsv' ? '\t' : 'auto';
-        const parsed = parseDelimited(text, delimiter);
-        setRows(parsed.rows, file.name);
+        textSource = { text, name: file.name, delimiter: extension === 'tsv' ? '\t' : 'auto', maxBytes: MAX_FILE_BYTES };
+        parseSource();
+    }
+
+    function parseSource() {
+        rows = [];
+        roles = [];
+        render();
+        setError('');
+        if (!textSource) return;
+        byId('table-import-source').textContent = textSource.name;
+        if (new Blob([textSource.text]).size > textSource.maxBytes) {
+            throw new Error(`Dữ liệu vượt quá ${textSource.maxBytes / (1024 * 1024)} MB. Hãy chia nhỏ dữ liệu rồi nhập lại.`);
+        }
+        const selected = byId('table-import-delimiter').value;
+        const delimiter = selected === 'custom' ? byId('table-import-delimiter-custom').value
+            : selected === 'tab' ? '\t' : selected === 'auto' ? textSource.delimiter : selected;
+        setRows(parseDelimited(textSource.text, delimiter).rows, textSource.name);
     }
 
     function renderColumnMap(headers) {
@@ -297,6 +319,10 @@
     }
 
     function render() {
+        const structured = rows.length > 0 && !textSource;
+        byId('table-import-delimiter').disabled = structured;
+        byId('table-import-delimiter-custom').hidden = byId('table-import-delimiter').value !== 'custom';
+        byId('table-import-delimiter-custom').disabled = structured;
         const headers = getHeaders();
         byId('table-import-mapping-wrap').hidden = !rows.length;
         if (!rows.length) {
@@ -320,7 +346,7 @@
             [...row.querySelectorAll('th,td')].map(cell => cell.textContent.trim()));
         if (!tableRows.length) return;
         event.preventDefault();
-        byId('table-import-file').value = '';
+        clearSource();
         setRows(tableRows, 'Bảng đã dán');
     }
 
@@ -375,17 +401,17 @@
         byId('table-import-sheet').replaceChildren();
         byId('table-import-sheet-wrap').hidden = true;
         if (!text.trim()) { clearSource(); return; }
-        rows = [];
-        roles = [];
-        byId('table-import-source').textContent = 'Văn bản đã dán';
-        render();
-        if (new Blob([text]).size > MAX_TEXT_BYTES) { setError('Phần văn bản vượt quá 2 MB. Hãy nhập bằng tệp CSV/TSV.'); return; }
+        textSource = { text, name: 'Văn bản đã dán', delimiter: 'auto', maxBytes: MAX_TEXT_BYTES };
         try {
-            const parsed = parseDelimited(text);
-            setRows(parsed.rows, 'Văn bản đã dán');
-            setError('');
+            parseSource();
         } catch (error) { setError(error.message); }
     });
+    for (const [id, event] of [['table-import-delimiter', 'change'], ['table-import-delimiter-custom', 'input']]) {
+        byId(id).addEventListener(event, () => {
+            try { parseSource(); }
+            catch (error) { setError(error.message); }
+        });
+    }
     byId('table-import-text').addEventListener('paste', handlePaste);
     byId('table-import-header-row').addEventListener('change', () => {
         roles = guessRoles(getHeaders());

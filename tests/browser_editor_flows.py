@@ -16,6 +16,69 @@ FIXTURE = {"id": "editor_fixture", "title": "Editor fixture", "description": "Or
            "cards": [{"id": "stable-a", "term": "apple", "definition": "fruit", "image": "https://example.org/apple.png"},
                      {"id": "stable-b", "term": "pear", "definition": "fruit", "image": ""}]}
 
+JAPANESE_COLON_TEXT = """自己紹介、Giới thiệu bản thân, TỰ KỶ THIỆU GIỚI: じこしょうかい
+名前、Tên, DANH TIỀN: なまえ
+意味、Ý nghĩa, Ý VỊ: いみ
+本屋、Hiệu sách, BẢN ỐC: ほんや
+近く、Gần, CẬN: ちかく
+住みます、Sống, TRÚ: すみます
+働きます、Làm việc, ĐỘNG: はたらきます
+～番目（１番目）、Thứ ～ (thứ nhất), PHIÊN MỤC: ～ばんめ（いちばんめ）
+兄、Anh trai (của mình), HUYNH: あに
+お兄さん、Anh trai (của người khác), HUYNH: おにいさん
+姉、Chị gái (của mình), TỶ: あね
+お姉さん、Chị gái (của người khác), TỶ: おねえさん
+弟、Em trai, ĐỆ: おとうと
+妹、Em gái, MUỘI: いもうと
+家族、Gia đình, GIA TỘC: かぞく
+長い、Dài, TRƯỜNG: ながい
+短い、Ngắn, ĐOẢN: みじかい
+低い、Thấp, ĐÊ: ひくい
+上手、Giỏi, THƯỢNG THỦ: じょうず
+歌、Bài hát, CA: うた
+歌います、Hát, CA: うたいます
+お客さん、Khách hàng, KHÁCH: おきゃくさん
+注文、Order, CHÚ VĂN: ちゅうもん
+注意、Chú ý, CHÚ Ý: ちゅうい
+洋食、Đồ ăn kiểu Tây, DƯƠNG THỰC: ようしょく
+洋服、Quần áo kiểu Tây, DƯƠNG PHỤC: ようふく
+和食、Đồ ăn kiểu Nhật, HÒA THỰC: わしょく
+和服、Quần áo kiểu Nhật, HÒA PHỤC: わふく
+和室、Phòng kiểu Nhật, HÒA THẤT: わしつ
+方、Vị, PHƯƠNG: かた
+地方、Địa phương, ĐỊA PHƯƠNG: ちほう
+方法、Phương pháp, PHƯƠNG PHÁP: ほうほう
+有名、Nổi tiếng, HỮU DANH: ゆうめい
+有料、Có phí, HỮU LIỆU: ゆうりょう
+牛肉、Thịt bò, NGƯU NHỤC: ぎゅうにく
+牛乳、Sữa bò, NGƯU NHŨ: ぎゅうにゅう
+冷たい、Lạnh (cảm giác), LÃNH: つめたい
+冷える、Lạnh, LÃNH: ひえる
+冷やす、Làm lạnh, LÃNH: ひやす
+ご飯、Cơm, PHẠN: ごはん
+塩、Muối, DIÊM: しお
+全て、Tất cả (lịch sự), TOÀN: すべて
+全然、Hoàn toàn (không), TOÀN NHIÊN: ぜんぜん
+全部、Tất cả, TOÀN BỘ: ぜんぶ
+安全、An toàn, AN TOÀN: あんぜん
+熱い、Nóng, NHIỆT: あつい
+苦い、Đắng, KHỔ: にがい
+苦しい、Đau khổ, KHỔ: くるしい
+苦手、Kém, KHỔ THỦ: にがて
+紹介、Giới thiệu, THIỆU GIỚI: しょうかい
+一番目、Thứ nhất, NHẤT PHIÊN MỤC: いちばんめ
+住所、Địa chỉ, TRÚ SỞ: じゅうしょ
+姉妹、Chị em, TỶ MUỘI: しまい
+水族館、Thủy cung, THỦY TỘC QUÁN: すいぞくかん
+成長、Trưởng thành, THÀNH TRƯỜNG: せいちょう
+近所、Hàng xóm, CẬN SỞ: きんじょ
+兄弟、Anh em, HUYNH ĐỆ: きょうだい
+近い、Gần, CẬN: ちかい
+一番、Nhất, NHẤT PHIÊN: いちばん
+最近、Gần đây, TỐI CẬN: さいきん
+部屋、Căn phòng, BỘ ỐC: へや
+歌手、Ca sĩ, CA THỦ: かしゅ"""
+
 
 class ReadOnlyHandler(SimpleHTTPRequestHandler):
     def log_message(self, *args):
@@ -113,8 +176,59 @@ class BrowserEditorFlows(unittest.TestCase):
             "name": "cards.xlsx", "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "buffer": b"fake xlsx"
         })
         expect(self.page.locator("#table-import-sheet-wrap")).to_be_visible()
+        expect(self.page.locator("#table-import-delimiter")).to_be_disabled()
         self.page.locator("#table-import-sheet").select_option("1")
         self.assertIn("two", self.page.locator("#table-import-preview").inner_text())
+
+    def test_colon_import_preserves_all_japanese_cards_on_mobile(self):
+        self.page.set_viewport_size({"width": 390, "height": 844})
+        self.page.locator(".mob-nav-create").click()
+        self.page.locator("#table-import-text").fill(JAPANESE_COLON_TEXT)
+        self.page.locator("#table-import-delimiter").select_option(":")
+        expect(self.page.locator("#table-import-count")).to_have_text("62")
+        expect(self.page.locator("#table-import-header-row")).to_have_value("0")
+        expect(self.page.locator("#table-import-preview tbody tr").first.locator("td").nth(0)).to_have_text(
+            "自己紹介、Giới thiệu bản thân, TỰ KỶ THIỆU GIỚI")
+        expect(self.page.locator("#table-import-preview tbody tr").first.locator("td").nth(1)).to_have_text("じこしょうかい")
+        modal = self.page.locator("#table-import-modal .modal-content")
+        self.assertLessEqual(modal.evaluate("el => el.scrollWidth"), modal.evaluate("el => el.clientWidth"))
+        self.page.locator("#table-import-title").fill("Japanese colon import")
+        self.page.locator("#table-import-submit").click()
+        self.page.wait_for_function("currentSet?.title === 'Japanese colon import'")
+        expected = [dict(zip(("term", "definition"), [part.strip() for part in line.split(":", 1)]))
+                    for line in JAPANESE_COLON_TEXT.splitlines()]
+        self.assertEqual(self.page.evaluate("currentSet.cards.map(({term,definition}) => ({term,definition}))"), expected)
+
+    def test_file_separator_can_be_changed_without_losing_the_source(self):
+        self.page.evaluate("openTableImporter('new')")
+        text = "\n".join(JAPANESE_COLON_TEXT.splitlines()[:2])
+        self.page.locator("#table-import-file").set_input_files({
+            "name": "japanese.txt", "mimeType": "text/plain", "buffer": text.encode()
+        })
+        for delimiter in [":", ",", ":"]:
+            self.page.locator("#table-import-delimiter").select_option(delimiter)
+            expect(self.page.locator("#table-import-count")).to_have_text("2")
+            expect(self.page.locator("#table-import-source")).to_contain_text("japanese.txt")
+        expect(self.page.locator("#table-import-preview tbody tr").first.locator("td").nth(1)).to_have_text("じこしょうかい")
+
+    def test_custom_table_separator_reparses_and_blocks_empty_separator(self):
+        self.create()
+        self.page.locator(".import-btn-inline").click()
+        self.page.locator("#table-import-text").fill('"a=>b"=>c\nd=>e')
+        self.page.locator("#table-import-delimiter").select_option("custom")
+        expect(self.page.locator("#table-import-error")).to_be_visible()
+        expect(self.page.locator("#table-import-count")).to_have_text("0")
+        expect(self.page.locator("#table-import-submit")).to_be_disabled()
+        custom = self.page.locator("#table-import-delimiter-custom")
+        custom.fill("=>")
+        expect(self.page.locator("#table-import-count")).to_have_text("2")
+        expect(self.page.locator("#table-import-error")).to_be_hidden()
+        custom.fill("")
+        expect(self.page.locator("#table-import-submit")).to_be_disabled()
+        custom.fill("=>")
+        self.page.locator("#table-import-submit").click()
+        self.assertEqual([c["term"] for c in self.drafts()["new"]["cards"]], ["a=>b", "d"])
+        self.assertEqual([c["definition"] for c in self.drafts()["new"]["cards"]], ["c", "e"])
 
     def test_mobile_import_modal_accepts_pasted_table(self):
         self.page.set_viewport_size({"width": 390, "height": 844})
