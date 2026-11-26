@@ -33,8 +33,19 @@ window.SessionState = {
         currentMode = snapshot.mode;
         document.querySelectorAll('[id^="mode-"]').forEach(pill => pill.classList.toggle('active', pill.id === `mode-${currentMode}`));
         syncMobileNav(currentMode === 'flashcards' ? 'flashcards' : 'study');
-        currentRoundQueue = snapshot.queue.map(id => byId.get(id));
-        currentCardIndex = Math.max(0, Math.min(snapshot.cardIndex || 0, currentRoundQueue.length));
+        const savedIndex = Math.max(0, Math.min(snapshot.cardIndex || 0, snapshot.queue.length));
+        const restoredQueue = [];
+        const seen = new Set();
+        let restoredIndex = 0;
+        snapshot.queue.forEach((id, index) => {
+            if (index === savedIndex) restoredIndex = restoredQueue.length;
+            if (index !== savedIndex && seen.has(id)) return;
+            seen.add(id);
+            restoredQueue.push(byId.get(id));
+        });
+        if (savedIndex === snapshot.queue.length) restoredIndex = restoredQueue.length;
+        currentRoundQueue = restoredQueue;
+        currentCardIndex = Math.max(0, Math.min(restoredIndex, currentRoundQueue.length));
         if (currentMode === 'test') {
             if (!Array.isArray(snapshot.test?.questions) || !snapshot.test.questions.length ||
                 snapshot.test.questions.some(q => !byId.has(String(q.cardId)))) return false;

@@ -5413,7 +5413,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
         let bottomHtml = "";
         if (qType === "choice") {
-          const options = StudyUtils.choiceOptions(cardsState, correctChoice, isPromptTerm ? 'definition' : 'term');
+          const options = StudyUtils.choiceOptions(getStudyPool(), correctChoice, isPromptTerm ? 'definition' : 'term');
 
           currentRoundOptions = options;
           currentCorrectChoice = correctChoice;
@@ -7009,7 +7009,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         }
 
         const poolShuffled = StudyUtils.shuffle(activePool);
-        const questionLimit = settings.roundSize === 999 ? activePool.length : (Number(settings.roundSize) || 7);
+        const questionLimit = Number(settings.roundSize) === 999 ? activePool.length : (Number(settings.roundSize) || 7);
         const testCards = poolShuffled.slice(0, Math.min(questionLimit, poolShuffled.length));
         testState.questions = [];
         testState.userAnswers = {};
@@ -7017,35 +7017,38 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
         testCards.forEach((card, idx) => {
           const typeRoll = Math.random();
+          const prompt = settings.answerWith === 'definition' ? card.term : card.definition;
+          const correct = settings.answerWith === 'definition' ? card.definition : card.term;
+          const answerField = settings.answerWith === 'definition' ? 'definition' : 'term';
           if (typeRoll < 0.5 || activePool.length < 3) {
-            const options = StudyUtils.choiceOptions(activePool, card.definition, 'definition');
+            const options = StudyUtils.choiceOptions(activePool, correct, answerField);
             testState.questions.push({
               id: idx + 1,
               cardId: card.id,
               type: 'choice',
-              prompt: card.term,
-              correct: card.definition,
+              prompt,
+              correct,
               options: options,
               image: card.image
             });
           } else if (typeRoll < 0.8) {
-            const wrongCandidates = activePool.filter(c => StudyUtils.normalizeAnswer(c.definition) !== StudyUtils.normalizeAnswer(card.definition));
+            const wrongCandidates = activePool.filter(c => StudyUtils.normalizeAnswer(c[answerField]) !== StudyUtils.normalizeAnswer(correct));
             const isTrue = !wrongCandidates.length || Math.random() > 0.5;
-            let displayedDef = card.definition;
+            let displayedDef = correct;
             if (!isTrue) {
               const wrongCard = wrongCandidates.length > 0
                 ? wrongCandidates[Math.floor(Math.random() * wrongCandidates.length)]
                 : card;
-              displayedDef = wrongCard.definition;
+              displayedDef = wrongCard[answerField];
             }
             testState.questions.push({
               id: idx + 1,
               cardId: card.id,
               type: 'tf',
-              prompt: card.term,
+              prompt,
               displayedDef: displayedDef,
               correct: isTrue ? 'true' : 'false',
-              actualDef: card.definition,
+              actualDef: correct,
               image: card.image
             });
           } else {
@@ -7053,8 +7056,8 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
               id: idx + 1,
               cardId: card.id,
               type: 'written',
-              prompt: card.definition,
-              correct: card.term,
+              prompt: settings.answerWith === 'definition' ? card.definition : card.term,
+              correct: settings.answerWith === 'definition' ? card.term : card.definition,
               image: card.image
             });
           }
@@ -7100,7 +7103,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
                 ${q.type === 'tf' ? `
                   <div class="test-tf-box">
                     <div style="font-size: 15px; color: var(--text-muted); margin-bottom: 12px;">
-                      Định nghĩa hiển thị: <b style="color: var(--text);" class="rich-text-container">${formatRichContent(q.displayedDef)}</b>
+                      Câu trả lời hiển thị: <b style="color: var(--text);" class="rich-text-container">${formatRichContent(q.displayedDef)}</b>
                     </div>
                     <div style="display: flex; gap: 12px;">
                       <button class="test-tf-btn ${testState.userAnswers[q.id] === 'true' ? 'selected' : ''}" 
@@ -7267,7 +7270,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
                 </div>
                 ${!q.isCorrect ? `
                   <div style="font-size: 14px; color: var(--success); margin-top: 6px; font-weight: 700;">
-                    Đáp án đúng: ${formatRichContent(q.type === 'tf' ? (q.correct === 'true' ? 'Đúng' : 'Sai (Định nghĩa chuẩn là: ' + q.actualDef + ')') : q.correct)}
+                    Đáp án đúng: ${formatRichContent(q.type === 'tf' ? (q.correct === 'true' ? 'Đúng' : 'Sai (Đáp án chuẩn là: ' + q.actualDef + ')') : q.correct)}
                   </div>
                 ` : ''}
               </div>
