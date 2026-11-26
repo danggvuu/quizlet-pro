@@ -419,6 +419,21 @@ class BrowserRegressions(unittest.TestCase):
         self.assertEqual(self.page.evaluate("testState.questions"), questions)
         self.assertEqual(self.page.evaluate("testState.userAnswers[1]"), "draft answer")
 
+    def test_session_restore_deduplicates_old_retry_queue_and_keeps_active_card(self):
+        self.seed()
+        self.page.evaluate("""() => {
+            const snapshot = SessionState.read();
+            snapshot.queue = ['0', '1', '1', '1', '2', '3', '4'];
+            snapshot.cardIndex = 3;
+            snapshot.phase = 'question';
+            snapshot.feedback = null;
+            localStorage.setItem('qp_active_session', JSON.stringify(snapshot));
+        }""")
+        self.page.reload()
+        self.page.wait_for_selector(".study-card")
+        self.assertEqual(self.page.evaluate("currentRoundQueue.map(card => card.id)"), ["0", "1", "1", "2", "3", "4"])
+        self.assertEqual(self.page.evaluate("currentCardIndex"), 2)
+
     def test_reset_keeps_stars_after_reload(self):
         self.seed()
         self.page.evaluate("toggleStar('0')")
@@ -462,6 +477,55 @@ class BrowserRegressions(unittest.TestCase):
                 saved = self.page.evaluate("SessionState.read()")
                 self.assertEqual(saved["cardIndex"], 2)
                 self.assertEqual(saved["phase"], "summary")
+
+    def test_wrong_answers_do_not_expand_a_fixed_round(self):
+        fixture = copy.deepcopy(FIXTURE)
+        fixture["id"] = "fixed_round"
+        fixture["cards"] = [
+            {"id": str(i), "term": f"word{i}", "definition": f"meaning{i}", "image": ""}
+            for i in range(40)
+        ]
+        self.seed(fixture)
+        self.page.evaluate("""() => {
+            settings.roundSize = 10;
+            settings.learnQuestionType = 'choice_only';
+            startModeView();
+        }""")
+        self.assertEqual(self.page.evaluate("currentRoundQueue.length"), 10)
+
+        wrong_index = self.page.evaluate("currentRoundOptions.findIndex(value => value !== currentCorrectChoice)")
+        self.page.evaluate("index => handleChoice(index)", wrong_index)
+        self.page.wait_for_selector(".feedback-box")
+        self.assertEqual(self.page.evaluate("currentRoundQueue.length"), 10)
+        self.page.locator("#btn-next-wrong").click()
+
+        for index in range(1, 10):
+            correct_index = self.page.evaluate("currentRoundOptions.indexOf(currentCorrectChoice)")
+            self.page.evaluate("answer => handleChoice(answer)", correct_index)
+            self.page.wait_for_function("index => currentCardIndex === index", arg=index + 1, timeout=2000)
+
+        expect(self.page.locator(".summary-title")).to_have_text("Hoàn thành vòng học này!")
+        self.assertEqual(self.page.evaluate("currentRoundQueue.length"), 10)
+
+    def test_test_mode_uses_question_limit_and_answer_direction(self):
+        fixture = copy.deepcopy(FIXTURE)
+        fixture["id"] = "limited_test"
+        fixture["cards"] = [
+            {"id": str(i), "term": f"word{i}", "definition": f"meaning{i}", "image": ""}
+            for i in range(40)
+        ]
+        self.seed(fixture)
+        self.page.evaluate("settings.roundSize = 10; settings.answerWith = 'term'; switchMode('test')")
+        self.assertEqual(self.page.evaluate("testState.questions.length"), 10)
+        self.assertTrue(self.page.evaluate("testState.questions.every(q => q.prompt.startsWith('meaning'))"))
+        for question in self.page.evaluate("testState.questions"):
+            if question["type"] == "written":
+                self.assertTrue(question["correct"].startswith("word"))
+            elif question["type"] == "choice":
+                self.assertTrue(question["correct"].startswith("word"))
+                self.assertIn(question["correct"], question["options"])
+            else:
+                self.assertTrue(question["actualDef"].startswith("word"))
 
     def test_correct_answer_survives_progress_and_session_save_failures(self):
         self.seed()
@@ -543,7 +607,7 @@ class BrowserRegressions(unittest.TestCase):
         self.page.wait_for_function("currentCardIndex === 1", timeout=2000)
         self.assertEqual(self.page.evaluate("cardsState[0].mastery"), 1)
 
-    def test_manual_feedback_continue_cancels_pending_auto_advance(self):
+    def test_manual_feedback_continue_advances_once(self):
         self.seed()
         self.page.clock.install()
         self.page.evaluate("handleChoice(currentRoundOptions.findIndex(value => value !== currentCorrectChoice))")
@@ -573,15 +637,28 @@ class BrowserRegressions(unittest.TestCase):
         finally:
             context.close()
 
-    def test_wrong_answers_auto_advance_after_feedback(self):
+    def test_wrong_answer_feedback_waits_for_manual_continue(self):
         self.seed()
+        self.page.clock.install()
         self.page.evaluate("handleChoice(currentRoundOptions.findIndex(x=>x!==currentCorrectChoice))")
-        self.page.wait_for_function("currentCardIndex===1", timeout=8000)
+        self.page.clock.fast_forward(1200)
+        expect(self.page.locator(".feedback-box")).to_be_visible()
+        self.page.clock.fast_forward(10000)
+        self.assertEqual(self.page.evaluate("currentCardIndex"), 0)
+        self.page.locator("#btn-next-wrong").click()
+        self.assertEqual(self.page.evaluate("currentCardIndex"), 1)
 
         self.page.locator("#mode-write").click()
         self.page.locator("#write-user-input").fill("not the answer")
         self.page.locator(".btn-submit-write").click()
-        self.page.wait_for_function("currentCardIndex===1", timeout=8000)
+        self.page.clock.fast_forward(700)
+        expect(self.page.locator("#retype-input")).to_be_visible()
+        self.page.locator("#retype-input").fill("still wrong")
+        self.page.keyboard.press("Enter")
+        self.page.clock.fast_forward(10000)
+        self.assertEqual(self.page.evaluate("currentCardIndex"), 0)
+        self.page.locator("#btn-next-wrong").click()
+        self.assertEqual(self.page.evaluate("currentCardIndex"), 1)
 
     def test_test_mode_moves_to_next_question_and_focuses_written_input(self):
         self.seed()
@@ -616,14 +693,14 @@ class BrowserRegressions(unittest.TestCase):
         for id in ["btn-edit-set","btn-reset-prog","btn-export-set","btn-del-set"]:
             box=self.page.locator("#"+id).bounding_box()
             self.assertLessEqual(box["x"]+box["width"],390,id)
-        self.page.locator(".btn-quick-import-pill").click()
+        self.page.locator(".mob-nav-create").click()
         self.page.locator("#import-tab-paste").click()
         self.page.locator("#import-pane-paste .btn-primary").focus()
         self.page.keyboard.press("Tab")
         self.assertTrue(self.page.evaluate("!!document.activeElement.closest('#quick-import-modal')"))
         self.page.keyboard.press("Escape")
         expect(self.page.locator("#quick-import-modal")).to_be_hidden()
-        self.assertTrue(self.page.evaluate("document.activeElement.matches('.btn-quick-import-pill')"))
+        self.assertTrue(self.page.evaluate("document.activeElement.matches('.mob-nav-create')"))
         self.assertFalse(self.page.evaluate("document.getElementById('study-view').inert"))
 
     def test_bookmarklets_and_cloud_help_work_without_sdk(self):

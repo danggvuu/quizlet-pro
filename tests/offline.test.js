@@ -23,7 +23,7 @@ function worker(overrides = {}) {
         };
     };
     const records = new Map();
-    stores.set('quizlet-pro-v8', records);
+    stores.set('quizlet-pro-v10', records);
     const cache = {
         addAll: async () => {},
         match: async key => records.get(keyOf(key))?.clone(),
@@ -34,7 +34,7 @@ function worker(overrides = {}) {
         self: { location: { origin: 'http://localhost' }, addEventListener: (type, cb) => events[type] = cb,
             clients: { claim: async () => { state.claimed++; }, matchAll: async () => [] },
             skipWaiting: async () => { state.skipped++; } },
-        caches: { open: async name => name === 'quizlet-pro-v8' ? cache : open(name),
+        caches: { open: async name => name === 'quizlet-pro-v10' ? cache : open(name),
             keys: async () => [...stores.keys()], delete: async name => stores.delete(name) },
         fetch: async () => new Response('network'), URL, Request, Response, AbortController, setTimeout, clearTimeout,
         console: { warn: () => {} }, ...overrides
@@ -66,10 +66,10 @@ test('service worker network remains usable if cache storage cannot open', async
 
 test('service worker isolates script revisions and canonicalizes HTML fallback', async () => {
     const w = worker({ fetch: async () => { throw new Error('offline'); } });
-    w.records.set('/js/database.js?v=8', new Response('saved module'));
+    w.records.set('/js/database.js?v=9', new Response('saved module'));
     w.records.set('/', new Response('saved shell'));
-    assert.equal(await (await fetchEvent(w, '/js/database.js?v=8')).text(), 'saved module');
-    assert.equal((await fetchEvent(w, '/js/database.js?v=9')).status, 503);
+    assert.equal(await (await fetchEvent(w, '/js/database.js?v=9')).text(), 'saved module');
+    assert.equal((await fetchEvent(w, '/js/database.js?v=10')).status, 503);
     assert.equal(await (await fetchEvent(w, '/?offline=1', 'navigate')).text(), 'saved shell');
     assert.equal(await (await fetchEvent(w, '/index.html')).text(), 'saved shell');
     assert.equal((await fetchEvent(w, '/data/sets/unseen.json')).status, 503);
@@ -108,7 +108,7 @@ test('successful network responses do not wait for cache writes', async () => {
     const w = worker();
     let release;
     w.cache.put = () => new Promise(resolve => { release = resolve; });
-    const response = await fetchEvent(w, '/js/database.js?v=8');
+    const response = await fetchEvent(w, '/js/database.js?v=9');
     assert.equal(await response.text(), 'network');
     assert.equal(typeof release, 'function');
     release();
@@ -139,8 +139,8 @@ test('malformed online data does not replace the last valid offline copy', async
 
 test('a removed resource returns its 404 instead of stale content', async () => {
     const w = worker({ fetch: async () => new Response('removed', { status: 404 }) });
-    w.records.set('/js/database.js?v=8', new Response('old module'));
-    assert.equal((await fetchEvent(w, '/js/database.js?v=8')).status, 404);
+    w.records.set('/js/database.js?v=9', new Response('old module'));
+    assert.equal((await fetchEvent(w, '/js/database.js?v=9')).status, 404);
 });
 
 test('service worker never intercepts APIs cross-origin resources or writes', () => {

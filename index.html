@@ -3336,7 +3336,7 @@
       line-height: 1.7;
     }
   </style>
-  <script src="js/cloud.js?v=9" defer></script>
+  <script src="js/cloud.js?v=10" defer></script>
 
 </head>
 
@@ -4094,9 +4094,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       <img id="lightbox-img" class="lightbox-img" src="" alt="Ảnh phóng to" />
     </div>
 
-      <script src="js/study-utils.js?v=9"></script>
-      <script src="js/database.js?v=9"></script>
-      <script src="js/session.js?v=9"></script>
+      <script src="js/study-utils.js?v=10"></script>
+      <script src="js/database.js?v=10"></script>
+      <script src="js/session.js?v=10"></script>
     <script>
       // GLOBAL STATE
       let currentSet = null;
@@ -6830,8 +6830,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           tiles.push({ id: `term_${idx}`, cardId: c.id, text: c.term, type: 'term' });
           tiles.push({ id: `def_${idx}`, cardId: c.id, text: c.definition, type: 'def' });
         });
-        tiles.sort(() => Math.random() - 0.5);
-        matchState.tiles = tiles;
+        matchState.tiles = StudyUtils.shuffle(tiles);
 
         renderMatchStartScreen();
       }
@@ -7056,8 +7055,8 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
               id: idx + 1,
               cardId: card.id,
               type: 'written',
-              prompt: settings.answerWith === 'definition' ? card.definition : card.term,
-              correct: settings.answerWith === 'definition' ? card.term : card.definition,
+              prompt: settings.answerWith === 'definition' ? card.term : card.definition,
+              correct: settings.answerWith === 'definition' ? card.definition : card.term,
               image: card.image
             });
           }
@@ -7449,9 +7448,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       </div>
     </div>
   </div>
-  <script src="js/navigation.js?v=9"></script>
-  <script src="js/editor.js?v=9"></script>
-  <script src="js/bookmarklet.js?v=9"></script>
+  <script src="js/navigation.js?v=10"></script>
+  <script src="js/editor.js?v=10"></script>
+  <script src="js/bookmarklet.js?v=10"></script>
 </body>
 
 </html>
