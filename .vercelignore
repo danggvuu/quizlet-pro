@@ -1,10 +1,35 @@
-requirements.txt
-start.sh
-Chay_Quizlet_Pro.command
+# Local configuration and generated files
+.git
+.github
+.gitignore
+.DS_Store
+**/.DS_Store
+.vercel
+.env
+.env.*
 .venv
 venv
-__pycache__
+**/__pycache__/**
+**/*.py[cod]
+*.log
+.pytest_cache
+.coverage
+.coverage.*
+htmlcov
+playwright-report
+test-results
+
+# Local server, development tools and tests
+requirements.txt
+server.py
+scrape_all_sets.py
+start.sh
+Chay_Quizlet_Pro.command
 tests
 scripts
-REVIEW.md
 firestore.rules
+
+# Repository documentation
+README.md
+REVIEW.md
+SECURITY.md

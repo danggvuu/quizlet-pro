@@ -8,6 +8,12 @@ venv/
 .venv/
 env/
 
+# Local deployment state and environment variables
+.vercel/
+.env
+.env.*
+!.env.example
+
 # OS generated files
 .DS_Store
 .DS_Store?
@@ -25,6 +31,14 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Test reports and tool caches
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+playwright-report/
+test-results/
 
 # Temporary patch scripts
 patch_*.py
