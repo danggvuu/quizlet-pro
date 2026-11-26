@@ -1,8 +1,8 @@
 // Bump the shell revision and script URLs together when releasing app changes.
-const CACHE = 'quizlet-pro-v6';
+const CACHE = 'quizlet-pro-v7';
 const DATA_CACHE = 'quizlet-pro-data-v1';
-const SHELL = ['/', '/js/study-utils.js?v=6', '/js/database.js?v=6', '/js/navigation.js?v=6',
-    '/js/session.js?v=6', '/js/cloud.js?v=6', '/js/editor.js?v=6', '/js/bookmarklet.js?v=6'];
+const SHELL = ['/', '/js/study-utils.js?v=7', '/js/database.js?v=7', '/js/navigation.js?v=7',
+    '/js/session.js?v=7', '/js/cloud.js?v=7', '/js/editor.js?v=7', '/js/bookmarklet.js?v=7'];
 const SHELL_PATHS = new Set(SHELL.map(path => new URL(path, self.location.origin).pathname));
 const MANIFEST = '/data/sets.json';
 
@@ -63,7 +63,21 @@ self.addEventListener('activate', event => {
                 await caches.delete(name);
             } catch (error) { console.warn('Offline cache migration:', error); }
         }
+        const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+        const managed = await Promise.all(clients.map(client => new Promise(resolve => {
+            const channel = new MessageChannel();
+            const done = value => { clearTimeout(timer); channel.port1.close(); resolve(value); };
+            const timer = setTimeout(() => done(false), 500);
+            channel.port1.onmessage = event => done(typeof event.data === 'boolean');
+            try { client.postMessage({ type: 'QUIZLET_APP_UPDATE' }, [channel.port2]); }
+            catch { done(false); }
+        })));
         await self.clients.claim();
+        // Older production tabs have no controllerchange listener; pagehide saves their session.
+        // Do not await navigation here: its fetch waits for this activation to finish.
+        clients.filter((_, index) => !managed[index]).forEach(client => {
+            client.navigate(client.url).catch(error => console.warn('App reload:', error));
+        });
     })());
 });
 

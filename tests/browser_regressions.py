@@ -254,6 +254,38 @@ class BrowserRegressions(unittest.TestCase):
         self.assertEqual(self.page.evaluate("cardsState[0].mastery"), 1)
         self.assertEqual(self.page.evaluate("JSON.parse(localStorage.getItem(getStorageKey(currentSet.id)))['0'].box"), 2)
 
+    def test_pending_progress_write_and_storage_quota_do_not_delay_advancement(self):
+        self.seed()
+        self.page.evaluate("""() => {
+            Database.saveProgress = () => new Promise(() => {});
+            const original = Storage.prototype.setItem;
+            Storage.prototype.setItem = function(key, value) {
+                if (key.startsWith('qp_progress_') || key === 'qp_active_session') {
+                    throw new DOMException('Storage full', 'QuotaExceededError');
+                }
+                return original.call(this, key, value);
+            };
+        }""")
+        index = self.page.evaluate("currentRoundOptions.indexOf(currentCorrectChoice)")
+        self.page.locator(".option-btn").nth(index).click()
+        self.page.wait_for_function("currentCardIndex === 1", timeout=2000)
+
+    def test_retype_input_waits_for_ime_composition_to_finish(self):
+        self.seed()
+        self.page.evaluate("switchMode('write')")
+        self.page.locator('#write-user-input').fill('wrong')
+        self.page.locator('.btn-submit-write').click()
+        self.page.wait_for_selector('#retype-input')
+        self.page.wait_for_function("document.activeElement.id === 'retype-input'")
+        self.page.evaluate("""() => {
+            const input = document.getElementById('retype-input');
+            input.value = currentCorrectChoice;
+            input.dispatchEvent(new InputEvent('input', {bubbles:true, isComposing:true}));
+        }""")
+        expect(self.page.locator('#retype-input')).to_be_enabled()
+        self.page.evaluate("document.getElementById('retype-input').dispatchEvent(new InputEvent('input', {bubbles:true}))")
+        self.page.wait_for_function("currentCardIndex === 1", timeout=2000)
+
     def test_suspended_answer_timer_resumes_once_when_page_returns(self):
         self.page.clock.install()
         self.page.clock.pause_at(self.page.evaluate("Date.now() / 1000") + 1)

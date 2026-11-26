@@ -226,6 +226,11 @@ if ('serviceWorker' in navigator) {
     let reloading = false;
     let registration = null;
     let checking = null;
+    navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data?.type === 'QUIZLET_APP_UPDATE') {
+            event.ports[0]?.postMessage(!!navigator.serviceWorker.controller);
+        }
+    });
     navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (!controller) {
             controller = navigator.serviceWorker.controller;
