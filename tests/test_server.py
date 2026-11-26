@@ -67,7 +67,7 @@ class HTTPTests(unittest.TestCase):
             self.assertEqual(self.request("GET", path)[0], 404)
 
     def test_static_assets_revalidate_for_get_head_and_conditional_requests(self):
-        paths = ["/", "/index.html", "/sw.js", "/js/session.js?v=7", "/data/sets.json"]
+        paths = ["/", "/index.html", "/sw.js", "/js/session.js?v=8", "/data/sets.json"]
         for method in ("GET", "HEAD"):
             for path in paths:
                 with self.subTest(method=method, path=path):

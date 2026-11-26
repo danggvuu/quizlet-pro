@@ -217,7 +217,10 @@ async function performCloudSync() {
     }
 }
 
+let cloudInitializing = false;
 async function initializeCloud() {
+    if (cloudInitializing || window.CloudDB) return;
+    cloudInitializing = true;
     updateCloudSyncUI('offline');
     try {
         const [appSDK, fs, authSDK] = await withCloudTimeout(Promise.all([
@@ -308,6 +311,7 @@ async function initializeCloud() {
             syncCloudSets();
         });
     } catch (error) { updateCloudSyncUI('offline', cloudErrorMessage(error)); }
+    finally { cloudInitializing = false; }
 }
 
 window.addEventListener('online', () => {

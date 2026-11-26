@@ -192,6 +192,38 @@ class BrowserRegressions(unittest.TestCase):
         finally:
             context.close()
 
+    def test_personal_cached_set_stays_available_when_sdk_is_offline(self):
+        context, page = self.cloud_device({})
+        try:
+            page.evaluate("async fixture=>{await saveCustomSet(fixture);await loadSetsList(fixture.id)}", FIXTURE)
+            context.unroute("https://**/*")
+            context.route("https://**/*", lambda route: route.abort())
+            page.reload()
+            page.wait_for_function("window.appReady && currentSet?.id==='audit_a'")
+            self.assertEqual(page.evaluate("currentSet.cloudAccount"), "same-user")
+            self.assertEqual(page.evaluate("cardsState.length"), 5)
+        finally:
+            context.close()
+
+    def test_newer_edit_is_preserved_during_cloud_acknowledgment(self):
+        self.seed()
+        self.page.evaluate("""async()=>{
+            const update=Database.updateSet.bind(Database);
+            let calls=0;
+            Database.updateSet=async(id,fn)=>{
+                if(++calls===2){
+                    const current=await Database.getSetById(id);
+                    await Database.saveSet({...current,title:'Edited before acknowledgment',localRevision:'newest',dirty:true});
+                }
+                return update(id,fn);
+            };
+            window.CloudDB={accountId:'test-user',getAllSets:async()=>[],saveSet:async set=>set.localRevision};
+            await syncCloudSets();
+        }""")
+        saved = self.page.evaluate("Database.getSetById('audit_a')")
+        self.assertEqual(saved['title'], 'Edited before acknowledgment')
+        self.assertTrue(saved['dirty'])
+
     def test_failed_cloud_set_does_not_block_other_uploads(self):
         self.page.evaluate("""async fixture=>{
             await saveCustomSet({...fixture,id:'bad'});

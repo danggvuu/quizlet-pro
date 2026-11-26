@@ -1,8 +1,8 @@
 // Bump the shell revision and script URLs together when releasing app changes.
-const CACHE = 'quizlet-pro-v7';
+const CACHE = 'quizlet-pro-v8';
 const DATA_CACHE = 'quizlet-pro-data-v1';
-const SHELL = ['/', '/js/study-utils.js?v=7', '/js/database.js?v=7', '/js/navigation.js?v=7',
-    '/js/session.js?v=7', '/js/cloud.js?v=7', '/js/editor.js?v=7', '/js/bookmarklet.js?v=7'];
+const SHELL = ['/', '/js/study-utils.js?v=8', '/js/database.js?v=8', '/js/navigation.js?v=8',
+    '/js/session.js?v=8', '/js/cloud.js?v=8', '/js/editor.js?v=8', '/js/bookmarklet.js?v=8'];
 const SHELL_PATHS = new Set(SHELL.map(path => new URL(path, self.location.origin).pathname));
 const MANIFEST = '/data/sets.json';
 

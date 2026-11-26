@@ -28,6 +28,7 @@ Chay_Quizlet_Pro.command
 tests
 scripts
 firestore.rules
+firebase.json
 
 # Repository documentation
 README.md
