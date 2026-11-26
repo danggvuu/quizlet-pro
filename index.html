@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
-  <title>Quizlet Pro - Học Miễn Phí (Learn & Write Mode)</title>
+  <title>Quizlet - Học tập</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -442,18 +442,6 @@
       line-height: 1;
     }
 
-    .pro-badge {
-      background: var(--primary-gradient);
-      color: #ffffff;
-      font-size: 10px;
-      font-weight: 800;
-      padding: 2.5px 7px;
-      border-radius: 6px;
-      letter-spacing: 0.08em;
-      box-shadow: 0 2px 8px var(--primary-glow);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
     .header-nav-links {
       display: flex;
       align-items: center;
@@ -704,27 +692,6 @@
       border-color: var(--success-border);
     }
 
-    .btn-quick-import-pill {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 7px 14px;
-      border-radius: var(--radius-full);
-      font-size: 13px;
-      font-weight: 600;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      cursor: pointer;
-      transition: var(--transition-fast);
-    }
-
-    .btn-quick-import-pill:hover {
-      border-color: var(--border-darker);
-      background: var(--bg);
-      transform: translateY(-1px);
-    }
-
     .btn-theme-toggle {
       width: 36px;
       height: 36px;
@@ -858,19 +825,6 @@
       margin-bottom: 32px;
     }
 
-    .dash-welcome-text h2 {
-      font-size: 26px;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      color: var(--text);
-      margin-bottom: 4px;
-    }
-
-    .dash-welcome-text p {
-      font-size: 14.5px;
-      color: var(--text-muted);
-    }
-
     .dash-section-header {
       margin-bottom: 16px;
       display: flex;
@@ -883,101 +837,6 @@
       font-weight: 700;
       letter-spacing: -0.02em;
       color: var(--text);
-    }
-
-    /* HERO JUMP CARD */
-    .hero-jump-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      padding: 26px 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: var(--shadow-sm);
-      transition: var(--transition-normal);
-      position: relative;
-      overflow: hidden;
-      margin-bottom: 40px;
-    }
-
-    .hero-jump-card::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: var(--primary-gradient);
-    }
-
-    .hero-jump-card:hover {
-      border-color: var(--border-darker);
-      box-shadow: var(--shadow-md);
-    }
-
-    .hero-set-badge {
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--primary);
-      margin-bottom: 6px;
-    }
-
-    .hero-set-title {
-      font-size: 21px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      color: var(--text);
-      margin-bottom: 6px;
-      line-height: 1.3;
-    }
-
-    .hero-set-meta {
-      font-size: 13.5px;
-      color: var(--text-muted);
-      margin-bottom: 20px;
-    }
-
-    .hero-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .btn-hero-action {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 8.5px 16px;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: var(--transition-fast);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .btn-hero-action:hover {
-      background: var(--card-bg);
-      border-color: var(--border-darker);
-      transform: translateY(-1px);
-    }
-
-    .btn-hero-action.primary {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: #fff;
-      box-shadow: 0 2px 8px var(--primary-glow);
-    }
-
-    .btn-hero-action.primary:hover {
-      background: var(--primary-hover);
-      border-color: var(--primary-hover);
     }
 
     .dash-search-box input {
@@ -2862,11 +2721,6 @@
         font-size: 20px;
       }
 
-      .pro-badge {
-        font-size: 9px;
-        padding: 2px 5px;
-      }
-
       .nav-center-search {
         max-width: none;
         flex: 1;
@@ -2878,40 +2732,12 @@
         /* iOS zoom prevention */
       }
 
-      .search-kbd-badge,
-      .quick-import-label {
+      .search-kbd-badge {
         display: none !important;
-      }
-
-      .btn-quick-import-pill {
-        padding: 6px 10px;
-        min-height: 36px;
       }
 
       .dashboard-view {
         padding: 18px 14px 40px;
-      }
-
-      .dash-welcome-banner {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-      }
-
-      .hero-jump-card {
-        padding: 20px 16px;
-      }
-
-      .hero-actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        width: 100%;
-        gap: 8px;
-      }
-
-      .btn-hero-action {
-        width: 100%;
-        justify-content: center;
       }
 
       .sub-bar {
@@ -3106,10 +2932,6 @@
         display: none !important;
       }
 
-      .quick-import-label {
-        display: none !important;
-      }
-
       .nav-right-actions {
         gap: 6px !important;
       }
@@ -3120,15 +2942,6 @@
 
       .smart-search-input {
         min-width: 0 !important;
-      }
-
-      .btn-quick-import-pill {
-        border-radius: 50%;
-        width: 34px;
-        height: 34px;
-        min-width: 34px;
-        padding: 0;
-        justify-content: center;
       }
 
       .grid-recents {
@@ -3550,20 +3363,11 @@
   <header class="app-header-modern">
     <!-- LEFT: BRAND & NAV -->
     <div class="nav-left">
-      <a class="brand" onclick="showDashboard()" title="Trang chủ Quizlet Pro">
+      <a class="brand" onclick="showDashboard()" title="Thư viện học tập">
         <span class="quizlet-logo-text">Quizlet</span>
-        <span class="pro-badge">PRO</span>
       </a>
       <nav class="header-nav-links">
-        <button class="nav-link-btn active" id="nav-btn-home" onclick="showDashboard()">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-            <polyline points="9 22 9 12 15 12 15 22" />
-          </svg>
-          <span>Trang chủ</span>
-        </button>
-        <button class="nav-link-btn" id="nav-btn-library" onclick="showDashboard()">
+        <button class="nav-link-btn active" id="nav-btn-library" onclick="showDashboard()">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" />
@@ -3598,7 +3402,7 @@
                 <div class="drop-sub">Tạo bộ thẻ từ đầu</div>
               </div>
             </div>
-            <div class="dropdown-item" onclick="openQuickImportModal('link'); hideAllDropdowns();">
+            <div class="dropdown-item" id="create-import-link" onclick="openQuickImportModal('link'); hideAllDropdowns();">
               <span class="drop-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
@@ -3610,7 +3414,7 @@
                 <div class="drop-sub">Tự động cào thẻ từ URL</div>
               </div>
             </div>
-            <div class="dropdown-item" onclick="openQuickImportModal('paste'); hideAllDropdowns();">
+            <div class="dropdown-item" id="create-import-paste" onclick="openQuickImportModal('paste'); hideAllDropdowns();">
               <span class="drop-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
@@ -3638,7 +3442,7 @@
           </svg>
         </span>
         <input type="text" id="global-search-input" class="smart-search-input"
-          placeholder="Tìm học phần, thuật ngữ, câu hỏi hoặc dán link Quizlet..."
+          placeholder="Tìm học phần hoặc thẻ..."
           oninput="handleGlobalSearch(this.value)"
           onkeydown="if(!event.isComposing && event.keyCode !== 229 && event.key==='Enter') executeGlobalSearch(this.value)" />
         <button id="btn-smart-action" class="btn-smart-action" style="display: none;" onclick="executeSmartAction()">
@@ -3648,7 +3452,7 @@
       </div>
     </div>
 
-    <!-- RIGHT: CLOUD SYNC, IMPORT, THEME, USER PROFILE -->
+    <!-- RIGHT: SYNC, THEME, USER PROFILE -->
     <div class="nav-right-actions">
       <!-- Cloud Sync Status Pill -->
       <div id="cloud-status-badge" class="cloud-status-pill offline" onclick="showCloudStatusHelp()"
@@ -3656,17 +3460,6 @@
         <span id="cloud-status-icon" style="font-size: 13px;">☁️</span>
         <span id="cloud-status-text">Cloud</span>
       </div>
-
-      <button class="btn-quick-import-pill" onclick="openQuickImportModal('link')"
-        title="Nhập học phần nhanh từ Quizlet">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="7 10 12 15 17 10" />
-          <line x1="12" y1="15" x2="12" y2="3" />
-        </svg>
-        <span class="quick-import-label">Nhập thẻ</span>
-      </button>
 
       <button class="btn-theme-toggle" id="btn-theme-toggle" onclick="toggleTheme()" title="Chuyển chế độ Sáng / Tối">
         <span id="theme-icon-label" style="display: flex; align-items: center; justify-content: center;">
