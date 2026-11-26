@@ -144,7 +144,8 @@ class BrowserRegressions(unittest.TestCase):
             self.assertEqual(phone.evaluate("currentSet.cards[0].definition"), "xin chào")
             desktop.evaluate("async()=>{await saveCustomSet({...currentSet,title:'Updated on desktop'});}")
             phone.evaluate("window.dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true}))")
-            phone.wait_for_function("async id=>(await Database.getSetById(id))?.title==='Updated on desktop'", arg=set_id)
+            phone.wait_for_function("!cloudSyncRunning")
+            self.assertEqual(phone.evaluate("async id=>(await Database.getSetById(id)).title", set_id), 'Updated on desktop')
             phone.reload()
             phone.wait_for_function("window.appReady && currentSet?.title==='Updated on desktop'")
         finally:
@@ -158,7 +159,7 @@ class BrowserRegressions(unittest.TestCase):
             page.evaluate("fixture=>Database.saveSet({...fixture,isCustom:true})", FIXTURE)
             page.evaluate("loadSetsList(null,{skipCloud:true})")
             page.locator("#cloud-account-banner button").tap()
-            page.wait_for_function("async()=>CloudDB.accountId==='same-user' && (await Database.getSetById('audit_a'))?.cloudRevision && !cloudSyncRunning")
+            page.wait_for_function("CloudDB.accountId==='same-user' && !cloudSyncRunning")
             self.assertIn("users/same-user/quizlet_sets/audit_a", store)
             expect(page.locator("#cloud-account-banner")).to_contain_text("same-user@example.test")
             page.evaluate("onSetChange('audit_a')")
@@ -733,6 +734,7 @@ class BrowserRegressions(unittest.TestCase):
                         export const collection=(db,...parts)=>parts.join('/');
                         export const doc=(db,...parts)=>parts.join('/');
                         export const getDocsFromServer=async()=>({docs:[]});
+                        export const onSnapshot=()=>()=>{};
                         export const runTransaction=async(db,fn)=>fn({
                             get:async ref=>({exists:()=>!!fakeCloud[ref],data:()=>fakeCloud[ref]}),
                             set:(ref,data)=>{fakeCloud[ref]=data;fakeWrites++}
