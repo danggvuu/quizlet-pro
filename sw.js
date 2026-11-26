@@ -1,5 +1,5 @@
 // Bump the shell revision and script URLs together when releasing app changes.
-const CACHE = 'quizlet-pro-v13';
+const CACHE = 'quizlet-pro-v14';
 const DATA_CACHE = 'quizlet-pro-data-v1';
 const SHELL = ['/', '/js/study-utils.js?v=11', '/js/database.js?v=11', '/js/navigation.js?v=11',
     '/js/session.js?v=13', '/js/cloud.js?v=11', '/js/editor.js?v=11', '/js/bookmarklet.js?v=11',

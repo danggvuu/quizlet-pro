@@ -691,6 +691,56 @@ class BrowserRegressions(unittest.TestCase):
             else:
                 self.assertTrue(question["actualDef"].startswith("word"))
 
+    def test_japanese_written_answers_follow_the_selected_card_face(self):
+        fixture = {
+            "id": "japanese_card_faces", "title": "Japanese card faces", "cards": [
+                {"id": "intro", "term": "自己紹介、Giới thiệu bản thân, TỰ KỶ THIỆU GIỚI", "definition": "じこしょうかい"},
+                {"id": "name", "term": "名前、Tên, DANH TIỀN", "definition": "なまえ"}
+            ]
+        }
+        self.seed(fixture)
+        self.page.evaluate("switchMode('write'); toggleSettingsModal()")
+        self.page.locator("#opt-answer-with").select_option("definition")
+        self.page.locator("#opt-write-answer-with").select_option("auto")
+        self.page.locator("#settings-modal button", has_text="Lưu & Tiếp tục học").click()
+        expect(self.page.locator(".prompt-text")).to_have_text(fixture["cards"][0]["term"])
+        self.assertEqual(self.page.evaluate("currentCorrectChoice"), "じこしょうかい")
+        self.page.evaluate("toggleSettingsModal()")
+        self.page.locator("#opt-answer-with").select_option("term")
+        expect(self.page.locator("#write-direction-preview")).to_contain_text("Hiện: じこしょうかい")
+        self.page.locator("#settings-modal button", has_text="Lưu & Tiếp tục học").click()
+        expect(self.page.locator(".prompt-text")).to_have_text("じこしょうかい")
+        self.assertEqual(self.page.evaluate("currentCorrectChoice"), fixture["cards"][0]["term"])
+        self.page.evaluate("toggleSettingsModal()")
+        self.page.locator("#opt-write-answer-with").select_option("definition")
+        expect(self.page.locator("#write-direction-preview")).to_contain_text("Gõ: じこしょうかい")
+        self.page.locator("#settings-modal button", has_text="Lưu & Tiếp tục học").click()
+        self.page.reload()
+        self.page.wait_for_selector("#write-user-input")
+        expect(self.page.locator(".prompt-text")).to_have_text(fixture["cards"][0]["term"])
+        self.assertEqual(self.page.evaluate("currentCorrectChoice"), "じこしょうかい")
+
+    def test_rotating_written_check_accepts_kana_on_the_back_of_the_card(self):
+        fixture = {
+            "id": "japanese_cycle_faces", "title": "Japanese cycle faces", "cards": [
+                {"id": "intro", "term": "自己紹介、Giới thiệu bản thân, TỰ KỶ THIỆU GIỚI", "definition": "じこしょうかい"},
+                {"id": "name", "term": "名前、Tên, DANH TIỀN", "definition": "なまえ"}
+            ]
+        }
+        self.seed(fixture)
+        self.page.clock.install()
+        for _ in fixture["cards"]:
+            self.page.evaluate("handleChoice(currentRoundOptions.indexOf(currentCorrectChoice))")
+            self.page.clock.run_for(800)
+        expect(self.page.locator("#write-user-input")).to_be_visible()
+        expect(self.page.locator(".prompt-text")).to_have_text(fixture["cards"][0]["term"])
+        self.page.locator("#write-user-input").fill("じこしょうかい")
+        self.page.locator(".btn-submit-write").click()
+        self.page.clock.run_for(800)
+        self.assertEqual(self.page.evaluate("cardsState[0].mastery"), 2)
+        self.assertEqual(self.page.evaluate("currentCardIndex"), 1)
+        self.assertEqual(self.page.evaluate("currentCorrectChoice"), "なまえ")
+
     def test_correct_answer_survives_progress_and_session_save_failures(self):
         self.seed()
         self.page.evaluate("""() => {

@@ -4088,24 +4088,23 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
           <div>
             <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">Trả lời bằng:</label>
-            <select id="opt-answer-with"
+            <select id="opt-answer-with" onchange="updateWriteDirectionPreview()"
               style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text);">
-              <option value="definition">Định nghĩa / Giải thích / Đáp án (Hỏi Thuật ngữ/Khái niệm -> Chọn / Gõ Định
-                nghĩa)</option>
-              <option value="term">Thuật ngữ / Khái niệm / Câu hỏi (Hỏi Định nghĩa/Giải thích -> Chọn / Gõ Thuật ngữ)
-              </option>
+              <option value="definition">Hiện mặt trước (thuật ngữ) → trả lời mặt sau (định nghĩa)</option>
+              <option value="term">Hiện mặt sau (định nghĩa) → trả lời mặt trước (thuật ngữ)</option>
             </select>
           </div>
 
           <div>
-            <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">Chiều Luyện gõ:</label>
-            <select id="opt-write-answer-with"
+            <label style="font-weight: 700; font-size: 13px; display: block; margin-bottom: 6px;">Chiều riêng cho câu gõ:</label>
+            <select id="opt-write-answer-with" onchange="updateWriteDirectionPreview()"
               style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text);">
-              <option value="auto">Tự nhận diện (bộ tiếng Nhật: hiện nghĩa → gõ thuật ngữ)</option>
-              <option value="term">Hiện nghĩa / giải thích → gõ thuật ngữ</option>
-              <option value="definition">Hiện thuật ngữ → gõ nghĩa / giải thích</option>
+              <option value="auto">Theo mục Trả lời bằng ở trên</option>
+              <option value="term">Hiện mặt sau → gõ mặt trước</option>
+              <option value="definition">Hiện mặt trước → gõ mặt sau</option>
             </select>
-            <div style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">Áp dụng cho chế độ Luyện gõ và câu Tự luận trong Học.</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">Mặt trước là cột Thuật ngữ; mặt sau là cột Định nghĩa. Áp dụng cho Tự luận và lượt kiểm tra viết trong Học.</div>
+            <div id="write-direction-preview" class="table-import-help" style="white-space:pre-line;overflow-wrap:anywhere" hidden></div>
           </div>
 
           <div>
@@ -5578,21 +5577,10 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         renderCurrentCard();
       }
 
-      function isJapaneseText(value) {
-        return /[\u3040-\u30ff\u3400-\u9fff]/.test(String(value || ''));
-      }
-
-      function isJapaneseStudySet() {
-        const cards = (currentSet?.cards || cardsState || []).filter(card => card?.term && card?.definition);
-        if (cards.length < 2) return false;
-        const japaneseTerms = cards.filter(card => isJapaneseText(card.term)).length;
-        return japaneseTerms / cards.length >= 0.6;
-      }
-
       function getWriteAnswerWith() {
         const selected = settings.writeAnswerWith || 'auto';
         if (selected !== 'auto') return selected;
-        return isJapaneseStudySet() ? 'term' : settings.answerWith;
+        return settings.answerWith;
       }
 
       function cleanDefinitionForTyping(value) {
@@ -5693,7 +5681,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           currentCorrectDisplayChoice = questionCorrectChoice;
           bottomHtml = `
           <div class="write-area">
-            <input type="text" id="write-user-input" class="write-input-box" placeholder="${currentQuestionAnswerWith === 'term' ? 'Gõ tiếng Nhật (kana / Kanji)...' : 'Gõ câu trả lời chính xác...'}" autocomplete="off" autocapitalize="off" spellcheck="false" oninput="saveActiveSession()" />
+            <input type="text" id="write-user-input" class="write-input-box" placeholder="${currentQuestionAnswerWith === 'term' ? 'Gõ đáp án ở mặt trước...' : 'Gõ đáp án ở mặt sau...'}" autocomplete="off" autocapitalize="off" spellcheck="false" oninput="saveActiveSession()" />
             <div class="write-action-bar">
               <button class="btn-cancel" onclick="showWriteHint()">Gợi ý</button>
               <button class="btn-skip" onclick="handleWriteSkip()">Tôi không biết (Bỏ qua)</button>
@@ -6311,6 +6299,19 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         if (elImg) elImg.checked = settings.showImages !== false;
         if (elStar) elStar.checked = !!settings.starredOnly;
         if (elLearner) elLearner.value = getLearnerName();
+        updateWriteDirectionPreview();
+      }
+
+      function updateWriteDirectionPreview() {
+        const preview = document.getElementById('write-direction-preview');
+        const card = currentRoundQueue[currentCardIndex] || currentRoundQueue[0] || getStudyPool()[0];
+        preview.hidden = !card;
+        if (!card) { preview.textContent = ''; return; }
+        const selected = document.getElementById('opt-write-answer-with').value;
+        const direction = selected === 'auto' ? document.getElementById('opt-answer-with').value : selected;
+        const showTerm = direction === 'definition';
+        const answer = showTerm ? cleanDefinitionForTyping(card.definition) : card.term;
+        preview.textContent = `Hiện: ${showTerm ? card.term : card.definition}\nGõ: ${answer}`;
       }
 
       function toggleSettingsModal() {
