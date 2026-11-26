@@ -57,6 +57,155 @@ class BrowserRegressions(unittest.TestCase):
     def seed(self, fixture=FIXTURE):
         self.page.evaluate("async s => {await saveCustomSet(s); await loadSetsList(s.id);}", fixture)
 
+    def cloud_device(self, store, uid="same-user", mobile=False):
+        options = {"is_mobile": True, "has_touch": True, "viewport": {"width": 390, "height": 844}} if mobile else {}
+        context = self.browser.new_context(service_workers="block", **options)
+        context.expose_function("mockCloudList", lambda path: [
+            {"id": key.rsplit("/", 1)[1], "value": copy.deepcopy(value)}
+            for key, value in store.items() if key.rsplit("/", 1)[0] == path])
+        context.expose_function("mockCloudGet", lambda path: copy.deepcopy(store.get(path)))
+        context.expose_function("mockCloudPut", lambda path, value: store.__setitem__(path, copy.deepcopy(value)))
+
+        def sdk(route):
+            url = route.request.url
+            if url.endswith("firebase-app.js"):
+                code = "export const initializeApp=()=>({});"
+            elif url.endswith("firebase-auth.js"):
+                code = "const initialUser=" + json.dumps(uid) + ";" + """
+                    const user=id=>id?{uid:id,email:id+'@example.test'}:null;
+                    const auth={currentUser:user(initialUser)};
+                    let observer;
+                    export const getAuth=()=>auth;
+                    export const onAuthStateChanged=(a,cb)=>{
+                        observer=cb;queueMicrotask(()=>cb(a.currentUser));
+                    };
+                    window.changeCloudUser=id=>{auth.currentUser=user(id);observer(auth.currentUser)};
+                    export class GoogleAuthProvider {}
+                    export const signInWithPopup=async()=>{
+                        if(window.mockLoginError) throw Object.assign(new Error('Login failed'),{code:mockLoginError});
+                        changeCloudUser('same-user');return {user:auth.currentUser};
+                    };
+                    export const signOut=async()=>changeCloudUser(null);
+                """
+            elif url.endswith("firebase-firestore.js"):
+                code = """
+                    export const getFirestore=()=>({});
+                    export const collection=(db,...parts)=>parts.join('/');
+                    export const doc=(db,...parts)=>parts.join('/');
+                    export const getDocsFromServer=async path=>({docs:(await mockCloudList(path))
+                        .map(item=>({id:item.id,data:()=>item.value}))});
+                    const listeners=new Set();
+                    window.emitCloudSnapshot=()=>listeners.forEach(cb=>cb({metadata:{fromCache:false,hasPendingWrites:false}}));
+                    export const onSnapshot=(path,options,cb)=>{
+                        listeners.add(cb);queueMicrotask(()=>emitCloudSnapshot());return ()=>listeners.delete(cb);
+                    };
+                    export const runTransaction=async(db,fn)=>{
+                        const pending=[];
+                        const result=await fn({
+                            get:async path=>{const value=await mockCloudGet(path);return {exists:()=>!!value,data:()=>value}},
+                            set:(path,value)=>pending.push([path,value])
+                        });
+                        for(const [path,value] of pending) await mockCloudPut(path,value);
+                        if(pending.length) queueMicrotask(()=>emitCloudSnapshot());
+                        return result;
+                    };
+                """
+            else:
+                route.abort()
+                return
+            route.fulfill(content_type="application/javascript", headers={"Access-Control-Allow-Origin": "*"}, body=code)
+
+        context.route("https://**/*", sdk)
+        page = context.new_page()
+        page.on("pageerror", lambda error: self.errors.append(str(error)))
+        page.add_init_script("localStorage.setItem('qp_settings',JSON.stringify({autoSound:false}));")
+        page.goto(self.url)
+        page.wait_for_function("window.appReady && window.CloudDB?.accountReady && !cloudSyncRunning")
+        return context, page
+
+    def test_same_account_shares_new_sets_and_updates_between_desktop_and_phone(self):
+        store = {}
+        desktop_context, desktop = self.cloud_device(store)
+        phone_context, phone = self.cloud_device(store, mobile=True)
+        try:
+            desktop.evaluate("showCreateSetView()")
+            desktop.locator("#create-title").fill("My shared library")
+            desktop.locator(".term-input").first.fill("hello")
+            desktop.locator(".def-input").first.fill("xin chào")
+            desktop.locator("#btn-save-set-top").click()
+            desktop.wait_for_function("currentSet?.title === 'My shared library'")
+            set_id = desktop.evaluate("currentSet.id")
+            self.assertIn(f"users/same-user/quizlet_sets/{set_id}", store)
+            self.assertIsNone(phone.evaluate("id=>Database.getSetById(id)", set_id))
+            phone.evaluate("emitCloudSnapshot()")
+            phone.wait_for_function("id=>allDashboardSets.some(set=>set.id===id)", arg=set_id)
+            phone.locator(f'#dash-sets-grid [data-set-id="{set_id}"]').tap()
+            phone.wait_for_function("id=>currentSet?.id===id", arg=set_id)
+            self.assertEqual(phone.evaluate("currentSet.cards[0].definition"), "xin chào")
+            desktop.evaluate("async()=>{await saveCustomSet({...currentSet,title:'Updated on desktop'});}")
+            phone.evaluate("window.dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true}))")
+            phone.wait_for_function("async id=>(await Database.getSetById(id))?.title==='Updated on desktop'", arg=set_id)
+            phone.reload()
+            phone.wait_for_function("window.appReady && currentSet?.title==='Updated on desktop'")
+        finally:
+            desktop_context.close()
+            phone_context.close()
+
+    def test_mobile_login_uploads_existing_local_library_and_signout_hides_it(self):
+        store = {}
+        context, page = self.cloud_device(store, uid=None, mobile=True)
+        try:
+            page.evaluate("fixture=>Database.saveSet({...fixture,isCustom:true})", FIXTURE)
+            page.evaluate("loadSetsList(null,{skipCloud:true})")
+            page.locator("#cloud-account-banner button").tap()
+            page.wait_for_function("async()=>CloudDB.accountId==='same-user' && (await Database.getSetById('audit_a'))?.cloudRevision && !cloudSyncRunning")
+            self.assertIn("users/same-user/quizlet_sets/audit_a", store)
+            expect(page.locator("#cloud-account-banner")).to_contain_text("same-user@example.test")
+            page.evaluate("onSetChange('audit_a')")
+            page.wait_for_function("currentSet?.id==='audit_a'")
+            page.evaluate("cloudLogout()")
+            page.wait_for_function("!CloudDB.accountId && !cloudSyncRunning")
+            self.assertIsNone(page.evaluate("currentSet"))
+            self.assertFalse(page.evaluate("allDashboardSets.some(set=>set.id==='audit_a')"))
+            page.evaluate("loadSetData('audit_a')")
+            self.assertIsNone(page.evaluate("currentSet"))
+            page.evaluate("changeCloudUser('other-user')")
+            page.wait_for_function("CloudDB.accountId==='other-user' && !cloudSyncRunning")
+            result = page.evaluate("""async()=>{
+                const set=await Database.getSetById('audit_a');
+                try{await saveCustomSet({...set,title:'Not mine'});return null}
+                catch(error){return error.message}
+            }""")
+            self.assertIn("tài khoản khác", result)
+            self.assertFalse(any(path.startswith("users/other-user/") for path in store))
+        finally:
+            context.close()
+
+    def test_cloud_login_reports_missing_firebase_configuration(self):
+        context, page = self.cloud_device({}, uid=None, mobile=True)
+        try:
+            page.evaluate("window.mockLoginError='auth/configuration-not-found'")
+            page.locator("#cloud-account-banner button").tap()
+            expect(page.locator("#cloud-account-modal")).to_be_visible()
+            expect(page.locator("#cloud-account-status")).to_contain_text("Firebase chưa bật Authentication")
+        finally:
+            context.close()
+
+    def test_failed_cloud_set_does_not_block_other_uploads(self):
+        self.page.evaluate("""async fixture=>{
+            await saveCustomSet({...fixture,id:'bad'});
+            await saveCustomSet({...fixture,id:'good'});
+            window.savedCloudIds=[];
+            window.CloudDB={accountId:'test-user',getAllSets:async()=>[],saveSet:async set=>{
+                if(set.id==='bad') throw new Error('One invalid record');
+                savedCloudIds.push(set.id);return set.localRevision;
+            }};
+            await syncCloudSets();
+        }""", FIXTURE)
+        self.assertEqual(self.page.evaluate("savedCloudIds"), ["good"])
+        self.assertTrue(self.page.evaluate("(async()=>(await Database.getSetById('bad')).dirty)()"))
+        self.assertFalse(self.page.evaluate("(async()=>(await Database.getSetById('good')).dirty)()"))
+
     def test_reimport_deleted_set_restores_visibility(self):
         self.seed()
         self.page.evaluate("deleteSet('audit_a')")

@@ -4678,6 +4678,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         setObj.isCustom = true;
         const previous = await Database.getSetById(setObj.id);
         const account = window.CloudDB?.accountId || null;
+        if (previous?.cloudAccount && previous.cloudAccount !== getLocalAccountId()) {
+          throw new Error('Bộ thẻ thuộc tài khoản khác. Hãy đăng nhập đúng tài khoản để chỉnh sửa.');
+        }
         setObj.cloudAccount = account || previous?.cloudAccount || null;
         const origin = base || previous;
         setObj.cloudRevision = origin?.cloudAccount === setObj.cloudAccount ? origin?.cloudRevision || null : null;
@@ -5076,6 +5079,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           showToast('Không đọc được IndexedDB; đang dùng bản dự phòng trên máy.');
         }
         for (const raw of local) {
+          if (raw.cloudAccount && raw.cloudAccount !== getLocalAccountId()) continue;
           try {
             const set = StudyUtils.normalizeSet(raw);
             sets.set(set.id, { ...set, numTerms: set.cards.length, isCustom: set.isCustom !== false });
@@ -5202,6 +5206,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           setObj.duplicateCount = sourceCount - setObj.cards.length;
           const savedProgress = await loadProgressFromStorage(setId);
           if (requestId !== setLoadGeneration) return;
+          if (setObj.cloudAccount && setObj.cloudAccount !== getLocalAccountId()) {
+            throw new Error('Học phần thuộc tài khoản khác. Hãy đăng nhập đúng tài khoản để mở.');
+          }
           currentSet = setObj;
           setLoading = false;
           window._shuffledPool = null;
@@ -6770,7 +6777,12 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         if (!localBackupSaved) {
           showToast('Học phần chính đã lưu trên thiết bị, nhưng không tạo được bản dự phòng localStorage. Hãy xuất JSON để sao lưu.', 7000);
         } else if (!window.CloudDB?.accountId) {
-          showToast('Học phần chỉ lưu trên trình duyệt tại link này. Dùng link Production cố định hoặc đăng nhập Google trong Cloud để đồng bộ.', 7000);
+          showToast('Đã lưu trên máy này. Bấm Đăng nhập Google ở trang chủ để mở học phần trên điện thoại.', 7000);
+        } else {
+          const saved = await Database.getSetById(targetId);
+          showToast(saved?.dirty
+            ? 'Đã lưu trên máy, chưa đồng bộ lên tài khoản. Mở Tài khoản và đồng bộ để kiểm tra kết nối.'
+            : 'Đã lưu vào tài khoản. Đăng nhập cùng tài khoản Google trên điện thoại để xem học phần.', 7000);
         }
 
         currentEditingSetId = null;
@@ -6839,6 +6851,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           </div>
         `;
           if (window.renderDraftBanner) renderDraftBanner();
+          if (window.renderCloudAccountBanner) renderCloudAccountBanner();
           return;
         }
 
@@ -6910,6 +6923,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
         view.innerHTML = html;
         if (window.renderDraftBanner) renderDraftBanner();
+        if (window.renderCloudAccountBanner) renderCloudAccountBanner();
       }
 
       function renderSetsGrid(sets) {
@@ -7624,6 +7638,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       <div class="modal-header">Đồng bộ học phần <button class="btn-icon" onclick="closeAllModals()"
           aria-label="Đóng">✕</button></div>
       <p id="cloud-account-info"></p>
+      <p id="cloud-account-status" role="status" style="margin:12px 0;color:var(--text-muted)"></p>
       <p style="margin:12px 0;color:var(--text-muted)">Khi có xung đột, bản trên máy được giữ nguyên. Có thể lưu thành
         bản sao để đồng bộ cả hai phiên bản. Xóa học phần chỉ xóa trên thiết bị này.</p>
       <div style="display:flex;flex-wrap:wrap;gap:10px">

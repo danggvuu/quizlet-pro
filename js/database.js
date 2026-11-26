@@ -131,6 +131,29 @@ const Database = {
         return await tx(STORE_SETS, 'readonly', store => store.get(String(setId)));
     },
 
+    // Reconcile cloud state without overwriting an edit made in another tab.
+    async updateSet(setId, update) {
+        const db = await dbPromise;
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(STORE_SETS, 'readwrite');
+            const store = transaction.objectStore(STORE_SETS);
+            let result = null;
+            const request = store.get(String(setId));
+            request.onsuccess = () => {
+                try {
+                    const next = update(request.result || null);
+                    if (next) {
+                        result = StudyUtils.normalizeSet(next);
+                        store.put(result);
+                    }
+                } catch (error) { transaction.abort(); reject(error); }
+            };
+            transaction.oncomplete = () => resolve(result);
+            transaction.onerror = () => reject(transaction.error);
+            transaction.onabort = () => reject(transaction.error || new Error('Giao dịch bị hủy.'));
+        });
+    },
+
     // Xoá bộ thẻ và toàn bộ tiến độ đi kèm
     async deleteSet(setId) {
         setId = String(setId);
