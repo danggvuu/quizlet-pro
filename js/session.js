@@ -14,7 +14,7 @@ window.SessionState = {
             cardIndex: currentCardIndex + (advance ? 1 : 0),
             phase: advance ? 'question' : studyPhase,
             feedback: advance ? null : pendingAnswer,
-            writtenInput: document.getElementById('write-user-input')?.value || '',
+            writtenInput: advance ? '' : document.getElementById('write-user-input')?.value || '',
             preAnswer: preAnswerProgress,
             fcIndex, fcFlipped, fcIsShuffled,
             fcOrder: fcIsShuffled ? getActiveFlashcardsPool().map(card => String(card.id)) : null,
@@ -66,6 +66,6 @@ window.SessionState = {
 };
 
 window.addEventListener('pagehide', () => {
-    if (window.SessionState) SessionState.save();
+    if (window.saveActiveSession) saveActiveSession();
     if (window.saveEditorDraft) saveEditorDraft();
 });

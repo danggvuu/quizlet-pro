@@ -178,6 +178,7 @@
       transition: var(--transition-fast);
       user-select: none;
       -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     button:disabled {
@@ -3517,7 +3518,7 @@
       line-height: 1.7;
     }
   </style>
-  <script src="js/cloud.js" defer></script>
+  <script src="js/cloud.js?v=6" defer></script>
 
 </head>
 
@@ -4252,9 +4253,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       <img id="lightbox-img" class="lightbox-img" src="" alt="Ảnh phóng to" />
     </div>
 
-    <script src="js/study-utils.js"></script>
-    <script src="js/database.js"></script>
-    <script src="js/session.js"></script>
+    <script src="js/study-utils.js?v=6"></script>
+    <script src="js/database.js?v=6"></script>
+    <script src="js/session.js?v=6"></script>
     <script>
       // GLOBAL STATE
       let currentSet = null;
@@ -4326,21 +4327,35 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       let currentCorrectChoice = "";
       let studyGeneration = 0;
       let setLoadGeneration = 0;
-      const studyTimers = new Set();
+      const studyTimers = new Map();
 
       function scheduleStudy(callback, delay) {
         const generation = studyGeneration;
-        const timer = setTimeout(() => {
+        const deadline = Date.now() + delay;
+        const run = () => {
+          if (!studyTimers.has(timer)) return;
+          clearTimeout(timer);
           studyTimers.delete(timer);
           if (generation === studyGeneration) callback();
-        }, delay);
-        studyTimers.add(timer);
+        };
+        const timer = setTimeout(run, delay);
+        studyTimers.set(timer, { run, deadline });
         return timer;
       }
 
+      function resumeStudyTimers() {
+        if (document.visibilityState === 'hidden') return;
+        // Mobile browsers can suspend timers while the page is in the background.
+        for (const { run, deadline } of Array.from(studyTimers.values())) {
+          if (deadline <= Date.now()) run();
+        }
+      }
+      document.addEventListener('visibilitychange', resumeStudyTimers);
+      window.addEventListener('pageshow', resumeStudyTimers);
+
       function cancelStudyActivity() {
         studyGeneration++;
-        studyTimers.forEach(clearTimeout);
+        studyTimers.forEach((_, timer) => clearTimeout(timer));
         studyTimers.clear();
         stopFlashcardAutoplay();
         if (matchState.timerInterval) clearInterval(matchState.timerInterval);
@@ -4357,7 +4372,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
 
       // LƯU PHIÊN HỌC HIỆN TẠI (F5 RELOAD TRẢ VỀ ĐÚNG BỘ THẺ & VỊ TRÍ ĐANG HỌC)
       function saveActiveSession() {
-        if (!setLoading && currentSet && window.SessionState) SessionState.save();
+        try {
+          if (!setLoading && currentSet && window.SessionState) SessionState.save();
+        } catch (error) { console.warn('Session save:', error); }
       }
 
       function clearActiveSession() {
@@ -5270,7 +5287,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         return map;
       }
 
-      function saveProgressToStorage() {
+      async function saveProgressToStorage() {
         if (!currentSet || !cardsState) return;
         const backupMap = Object.create(null);
         const updatedAt = Date.now();
@@ -5287,8 +5304,11 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           localStorage.setItem(getStorageKey(currentSet.id), JSON.stringify(backupMap));
         } catch (e) { }
         saveActiveSession();
-        return Database.saveProgress(currentSet.id, Object.values(backupMap))
-          .catch(error => showToast('Tiến độ được giữ trong bản dự phòng; chưa ghi được IndexedDB.'));
+        try {
+          await Database.saveProgress(currentSet.id, Object.values(backupMap));
+        } catch (error) {
+          showToast('Tiến độ được giữ trong bản dự phòng; chưa ghi được IndexedDB.');
+        }
       }
 
       // SCRAPE TRIGGER (SMART ONLINE GUIDANCE & LOCAL CHROME SCRAPER)
@@ -5372,6 +5392,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       // MODE SWITCHING
       function switchMode(mode) {
         if (!currentSet || setLoading) return;
+        if (mode === currentMode && document.getElementById('study-view').style.display !== 'none') return;
         cancelStudyActivity();
         document.getElementById('dashboard-view').style.display = 'none';
         document.getElementById('create-set-view').style.display = 'none';
@@ -5487,7 +5508,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       // RENDER QUESTION CARD
       function renderCurrentCard() {
         studyGeneration++;
-        studyTimers.forEach(clearTimeout);
+        studyTimers.forEach((_, timer) => clearTimeout(timer));
         studyTimers.clear();
         window.scrollTo({ top: 0, behavior: 'instant' });
         isWaitingNext = false;
@@ -5626,11 +5647,11 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           playBeep(true);
           if (buttons[btnIndex]) buttons[btnIndex].classList.add("correct");
           studyPhase = 'advance';
-          upgradeCardMastery(card);
           scheduleStudy(() => {
             currentCardIndex++;
             renderCurrentCard();
-          }, 8000);
+          }, 750);
+          upgradeCardMastery(card);
         } else {
           playBeep(false);
           if (buttons[btnIndex]) buttons[btnIndex].classList.add("incorrect");
@@ -5671,11 +5692,11 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           inp.style.borderColor = "var(--success)";
           inp.style.backgroundColor = "var(--success-light)";
           studyPhase = 'advance';
-          upgradeCardMastery(card);
           scheduleStudy(() => {
             currentCardIndex++;
             renderCurrentCard();
           }, 750);
+          upgradeCardMastery(card);
         } else {
           playBeep(false);
           inp.style.borderColor = "var(--error)";
@@ -5790,7 +5811,8 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
             const rInp = document.getElementById("retype-input");
             if (rInp) {
               rInp.focus();
-              rInp.addEventListener("input", () => {
+              rInp.addEventListener("input", (event) => {
+                if (event.isComposing) return;
                 if (checkFuzzyMatch(rInp.value, correctVal)) {
                   rInp.style.borderColor = "var(--success)";
                   rInp.disabled = true;
@@ -7612,9 +7634,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       </div>
     </div>
   </div>
-  <script src="js/navigation.js"></script>
-  <script src="js/editor.js"></script>
-  <script src="js/bookmarklet.js"></script>
+  <script src="js/navigation.js?v=6"></script>
+  <script src="js/editor.js?v=6"></script>
+  <script src="js/bookmarklet.js?v=6"></script>
 </body>
 
 </html>

@@ -79,7 +79,8 @@ class OfflineBrowserTests(unittest.TestCase):
         self.assertEqual(self.page.evaluate('cardsState.length'), 2)
         cached = self.page.evaluate("fetch('/data/sets/offline_fixture.json?version=2').then(r=>r.json())")
         self.assertEqual(cached['cards'][0]['id'], 0)
-        self.assertEqual(self.page.evaluate("fetch('/js/database.js?version=2').then(r=>r.status)"), 200)
+        self.assertEqual(self.page.evaluate("fetch('/js/database.js?v=6').then(r=>r.status)"), 200)
+        self.assertEqual(self.page.evaluate("fetch('/js/database.js?v=old').then(r=>r.status)"), 503)
 
     def test_malformed_manifest_does_not_prevent_shell_control_or_offline_reload(self):
         (self.root / 'data' / 'sets.json').write_text('{bad')
@@ -88,7 +89,28 @@ class OfflineBrowserTests(unittest.TestCase):
         self.page.reload()
         self.page.wait_for_function('window.appReady === true')
         self.assertTrue(self.page.evaluate('!!navigator.serviceWorker.controller'))
-        self.assertEqual(self.page.evaluate("fetch('/js/study-utils.js?offline=1').then(r=>r.status)"), 200)
+        self.assertEqual(self.page.evaluate("fetch('/js/study-utils.js?v=6').then(r=>r.status)"), 200)
+
+    def test_worker_update_reloads_once_and_preserves_answered_position(self):
+        worker = (self.root / 'sw.js').read_text()
+        index = (self.root / 'index.html').read_text()
+        (self.root / 'sw.js').write_text(worker.replace('quizlet-pro-v6', 'quizlet-pro-v5'))
+        (self.root / 'index.html').write_text(index.replace('</head>', "<script>window.appRelease='old';</script></head>"))
+        self.ready()
+        self.page.evaluate("onSetChange('offline_fixture')")
+        self.page.wait_for_function("currentSet?.id === 'offline_fixture'")
+        self.page.evaluate("handleChoice(currentRoundOptions.indexOf(currentCorrectChoice))")
+        navigations = []
+        self.page.on('framenavigated', lambda frame: navigations.append(frame.url) if frame == self.page.main_frame else None)
+        (self.root / 'index.html').write_text(index.replace('</head>', "<script>window.appRelease='new';</script></head>"))
+        (self.root / 'sw.js').write_text(worker)
+        self.page.evaluate("navigator.serviceWorker.getRegistration().then(registration => registration.update())")
+        self.page.wait_for_function("window.appRelease === 'new' && window.appReady && currentCardIndex === 1")
+        self.assertEqual(self.page.evaluate('cardsState[0].mastery'), 1)
+        self.assertEqual(len(navigations), 1)
+        self.context.set_offline(True)
+        cached = self.page.evaluate("fetch('/data/sets/offline_fixture.json').then(response => response.json())")
+        self.assertEqual(len(cached['cards']), 2)
 
 
 if __name__ == '__main__':

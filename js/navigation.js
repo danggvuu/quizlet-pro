@@ -222,7 +222,34 @@ document.addEventListener('keydown', event => {
 }, true);
 
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(error => console.warn('Offline cache:', error));
+    let controller = navigator.serviceWorker.controller;
+    let reloading = false;
+    let registration = null;
+    let checking = null;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!controller) {
+            controller = navigator.serviceWorker.controller;
+            return;
+        }
+        if (reloading) return;
+        reloading = true;
+        try {
+            saveActiveSession();
+            if (window.saveEditorDraft) saveEditorDraft();
+        } catch (error) { console.warn('Save before app update:', error); }
+        window.location.reload();
     });
+    function checkAppUpdate() {
+        if (!registration || checking || document.visibilityState === 'hidden') return;
+        checking = registration.update().catch(error => console.warn('App update:', error))
+            .finally(() => { checking = null; });
+    }
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
+            .then(value => { registration = value; })
+            .catch(error => console.warn('Offline cache:', error));
+    });
+    document.addEventListener('visibilitychange', checkAppUpdate);
+    window.addEventListener('pageshow', checkAppUpdate);
+    window.addEventListener('online', checkAppUpdate);
 }

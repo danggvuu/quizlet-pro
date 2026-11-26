@@ -66,6 +66,26 @@ class HTTPTests(unittest.TestCase):
         for path in ["/server.py", "/.git/config", "/js/../server.py"]:
             self.assertEqual(self.request("GET", path)[0], 404)
 
+    def test_static_assets_revalidate_for_get_head_and_conditional_requests(self):
+        paths = ["/", "/index.html", "/sw.js", "/js/session.js?v=6", "/data/sets.json"]
+        for method in ("GET", "HEAD"):
+            for path in paths:
+                with self.subTest(method=method, path=path):
+                    conn = http.client.HTTPConnection(*self.httpd.server_address, timeout=5)
+                    conn.request(method, path)
+                    response = conn.getresponse()
+                    self.assertEqual(response.status, 200)
+                    expected = "no-store, max-age=0" if path == "/sw.js" else "no-cache, max-age=0, must-revalidate"
+                    self.assertEqual(response.getheader("Cache-Control"), expected)
+                    modified = response.getheader("Last-Modified")
+                    response.read()
+                    conn.request(method, path, headers={"If-Modified-Since": modified})
+                    response = conn.getresponse()
+                    self.assertEqual(response.status, 304)
+                    self.assertEqual(response.getheader("Cache-Control"), expected)
+                    response.read()
+                    conn.close()
+
     def test_invalid_imports_and_urls(self):
         for payload in [[], {"cards": "wrong"}, {"cards": [{}], "id": "../escape"}]:
             self.assertEqual(self.request("POST", "/api/manual-import", payload)[0], 400)

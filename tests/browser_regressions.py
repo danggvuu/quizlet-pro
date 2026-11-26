@@ -216,6 +216,110 @@ class BrowserRegressions(unittest.TestCase):
         self.page.locator(".override-btn").click()
         self.assertEqual(self.page.evaluate("cardsState[0].mastery"), 1)
 
+    def test_correct_answers_advance_promptly_and_finish_round(self):
+        for mode in ("learn", "choice", "write"):
+            with self.subTest(mode=mode):
+                fixture = copy.deepcopy(FIXTURE)
+                fixture["id"] = f"correct_{mode}"
+                fixture["cards"] = fixture["cards"][:2]
+                self.seed(fixture)
+                self.page.evaluate("mode => switchMode(mode)", mode)
+
+                for index in range(2):
+                    if mode == "write":
+                        answer = self.page.evaluate("currentCorrectChoice")
+                        self.page.locator("#write-user-input").fill(answer)
+                        self.page.locator(".btn-submit-write").click()
+                    else:
+                        answer_index = self.page.evaluate("currentRoundOptions.indexOf(currentCorrectChoice)")
+                        self.page.locator(".option-btn").nth(answer_index).click()
+
+                    self.page.wait_for_function("index => currentCardIndex === index", arg=index + 1, timeout=2000)
+
+                expect(self.page.locator(".summary-title")).to_have_text("Hoàn thành vòng học này!")
+                self.assertEqual(self.page.evaluate("cardsState.map(card => card.mastery)"), [1, 1])
+                saved = self.page.evaluate("SessionState.read()")
+                self.assertEqual(saved["cardIndex"], 2)
+                self.assertEqual(saved["phase"], "summary")
+
+    def test_correct_answer_survives_progress_and_session_save_failures(self):
+        self.seed()
+        self.page.evaluate("""() => {
+            Database.saveProgress = () => { throw new Error('Storage unavailable'); };
+            SessionState.save = () => { throw new Error('Snapshot unavailable'); };
+        }""")
+        answer_index = self.page.evaluate("currentRoundOptions.indexOf(currentCorrectChoice)")
+        self.page.locator(".option-btn").nth(answer_index).click()
+        self.page.wait_for_function("currentCardIndex === 1", timeout=2000)
+        self.assertEqual(self.page.evaluate("cardsState[0].mastery"), 1)
+        self.assertEqual(self.page.evaluate("JSON.parse(localStorage.getItem(getStorageKey(currentSet.id)))['0'].box"), 2)
+
+    def test_suspended_answer_timer_resumes_once_when_page_returns(self):
+        self.page.clock.install()
+        self.page.clock.pause_at(self.page.evaluate("Date.now() / 1000") + 1)
+        for event in ("visibilitychange", "pageshow"):
+            with self.subTest(event=event):
+                fixture = copy.deepcopy(FIXTURE)
+                fixture["id"] = f"resume_{event}"
+                self.seed(fixture)
+                self.page.evaluate("handleChoice(currentRoundOptions.indexOf(currentCorrectChoice))")
+                self.page.clock.set_system_time(self.page.evaluate("Date.now() / 1000") + 1)
+                self.page.evaluate("""event => {
+                    if (event === 'pageshow') window.dispatchEvent(new PageTransitionEvent(event, {persisted:true}));
+                    else document.dispatchEvent(new Event(event));
+                }""", event)
+                self.assertEqual(self.page.evaluate("currentCardIndex"), 1)
+                self.page.clock.run_for(1000)
+                self.assertEqual(self.page.evaluate("currentCardIndex"), 1)
+
+    def test_reloading_during_written_advance_does_not_reuse_previous_answer(self):
+        self.seed()
+        self.page.evaluate("switchMode('write')")
+        self.page.evaluate("""() => {
+            document.getElementById('write-user-input').value = currentCorrectChoice;
+            handleWriteSubmit();
+        }""")
+        self.page.reload()
+        self.page.wait_for_function("window.appReady && currentCardIndex === 1")
+        expect(self.page.locator("#write-user-input")).to_have_value("")
+
+    def test_reselecting_active_mode_does_not_cancel_answer_transition(self):
+        self.seed()
+        self.page.evaluate("switchMode('choice')")
+        self.page.evaluate("handleChoice(currentRoundOptions.indexOf(currentCorrectChoice)); switchMode('choice')")
+        self.page.wait_for_function("currentCardIndex === 1", timeout=2000)
+        self.assertEqual(self.page.evaluate("cardsState[0].mastery"), 1)
+
+    def test_manual_feedback_continue_cancels_pending_auto_advance(self):
+        self.seed()
+        self.page.clock.install()
+        self.page.evaluate("handleChoice(currentRoundOptions.findIndex(value => value !== currentCorrectChoice))")
+        self.page.clock.fast_forward(1200)
+        self.page.locator("#btn-next-wrong").click()
+        self.assertEqual(self.page.evaluate("currentCardIndex"), 1)
+        self.page.clock.fast_forward(4000)
+        self.assertEqual(self.page.evaluate("currentCardIndex"), 1)
+
+    def test_mobile_tap_and_repeated_submission_advance_only_once(self):
+        context = self.browser.new_context(is_mobile=True, has_touch=True, viewport={"width":390,"height":844})
+        try:
+            context.route("https://**/*", lambda route: route.abort())
+            page = context.new_page()
+            page.on("pageerror", lambda error: self.errors.append(str(error)))
+            page.add_init_script("localStorage.setItem('qp_settings',JSON.stringify({autoSound:false}));")
+            page.goto(self.url)
+            page.wait_for_function("window.appReady")
+            page.evaluate("async fixture => { await saveCustomSet(fixture); await loadSetsList(fixture.id); }", FIXTURE)
+            index = page.evaluate("currentRoundOptions.indexOf(currentCorrectChoice)")
+            page.locator(".option-btn").nth(index).tap()
+            page.evaluate("handleChoice(currentRoundOptions.indexOf(currentCorrectChoice))")
+            page.wait_for_function("currentCardIndex === 1", timeout=2000)
+            self.assertEqual(page.evaluate("cardsState.map(card => card.mastery)"), [1, 0, 0, 0, 0])
+            page.locator("#mob-nav-study").tap()
+            self.assertEqual(page.evaluate("currentCardIndex"), 1)
+        finally:
+            context.close()
+
     def test_wrong_answers_auto_advance_after_feedback(self):
         self.seed()
         self.page.evaluate("handleChoice(currentRoundOptions.findIndex(x=>x!==currentCorrectChoice))")

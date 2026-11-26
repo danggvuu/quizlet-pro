@@ -350,6 +350,10 @@ class handler(http.server.SimpleHTTPRequestHandler):
         self.do_GET()
 
     def end_headers(self):
+        path = urllib.parse.urlparse(self.path).path
+        if path in ("/", "/index.html", "/sw.js") or path.startswith(("/js/", "/data/")):
+            self.send_header("Cache-Control", "no-store, max-age=0" if path == "/sw.js"
+                             else "no-cache, max-age=0, must-revalidate")
         self.send_header("X-Content-Type-Options", "nosniff")
         super().end_headers()
 
