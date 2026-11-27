@@ -3829,6 +3829,13 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
             <line x1="12" y1="2" x2="12" y2="15" />
           </svg>
         </button>
+        <button id="btn-share-set" class="btn-icon" style="display:none;" onclick="openShareSetModal()"
+          title="Chia sẻ học phần" aria-label="Chia sẻ học phần">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4"/>
+          </svg>
+        </button>
         <button id="btn-del-set" class="btn-icon btn-icon-danger" style="display:none;" onclick="deleteCurrentSet()"
           title="Xóa vĩnh viễn học phần">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -4302,7 +4309,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       <img id="lightbox-img" class="lightbox-img" src="" alt="Ảnh phóng to" />
     </div>
 
-      <script src="js/study-utils.js?v=11"></script>
+      <script src="js/study-utils.js?v=15"></script>
       <script src="js/database.js?v=11"></script>
       <script src="js/session.js?v=13"></script>
     <script>
@@ -5205,8 +5212,9 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
         const btnExport = document.getElementById("btn-export-set");
         const btnEdit = document.getElementById("btn-edit-set");
         const btnReset = document.getElementById("btn-reset-prog");
+        const btnShare = document.getElementById("btn-share-set");
 
-        [btnDel, btnExport, btnEdit, btnReset].forEach(button => {
+        [btnDel, btnExport, btnEdit, btnReset, btnShare].forEach(button => {
           if (!button) return;
           button.style.display = "inline-flex";
           button.disabled = setLoading || !currentSet;
@@ -6623,12 +6631,14 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
           try { await migrateLocalStorageToIndexedDB(); }
           catch (error) { showToast('Không chuyển được toàn bộ dữ liệu cũ; bản dự phòng được giữ lại.'); }
           const importing = location.hash.startsWith('#data=');
-          if (importing) await checkUrlHashImport();
-          if (!importing || !currentSet) {
+          const sharing = location.hash.startsWith('#share=');
+          if (sharing) await openSharedSetFromUrl();
+          else if (importing) await checkUrlHashImport();
+          if (!sharing && (!importing || !currentSet)) {
             const resume = SessionState.read();
             await loadSetsList(resume?.setId || null, { resume });
           }
-          if (window.restoreEditorDraft) restoreEditorDraft();
+          if (!sharing && window.restoreEditorDraft) restoreEditorDraft();
           window.appReady = true;
           if (window.syncCloudSets) syncCloudSets();
         } catch (error) {
@@ -7048,6 +7058,7 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
             </div>
           </div>
           <div class="set-card-footer">
+            ${s.isCustom ? '<button class="btn-card-quick" onclick="event.stopPropagation(); openShareSetModal(this.closest(\'[data-set-id]\').dataset.setId)">Chia sẻ</button>' : ''}
             <button class="btn-card-quick" onclick="event.stopPropagation(); launchSetMode(this.closest('[data-set-id]').dataset.setId, 'flashcards')">Thẻ nhớ</button>
             <button class="btn-card-quick" onclick="event.stopPropagation(); launchSetMode(this.closest('[data-set-id]').dataset.setId, 'test')">Kiểm tra</button>
             <button class="btn-card-quick" onclick="event.stopPropagation(); launchSetMode(this.closest('[data-set-id]').dataset.setId, 'match')">Ghép thẻ</button>
@@ -7736,8 +7747,37 @@ Từ 2	Định nghĩa 2" oninput="updateImportPreview()"></textarea>
       </div>
     </div>
   </div>
+  <div id="share-set-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-content" style="max-width:560px;">
+      <div class="modal-header">
+        <span>Chia sẻ học phần</span>
+        <button class="modal-close" onclick="document.getElementById('share-set-modal').style.display='none'" aria-label="Đóng">✕</button>
+      </div>
+      <h3 id="share-set-name" style="overflow-wrap:anywhere"></h3>
+      <p class="table-import-help">Ai có liên kết đều có thể mở và học bộ thẻ này. Tiến độ học của mỗi người được lưu riêng.</p>
+      <label for="share-set-link">Liên kết học phần</label>
+      <input id="share-set-link" class="q-input" type="url" readonly onclick="this.select()" style="margin:8px 0;">
+      <p id="share-set-status" class="table-import-help" role="status" aria-live="polite"></p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button id="share-set-copy" class="btn-primary" onclick="copySharedSetLink()" disabled>Sao chép liên kết</button>
+        <button id="share-set-native" class="btn-cancel" onclick="shareSetWithDevice()" hidden disabled>Chia sẻ qua ứng dụng</button>
+      </div>
+      <p class="table-import-help">Liên kết chứa bản nội dung tại thời điểm chia sẻ. Sau khi sửa thẻ, hãy tạo liên kết mới để gửi bản cập nhật.</p>
+    </div>
+  </div>
+  <div id="shared-link-error-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-content" style="max-width:480px;">
+      <div class="modal-header">
+        <span>Không mở được liên kết chia sẻ</span>
+        <button class="modal-close" onclick="document.getElementById('shared-link-error-modal').style.display='none'" aria-label="Đóng">✕</button>
+      </div>
+      <p id="shared-link-error-message" role="alert"></p>
+      <button class="btn-primary" onclick="openSharedSetFromUrl()">Thử lại</button>
+      <button class="btn-cancel" onclick="document.getElementById('shared-link-error-modal').style.display='none'; history.replaceState(null, '', location.pathname + location.search); showDashboard(); loadSetsList()">Về thư viện</button>
+    </div>
+  </div>
   <script src="js/navigation.js?v=11"></script>
-  <script src="js/editor.js?v=11"></script>
+  <script src="js/editor.js?v=15"></script>
   <script src="js/bookmarklet.js?v=11"></script>
   <script src="js/table-import.js?v=12"></script>
 </body>

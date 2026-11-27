@@ -46,6 +46,10 @@ khi truy cập qua địa chỉ không phải localhost.
   máy khác. Nhập lại JSON cùng ID sẽ khôi phục hiển thị.
 - **Xuất:** tải file JSON nội dung bộ thẻ; clipboard chỉ báo thành công sau khi
   sao chép thực sự thành công. File nội dung không chứa tiến độ cá nhân.
+- **Chia sẻ:** mở học phần đã tạo → **Chia sẻ** → **Sao chép liên kết**. Người
+  nhận mở và học ngay, không cần cùng tài khoản. Liên kết chứa bản nội dung tại
+  thời điểm tạo, không chứa tài khoản hay tiến độ học; sửa thẻ rồi chia sẻ lại
+  để gửi bản mới. Nội dung được nén trong liên kết, tối đa 64.000 ký tự.
 - **Offline:** sau lần tải online và cài service worker thành công, có thể tải
   lại ứng dụng và các bộ mẫu khi mất mạng. Ảnh ngoài trang và giọng đọc online
   vẫn phụ thuộc mạng; phát âm có fallback giọng của trình duyệt.

@@ -179,3 +179,98 @@ fileInput.addEventListener('change', async () => {
 });
 fileLabel.append(fileInput);
 document.getElementById('import-pane-paste').prepend(fileLabel);
+
+let shareDialogGeneration = 0;
+async function openShareSetModal(setId = currentSet?.id) {
+    if (!setId) return;
+    const generation = ++shareDialogGeneration;
+    const modal = document.getElementById('share-set-modal');
+    const link = document.getElementById('share-set-link');
+    const status = document.getElementById('share-set-status');
+    const copy = document.getElementById('share-set-copy');
+    const native = document.getElementById('share-set-native');
+    link.value = '';
+    copy.disabled = true;
+    native.disabled = true;
+    native.hidden = typeof navigator.share !== 'function';
+    document.getElementById('share-set-name').textContent = '';
+    status.textContent = 'Đang tạo liên kết chia sẻ...';
+    modal.style.display = 'flex';
+    try {
+        const set = String(currentSet?.id) === String(setId) ? currentSet
+            : await Database.getSetById(setId) || getStoredCustomSets().find(item => String(item.id) === String(setId));
+        if (!set) throw new Error('Không tìm thấy học phần cần chia sẻ. Hãy mở học phần rồi thử lại.');
+        const token = await StudyUtils.createShareToken(set);
+        if (generation !== shareDialogGeneration) return;
+        const url = new URL(location.pathname, location.origin);
+        url.hash = 'share=' + token;
+        link.value = url.href;
+        document.getElementById('share-set-name').textContent = set.title;
+        status.textContent = `Sẵn sàng chia sẻ ${set.cards.length} thẻ. Người nhận không cần đăng nhập.`;
+        copy.disabled = false;
+        native.disabled = false;
+    } catch (error) {
+        if (generation === shareDialogGeneration) status.textContent = `Chưa tạo được liên kết: ${error.message}`;
+    }
+}
+
+async function copySharedSetLink() {
+    const link = document.getElementById('share-set-link');
+    if (!link.value) return;
+    const status = document.getElementById('share-set-status');
+    try {
+        await navigator.clipboard.writeText(link.value);
+        status.textContent = 'Đã sao chép liên kết. Gửi liên kết này để người khác mở học phần.';
+    } catch {
+        link.focus();
+        link.select();
+        status.textContent = 'Trình duyệt chưa cho sao chép tự động. Liên kết đã được chọn để bạn sao chép thủ công.';
+    }
+}
+
+async function shareSetWithDevice() {
+    const url = document.getElementById('share-set-link').value;
+    if (!url || typeof navigator.share !== 'function') return;
+    try {
+        await navigator.share({ title: document.getElementById('share-set-name').textContent, url });
+        document.getElementById('share-set-status').textContent = 'Đã gửi học phần qua trình chia sẻ của thiết bị.';
+    } catch (error) {
+        if (error.name !== 'AbortError') document.getElementById('share-set-status').textContent = 'Chưa chia sẻ được. Bạn có thể dùng Sao chép liên kết.';
+    }
+}
+
+let sharedOpenGeneration = 0;
+async function openSharedSetFromUrl() {
+    if (!location.hash.startsWith('#share=')) return false;
+    const generation = ++sharedOpenGeneration;
+    document.getElementById('shared-link-error-modal').style.display = 'none';
+    try {
+        const set = await StudyUtils.readShareToken(location.hash.slice(7));
+        let existing = await Database.getSetById(set.id);
+        if (generation !== sharedOpenGeneration) return true;
+        if (existing?.cloudAccount && existing.cloudAccount !== getLocalAccountId()) {
+            set.id = 'shared_' + crypto.randomUUID();
+            existing = null;
+        }
+        // Reopening a snapshot keeps the recipient's edits and personal progress.
+        if (!existing) await saveCustomSet(set);
+        else if (getDeletedSetIds().includes(set.id)) {
+            localStorage.setItem('qp_deleted_set_ids', JSON.stringify(getDeletedSetIds().filter(id => id !== set.id)));
+        }
+        if (generation !== sharedOpenGeneration) return true;
+        await loadSetsList(set.id);
+        if (currentSet?.id !== set.id) throw new Error('Chưa mở được học phần đã chia sẻ. Hãy thử lại.');
+        history.replaceState(null, '', location.pathname + location.search);
+        showToast(`Đã mở học phần được chia sẻ: ${set.title} (${set.cards.length} thẻ).`, 5000);
+    } catch (error) {
+        if (generation !== sharedOpenGeneration) return true;
+        if (!currentSet) await loadSetsList(null, { skipCloud: true });
+        document.getElementById('shared-link-error-message').textContent = error.message;
+        document.getElementById('shared-link-error-modal').style.display = 'flex';
+    }
+    return true;
+}
+
+window.addEventListener('hashchange', () => {
+    if (location.hash.startsWith('#share=')) openSharedSetFromUrl();
+});

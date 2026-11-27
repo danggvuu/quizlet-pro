@@ -419,6 +419,119 @@ class BrowserEditorFlows(unittest.TestCase):
         self.assertFalse(self.page.evaluate("exportCurrentSet()"))
         self.assertNotIn("Đã xuất", self.page.locator("#toast-msg").inner_text())
 
+    def test_share_link_opens_all_62_cards_in_a_separate_browser_without_sender_progress(self):
+        fixture = {"id": "japanese-shared-source", "title": "日本語: 62 thẻ", "description": "Bộ thẻ đã tạo",
+                   "cards": [{"id": str(i), "term": line.split(":", 1)[0].strip(),
+                              "definition": line.split(":", 1)[1].strip(), "image": ""}
+                             for i, line in enumerate(JAPANESE_COLON_TEXT.splitlines())]}
+        fixture["cards"][0]["image"] = "https://example.org/intro.png"
+        self.page.evaluate("async s => { await saveCustomSet(s); await loadSetsList(s.id); }", fixture)
+        self.page.evaluate("""async () => {
+            cardsState[0].mastery = 2;
+            cardsState[0].starred = true;
+            await saveProgressToStorage();
+            cardsState = cardsState.slice(0, 1);
+            currentSet.ownerEmail = 'sender-private@example.test';
+        }""")
+        self.page.locator("#btn-share-set").click()
+        expect(self.page.locator("#share-set-copy")).to_be_enabled()
+        link = self.page.locator("#share-set-link").input_value()
+        self.assertIn("#share=1g.", link)
+        self.assertLess(len(link), 64000)
+        recipient = self.browser.new_context(service_workers="block")
+        try:
+            recipient.route("https://**/*", lambda route: route.abort())
+            recipient.route("**/api/sets", lambda route: route.fulfill(json=[]))
+            receiver = recipient.new_page()
+            receiver.on("pageerror", lambda error: self.errors.append(str(error)))
+            receiver.goto(link)
+            receiver.wait_for_function("window.appReady && currentSet?.cards.length === 62")
+            self.assertEqual(receiver.evaluate("currentSet.title"), fixture["title"])
+            self.assertEqual(receiver.evaluate("currentSet.cards.map(({term, definition, image}) => ({term, definition, image}))"),
+                             [{key: card[key] for key in ("term", "definition", "image")} for card in fixture["cards"]])
+            self.assertTrue(receiver.evaluate("cardsState.every(card => card.mastery === 0 && !card.starred)"))
+            self.assertIsNone(receiver.evaluate("currentSet.ownerEmail || null"))
+            self.assertNotEqual(receiver.evaluate("currentSet.id"), fixture["id"])
+            self.assertEqual(self.page.evaluate("cardsState[0].mastery"), 2)
+            self.assertEqual(receiver.evaluate("location.hash"), "")
+            shared_id = receiver.evaluate("currentSet.id")
+            receiver.evaluate("""async () => {
+                cardsState[0].mastery = 2;
+                await saveProgressToStorage();
+                await Database.updateSet(currentSet.id, set => ({...set, title: 'My edited copy'}));
+            }""")
+            receiver.goto(link)
+            receiver.wait_for_function("currentSet?.title === 'My edited copy'")
+            self.assertEqual(receiver.evaluate("currentSet.id"), shared_id)
+            self.assertEqual(receiver.evaluate("cardsState[0].mastery"), 2)
+            receiver.evaluate("markSetAsDeleted(currentSet.id)")
+            receiver.goto(link)
+            receiver.wait_for_function("currentSet?.title === 'My edited copy' && location.hash === ''")
+            self.assertEqual(receiver.evaluate("cardsState[0].mastery"), 2)
+        finally:
+            recipient.close()
+
+    def test_dashboard_share_copy_and_mobile_native_share(self):
+        self.seed()
+        self.page.set_viewport_size({"width": 390, "height": 844})
+        self.page.evaluate("""() => {
+            Object.defineProperty(navigator, 'clipboard', {configurable: true,
+                value: {writeText: async value => {window.copiedShareLink = value;}}});
+            Object.defineProperty(navigator, 'share', {configurable: true,
+                value: async data => {window.nativeShare = data;}});
+            showDashboard();
+        }""")
+        self.page.locator('.set-card-modern[data-set-id="editor_fixture"]').get_by_role("button", name="Chia sẻ", exact=True).click()
+        expect(self.page.locator("#share-set-copy")).to_be_enabled()
+        modal = self.page.locator("#share-set-modal .modal-content")
+        self.assertLessEqual(modal.evaluate("el => el.scrollWidth"), modal.evaluate("el => el.clientWidth"))
+        self.page.locator("#share-set-copy").click()
+        link = self.page.locator("#share-set-link").input_value()
+        self.assertEqual(self.page.evaluate("window.copiedShareLink"), link)
+        expect(self.page.locator("#share-set-status")).to_contain_text("Đã sao chép")
+        self.page.locator("#share-set-native").click()
+        self.assertEqual(self.page.evaluate("window.nativeShare.url"), link)
+        self.assertEqual(self.page.evaluate("window.nativeShare.title"), FIXTURE["title"])
+        self.page.evaluate("navigator.clipboard.writeText = async () => { throw new Error('blocked'); }; undefined")
+        self.page.locator("#share-set-copy").click()
+        expect(self.page.locator("#share-set-status")).to_contain_text("chưa cho sao chép tự động")
+
+    def test_shared_link_does_not_overwrite_other_sets_or_restore_an_unrelated_draft(self):
+        self.seed()
+        self.create()
+        self.page.locator("#create-title").fill("Keep my draft")
+        token = self.page.evaluate("StudyUtils.createShareToken({title:'Received course', cards:[{term:'名前',definition:'なまえ'}]})")
+        self.page.goto(self.url + "/#share=" + token)
+        self.page.wait_for_function("window.appReady && currentSet?.title === 'Received course'")
+        expect(self.page.locator("#create-set-view")).to_be_hidden()
+        self.assertEqual(self.page.evaluate("(async () => (await Database.getSetById('editor_fixture')).title)()"), FIXTURE["title"])
+        self.assertEqual(self.page.evaluate("getEditorDrafts().new.title"), "Keep my draft")
+
+    def test_broken_share_link_reports_failure_without_importing_content(self):
+        self.seed()
+        self.page.goto(self.url + "/#share=1g.invalid")
+        self.page.wait_for_function("window.appReady")
+        expect(self.page.locator("#shared-link-error-modal")).to_be_visible()
+        expect(self.page.locator("#shared-link-error-message")).not_to_be_empty()
+        self.assertEqual(self.page.evaluate("(async () => (await Database.getSetById('editor_fixture')).title)()"), FIXTURE["title"])
+
+    def test_another_account_can_open_shared_content_without_overwriting_a_private_copy(self):
+        self.seed()
+        token = self.page.evaluate("StudyUtils.createShareToken({title:'Public course', cards:[{term:'名前',definition:'なまえ'}]})")
+        protected_id = self.page.evaluate("""async token => {
+            const received = await StudyUtils.readShareToken(token);
+            await Database.saveSet({...received, title:'Protected private copy', cloudAccount:'someone-else'});
+            window.CloudDB = {accountId:'recipient', accountReady:true, getAllSets:async()=>[],
+                saveSet:async set => set.localRevision};
+            return received.id;
+        }""", token)
+        self.page.goto(self.url + "/#share=" + token)
+        self.page.wait_for_function("currentSet?.title === 'Public course' && currentSet.cloudAccount === 'recipient'")
+        self.assertNotEqual(self.page.evaluate("currentSet.id"), protected_id)
+        protected = self.page.evaluate("Database.getSetById", protected_id)
+        self.assertEqual(protected["title"], "Protected private copy")
+        self.assertEqual(protected["cloudAccount"], "someone-else")
+
 
 if __name__ == "__main__":
     unittest.main()
